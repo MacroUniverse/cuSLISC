@@ -5,24 +5,13 @@
 using std::cout; using std::endl; using std::string;
 using std::ifstream; using std::to_string;
 
-void test_class()
+void test_vector()
 {
 	// default initialize
 	{
 		GvecDoub gvDoub;
 		if (gvDoub.size() != 0) error("failed!");
 		if (gvDoub.ptr() != nullptr) error("failed!");
-		// GmatDoub aDoub;
-		// if (aDoub.size() != 0) error("failed!")
-		// if (aDoub.nrows() != 0) error("failed!")
-		// if (aDoub.ncols() != 0) error("failed!")
-		// if (aDoub.ptr() != nullptr) error("failed!")
-		// Gmat3Doub a3Doub;
-		// if (a3Doub.size() != 0) error("failed!")
-		// if (a3Doub.dim1() != 0) error("failed!")
-		// if (a3Doub.dim2() != 0) error("failed!")
-		// if (a3Doub.dim3() != 0) error("failed!")
-		// if (a3Doub.ptr() != nullptr) error("failed!")
 	}
 
 	// size initialize
@@ -30,17 +19,6 @@ void test_class()
 		GvecDoub gvDoub(3);
 		if (gvDoub.size() != 3) error("failed!");
 		if (gvDoub.ptr() == nullptr) error("failed!");
-		// GmatDoub aDoub(3, 3);
-		// if (aDoub.size() != 9) error("failed!")
-		// if (aDoub.nrows() != 3) error("failed!")
-		// if (aDoub.ncols() != 3) error("failed!")
-		// if (aDoub.ptr() != &aDoub[0][0]) error("failed!")
-		// Gmat3Doub a3Doub(3, 3, 3);
-		// if (a3Doub.size() != 27) error("failed!")
-		// if (a3Doub.dim1() != 3) error("failed!")
-		// if (a3Doub.dim2() != 3) error("failed!")
-		// if (a3Doub.dim3() != 3) error("failed!")
-		// if (a3Doub.ptr() != &a3Doub[0][0][0]) error("failed!")
 	}
 
 	// memory copy
@@ -195,14 +173,68 @@ void test_class()
 		if (abs(vDoub[2] - 4.4) > 2e-15) error("failed!");
 		if (abs(vDoub[3] - 2.) > 2e-15) error("failed!");
 	}
+
+	// resize()
+	{
+		VecDoub vDoub(4);
+		GvecDoub gvDoub;
+		if (gvDoub.size() != 0) error("failed!");
+		gvDoub.resize(2);
+		if (gvDoub.size() != 2) error("failed!");
+		gvDoub[1] = 1.3;
+		if (gvDoub(1) != 1.3) error("failed!");
+		gvDoub.resize(vDoub);
+		if (gvDoub.size() != 4) error("failed!");
+		gvDoub[3] = 2.4;
+		if (gvDoub(3) != 2.4) error("failed!");
+		GvecDoub gvDoub1(10);
+		gvDoub.resize(gvDoub1);
+		if (gvDoub.size() != 10) error("failed!");
+		gvDoub(9) = 5.5;
+		if (gvDoub[9] != 5.5) error("failed!");
+	}
+}
+
+void test_matrix()
+{
+	// default initialize
+	{
+		GmatDoub gaDoub;
+		if (gaDoub.size() != 0) error("failed!");
+		if (gaDoub.ptr() != nullptr) error("failed!");
+	}
+
+	// size initialize
+	{
+		GmatDoub gaDoub(2,3);
+		if (gaDoub.size() != 6) error("failed!");
+		if (gaDoub.nrows() != 2) error("failed!");
+		if (gaDoub.ncols() != 3) error("failed!");
+		if (gaDoub.ptr() == nullptr) error("failed!");
+	}
+
+	// memory copy
+	// {
+	// 	MatDoub aDoub(2,2), aDoub1;
+	// 	linspace(aDoub, 0., 3., 4);
+	// 	GmatDoub gaDoub(2,2);
+	// 	gaDoub = aDoub;
+	// 	if (gaDoub.size() != 4) error("failed!");
+	// 	if (gaDoub.rows() != 2) error("failed!");
+	// 	if (gaDoub.cols() != 2) error("failed!");
+	// 	gaDoub.get(aDoub1);
+	// 	if (aDoub1 != aDoub) error("failed!");
+	// }
 }
 
 int main()
 {
 	// systematic tests
 	cuInit();
-	cout << "test_class()" << endl;
-	test_class();
+	cout << "test_vector()" << endl;
+	test_vector();
+	cout << "test_matrix()" << endl;
+	test_matrix();
 	cout << "done testing!" << endl;
 	// cuInit();
 	// CUvector<Doub> a(4);

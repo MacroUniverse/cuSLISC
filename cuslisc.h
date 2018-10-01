@@ -187,7 +187,7 @@ inline CUref<T> CUbase<T>::operator()(Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("CUvector subscript out of bounds")
+	error("CUbase subscript out of bounds")
 #endif
 	return CUref<T>(p+i);
 }
@@ -197,7 +197,7 @@ inline const CUref<T> CUbase<T>::operator()(Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("CUvector subscript out of bounds");
+	error("CUbase subscript out of bounds");
 #endif
 	return CUref<T>(p+i);
 }
@@ -253,10 +253,14 @@ public:
 	inline void get(NRvector<T> &v) const; // copy to cpu vector
 	CUvector(const CUvector &rhs);	// Copy constructor forbidden
 	inline CUvector & operator=(const CUvector &rhs);	// copy assignment
-	inline CUvector & operator=(const NRvector<T> &v); // copy from cpu vector
+	inline CUvector & operator=(const NRvector<T> &v); // NR assignment
 	inline CUref<T> operator[](Long_I i); //i'th element
 	inline const CUref<T> operator[](Long_I i) const;
-	//inline void resize(Long_I newn); // resize (contents not preserved)
+	inline void resize(Long_I newn); // resize (contents not preserved)
+	template <class T1>
+	inline void resize(const CUvector<T1> &v);
+	template <class T1>
+	inline void resize(const NRvector<T1> &v);
 };
 
 template <class T>
@@ -324,6 +328,18 @@ inline void CUvector<T>::get(NRvector<T> &v) const
 	cudaMemcpy(v.ptr(), p, N*sizeof(T), cudaMemcpyDeviceToHost);
 }
 
+template <class T>
+inline void CUvector<T>::resize(Long_I n)
+{ Base::resize(n); }
+
+template<class T> template<class T1>
+inline void CUvector<T>::resize(const CUvector<T1>& v)
+{ resize(v.size()); }
+
+template<class T> template<class T1>
+inline void CUvector<T>::resize(const NRvector<T1>& v)
+{ resize(v.size()); }
+
 // Matrix Class
 
 template <class T>
@@ -332,25 +348,92 @@ class CUmatrix : public CUbase<T>
 	typedef CUbase<T> Base;
 	using Base::p;
 	using Base::N;
+	using Base::operator=;
 private:
 	Long nn, mm;
-	T **v;
-	inline T ** v_alloc();
+	CUptr<T> *v;
+	inline CUptr<T>* v_alloc();
 public:
 	CUmatrix();
 	CUmatrix(Long_I n, Long_I m);
 	CUmatrix(Long_I n, Long_I m, const T &a);	//Initialize to constant
 	CUmatrix(const CUmatrix &rhs);		// Copy constructor forbidden
+	inline Long nrows() const;
+	inline Long ncols() const;
 	inline CUmatrix & operator=(const CUmatrix &rhs); //copy assignment
 	inline CUmatrix & operator=(const NRmatrix<T> &rhs); //NR assignment
 	inline CUmatrix & operator=(const T &rhs); // scalar assignment
 	inline CUptr<T> operator[](Long_I i);	//subscripting: pointer to row i
 	inline const T* operator[](Long_I i) const;
-	inline Long nrows() const;
-	inline Long ncols() const;
 	inline void resize(Long_I newn, Long_I newm); // resize (contents not preserved)
 	~CUmatrix();
 };
+
+template <class T>
+inline CUptr<T>* CUmatrix<T>::v_alloc()
+{
+	if (N == 0) return nullptr;
+	CUptr<T> *v = new CUptr<T>[nn];
+	v[0] = p;
+	for (Long i = 1; i<nn; i++)
+		v[i] = v[i-1] + mm;
+	return v;
+}
+
+template <class T>
+CUmatrix<T>::CUmatrix() : nn(0), mm(0), v(nullptr) {}
+
+template <class T>
+CUmatrix<T>::CUmatrix(Long_I n, Long_I m) : Base(n*m), nn(n), mm(m), v(v_alloc()) {}
+
+template <class T>
+CUmatrix<T>::CUmatrix(Long_I n, Long_I m, const T &s) : CUmatrix(n, m)
+{ cumemset<<<nbl0(N), Nth0>>>(p, s, N); }
+
+template <class T>
+CUmatrix<T>::CUmatrix(const CUmatrix<T> &rhs)
+{
+	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!")
+}
+
+template <class T>
+inline Long CUmatrix<T>::nrows() const
+{ return nn; }
+
+template <class T>
+inline Long CUmatrix<T>::ncols() const
+{ return mm; }
+
+template <class T>
+inline CUmatrix<T> & CUmatrix<T>::operator=(const CUmatrix &rhs)
+{
+	if (this == &rhs) error("self assignment is forbidden!");
+	if (rhs.rows() != nn || rhs.cols() != mm) error("size mismatch!");
+	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyDeviceToDevice);
+	return *this;
+}
+
+template <class T>
+inline CUmatrix<T> & CUmatrix<T>::operator=(const NRmatrix<T> &rhs)
+{
+	if (rhs.rows() != nn || rhs.cols() != mm) error("size mismatch!");
+	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyHostToDevice);
+	return *this;
+}
+
+template <class T>
+inline CUptr<T> CUmatrix<T>::operator[](Long_I i)
+{
+#ifdef _CHECKBOUNDS_
+	if (i<0 || i>=nn)
+		error("CUmatrix subscript out of bounds!");
+#endif
+	return v[i];
+}
+
+template <class T>
+CUmatrix<T>::~CUmatrix()
+{ if(v) delete v; }
 
 // Matric and vector types
 
