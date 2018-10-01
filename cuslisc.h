@@ -40,6 +40,7 @@ void cumemcpy(T *dest, const T *src, Long_I n)
 }
 
 // reference type to CUbase element
+// "const CUref" is low level const
 template <class T>
 class CUref
 {
@@ -105,7 +106,7 @@ inline CUref<T>& CUref<T>::operator/=(const T& rhs)
 
 // pointer type to CUbase element
 // note : const CUptr is top level const
-// TODO : implement ConstCUptr
+// TODO : create a class for low level const
 template <class T>
 class CUptr
 {
@@ -357,17 +358,18 @@ public:
 	using Base::operator=;
 	CUmatrix();
 	CUmatrix(Long_I n, Long_I m);
-	CUmatrix(Long_I n, Long_I m, const T &a);	//Initialize to constant
+	CUmatrix(Long_I n, Long_I m, const T &a); //Initialize to constant
 	CUmatrix(NRmatrix<T> &v); // initialize from cpu matrix
 	CUmatrix(const CUmatrix &rhs);		// Copy constructor forbidden
-	// TODO: implement operator=(CU*<T>) in NR to replace get()
-	inline void get(NRmatrix<T> &v) const; // copy to cpu vector
 	inline Long nrows() const;
 	inline Long ncols() const;
+	// TODO: implement operator=(CU*<T>) in NR to replace get()
+	inline void get(NRmatrix<T> &v) const; // copy to cpu vector
 	inline CUmatrix & operator=(const CUmatrix &rhs); //copy assignment
 	inline CUmatrix & operator=(const NRmatrix<T> &rhs); //NR assignment
-	inline CUptr<T> operator[](Long_I i);	//subscripting: pointer to row i
-	inline const T* operator[](Long_I i) const;
+	inline CUptr<T> operator[](Long_I i);  //subscripting: pointer to row i
+	// TODO: should return low level const
+	inline CUptr<T> operator[](Long_I i) const;
 	inline void resize(Long_I newn, Long_I newm); // resize (contents not preserved)
 	template <class T1>
 	inline void resize(const CUmatrix<T1> &v);
@@ -408,19 +410,19 @@ CUmatrix<T>::CUmatrix(const CUmatrix<T> &rhs)
 }
 
 template <class T>
-inline void CUmatrix<T>::get(NRmatrix<T> &a) const
-{
-	a.resize(nn, mm);
-	cudaMemcpy(a.ptr(), p, N*sizeof(T), cudaMemcpyDeviceToHost);
-}
-
-template <class T>
 inline Long CUmatrix<T>::nrows() const
 { return nn; }
 
 template <class T>
 inline Long CUmatrix<T>::ncols() const
 { return mm; }
+
+template <class T>
+inline void CUmatrix<T>::get(NRmatrix<T> &a) const
+{
+	a.resize(nn, mm);
+	cudaMemcpy(a.ptr(), p, N*sizeof(T), cudaMemcpyDeviceToHost);
+}
 
 template <class T>
 inline CUmatrix<T> & CUmatrix<T>::operator=(const CUmatrix &rhs)
@@ -441,6 +443,16 @@ inline CUmatrix<T> & CUmatrix<T>::operator=(const NRmatrix<T> &rhs)
 
 template <class T>
 inline CUptr<T> CUmatrix<T>::operator[](Long_I i)
+{
+#ifdef _CHECKBOUNDS_
+	if (i<0 || i>=nn)
+		error("CUmatrix subscript out of bounds!");
+#endif
+	return v[i];
+}
+
+template <class T>
+inline CUptr<T> CUmatrix<T>::operator[](Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i>=nn)
@@ -471,6 +483,172 @@ inline void CUmatrix<T>::resize(const NRmatrix<T1>& v)
 template <class T>
 CUmatrix<T>::~CUmatrix()
 { if(v) delete v; }
+
+
+// 3D Matrix Class
+
+template <class T>
+class CUmat3d : public CUbase<T>
+{
+private:
+	Long nn;
+	Long mm;
+	Long kk;
+	CUptr<T> **v;
+	inline CUptr<T>** v_alloc();
+	inline void v_free();
+public:
+	typedef CUbase<T> Base;
+	using Base::p;
+	using Base::N;
+	using Base::operator=;
+	CUmat3d();
+	CUmat3d(Long_I n, Long_I m, Long_I k);
+	CUmat3d(Long_I n, Long_I m, Long_I k, const T &a); //Initialize to constant
+	CUmat3d(NRmat3d<T> &v); // initialize from cpu matrix
+	CUmat3d(const CUmat3d &rhs);   // Copy constructor forbidden
+	inline Long dim1() const;
+	inline Long dim2() const;
+	inline Long dim3() const;
+	// TODO: implement operator=(CU*<T>) in NR to replace get()
+	inline void get(NRmat3d<T> &v) const; // copy to cpu matrix
+	inline CUmat3d & operator=(const CUmat3d &rhs);	//copy assignment
+	inline CUmat3d & operator=(const NRmat3d<T> &rhs); //NR assignment
+	inline CUptr<T>* operator[](Long_I i);	//subscripting: pointer to row i
+	// TODO: should return pointer to low level const
+	inline CUptr<T>* operator[](Long_I i) const;
+	inline void resize(Long_I n, Long_I m, Long_I k);
+	template <class T1>
+	inline void resize(const CUmat3d<T1> &v);
+	template <class T1>
+	inline void resize(const NRmat3d<T1> &v);
+	~CUmat3d();
+};
+
+template <class T>
+inline CUptr<T>** CUmat3d<T>::v_alloc()
+{
+	if (N == 0) return nullptr;
+	Long i;
+	Long nnmm = nn*mm;
+	CUptr<T> *v0 = new CUptr<T>[nnmm]; v0[0] = p;
+	for (i = 1; i < nnmm; ++i)
+		v0[i] = v0[i - 1] + kk;
+	CUptr<T> **v = new CUptr<T>*[nn]; v[0] = v0;
+	for(i = 1; i < nn; ++i)
+		v[i] = v[i-1] + mm;
+	return v;
+}
+
+template <class T>
+inline void CUmat3d<T>::v_free()
+{
+	if (v != nullptr) {
+		delete v[0]; delete v;
+	}
+}
+
+template <class T>
+CUmat3d<T>::CUmat3d() : nn(0), mm(0), kk(0), v(nullptr) {}
+
+template <class T>
+CUmat3d<T>::CUmat3d(Long_I n, Long_I m, Long_I k) :
+Base(n*m*k), nn(n), mm(m), kk(k), v(v_alloc()) {}
+
+template <class T>
+CUmat3d<T>::CUmat3d(Long_I n, Long_I m, Long_I k, const T &s) : CUmat3d(n, m, k)
+{ cumemset<<<nbl0(N), Nth0>>>(p, s, N); }
+
+template <class T>
+CUmat3d<T>::CUmat3d(NRmat3d<T> &v) : CUmat3d(v.dim1(), v.dim2(), v.dim3())
+{ cudaMemcpy(p, v.ptr(), N*sizeof(T), cudaMemcpyHostToDevice); }
+
+template <class T>
+CUmat3d<T>::CUmat3d(const CUmat3d<T> &rhs)
+{
+	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!")
+}
+
+template <class T>
+inline Long CUmat3d<T>::dim1() const
+{ return nn; }
+
+template <class T>
+inline Long CUmat3d<T>::dim2() const
+{ return mm; }
+
+template <class T>
+inline Long CUmat3d<T>::dim3() const
+{ return kk; }
+
+template <class T>
+inline void CUmat3d<T>::get(NRmat3d<T> &a) const
+{
+	a.resize(nn, mm, kk);
+	cudaMemcpy(a.ptr(), p, N*sizeof(T), cudaMemcpyDeviceToHost);
+}
+
+template <class T>
+inline CUmat3d<T> & CUmat3d<T>::operator=(const CUmat3d &rhs)
+{
+	if (this == &rhs) error("self assignment is forbidden!");
+	if (rhs.dim1() != nn || rhs.dim2() != mm || rhs.dim3() != kk)
+		error("size mismatch!");
+	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyDeviceToDevice);
+	return *this;
+}
+
+template <class T>
+inline CUmat3d<T> & CUmat3d<T>::operator=(const NRmat3d<T> &rhs)
+{
+	if (rhs.dim1() != nn || rhs.dim2() != mm || rhs.dim3() != kk)
+		error("size mismatch!");
+	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyHostToDevice);
+	return *this;
+}
+
+template <class T>
+inline CUptr<T>* CUmat3d<T>::operator[](Long_I i)
+{
+#ifdef _CHECKBOUNDS_
+	if (i<0 || i>=nn)
+		error("CUmatrix subscript out of bounds!");
+#endif
+	return v[i];
+}
+
+template <class T>
+inline CUptr<T>* CUmat3d<T>::operator[](Long_I i) const
+{
+#ifdef _CHECKBOUNDS_
+	if (i<0 || i>=nn)
+		error("CUmatrix subscript out of bounds!");
+#endif
+	return v[i];
+}
+
+template <class T>
+inline void CUmat3d<T>::resize(Long_I n, Long_I m, Long_I k)
+{
+	if (n != nn || m != mm || k != kk) {
+		Base::resize(n*m*k);
+		nn = n; mm = m; kk = k;
+		if (v) delete v;
+		v = v_alloc();
+	}
+}
+
+template<class T> template<class T1>
+inline void CUmat3d<T>::resize(const CUmat3d<T1>& v)
+{ resize(v.dim1(), v.dim2(), v.dim3()); }
+
+template<class T> template<class T1>
+inline void CUmat3d<T>::resize(const NRmat3d<T1>& v)
+{ resize(v.dim1(), v.dim2(), v.dim3()); }
+
+template <class T>
+CUmat3d<T>::~CUmat3d()
+{ v_free(); }
 
 // Matric and vector types
 
@@ -537,8 +715,8 @@ typedef CUmatrix<Comp> GmatComp, GmatComp_O, GmatComp_IO;
 typedef const CUmatrix<Bool> GmatBool_I;
 typedef CUmatrix<Bool> GmatBool, GmatBool_O, GmatBool_IO;
 
-// typedef const CUmat3d<Doub> Gmat3Doub_I;
-// typedef CUmat3d<Doub> Gmat3Doub, Gmat3Doub_O, Gmat3Doub_IO;
+typedef const CUmat3d<Doub> Gmat3Doub_I;
+typedef CUmat3d<Doub> Gmat3Doub, Gmat3Doub_O, Gmat3Doub_IO;
 
-// typedef const CUmat3d<Comp> Gmat3Comp_I;
-// typedef CUmat3d<Comp> Gmat3Comp, Gmat3Comp_O, Gmat3Comp_IO;
+typedef const CUmat3d<Comp> Gmat3Comp_I;
+typedef CUmat3d<Comp> Gmat3Comp, Gmat3Comp_O, Gmat3Comp_IO;
