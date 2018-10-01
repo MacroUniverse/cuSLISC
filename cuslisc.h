@@ -250,8 +250,9 @@ public:
 	explicit CUvector(Long_I n);
 	CUvector(Long_I n, const T &a);	//initialize to constant value
 	CUvector(NRvector<T> &v); // initialize from cpu vector
-	inline void get(NRvector<T> &v) const; // copy to cpu vector
 	CUvector(const CUvector &rhs);	// Copy constructor forbidden
+	// TODO: implement operator=(CU*<T>) in NR to replace get()
+	inline void get(NRvector<T> &v) const; // copy to cpu vector
 	inline CUvector & operator=(const CUvector &rhs);	// copy assignment
 	inline CUvector & operator=(const NRvector<T> &v); // NR assignment
 	inline CUref<T> operator[](Long_I i); //i'th element
@@ -345,27 +346,33 @@ inline void CUvector<T>::resize(const NRvector<T1>& v)
 template <class T>
 class CUmatrix : public CUbase<T>
 {
-	typedef CUbase<T> Base;
-	using Base::p;
-	using Base::N;
-	using Base::operator=;
 private:
 	Long nn, mm;
 	CUptr<T> *v;
 	inline CUptr<T>* v_alloc();
 public:
+	typedef CUbase<T> Base;
+	using Base::p;
+	using Base::N;
+	using Base::operator=;
 	CUmatrix();
 	CUmatrix(Long_I n, Long_I m);
 	CUmatrix(Long_I n, Long_I m, const T &a);	//Initialize to constant
+	CUmatrix(NRmatrix<T> &v); // initialize from cpu matrix
 	CUmatrix(const CUmatrix &rhs);		// Copy constructor forbidden
+	// TODO: implement operator=(CU*<T>) in NR to replace get()
+	inline void get(NRmatrix<T> &v) const; // copy to cpu vector
 	inline Long nrows() const;
 	inline Long ncols() const;
 	inline CUmatrix & operator=(const CUmatrix &rhs); //copy assignment
 	inline CUmatrix & operator=(const NRmatrix<T> &rhs); //NR assignment
-	inline CUmatrix & operator=(const T &rhs); // scalar assignment
 	inline CUptr<T> operator[](Long_I i);	//subscripting: pointer to row i
 	inline const T* operator[](Long_I i) const;
 	inline void resize(Long_I newn, Long_I newm); // resize (contents not preserved)
+	template <class T1>
+	inline void resize(const CUmatrix<T1> &v);
+	template <class T1>
+	inline void resize(const NRmatrix<T1> &v);
 	~CUmatrix();
 };
 
@@ -391,9 +398,20 @@ CUmatrix<T>::CUmatrix(Long_I n, Long_I m, const T &s) : CUmatrix(n, m)
 { cumemset<<<nbl0(N), Nth0>>>(p, s, N); }
 
 template <class T>
+CUmatrix<T>::CUmatrix(NRmatrix<T> &v) : CUmatrix(v.nrows(), v.ncols())
+{ cudaMemcpy(p, v.ptr(), N*sizeof(T), cudaMemcpyHostToDevice); }
+
+template <class T>
 CUmatrix<T>::CUmatrix(const CUmatrix<T> &rhs)
 {
 	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!")
+}
+
+template <class T>
+inline void CUmatrix<T>::get(NRmatrix<T> &a) const
+{
+	a.resize(nn, mm);
+	cudaMemcpy(a.ptr(), p, N*sizeof(T), cudaMemcpyDeviceToHost);
 }
 
 template <class T>
@@ -408,7 +426,7 @@ template <class T>
 inline CUmatrix<T> & CUmatrix<T>::operator=(const CUmatrix &rhs)
 {
 	if (this == &rhs) error("self assignment is forbidden!");
-	if (rhs.rows() != nn || rhs.cols() != mm) error("size mismatch!");
+	if (rhs.nrows() != nn || rhs.ncols() != mm) error("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyDeviceToDevice);
 	return *this;
 }
@@ -416,7 +434,7 @@ inline CUmatrix<T> & CUmatrix<T>::operator=(const CUmatrix &rhs)
 template <class T>
 inline CUmatrix<T> & CUmatrix<T>::operator=(const NRmatrix<T> &rhs)
 {
-	if (rhs.rows() != nn || rhs.cols() != mm) error("size mismatch!");
+	if (rhs.nrows() != nn || rhs.ncols() != mm) error("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyHostToDevice);
 	return *this;
 }
@@ -430,6 +448,25 @@ inline CUptr<T> CUmatrix<T>::operator[](Long_I i)
 #endif
 	return v[i];
 }
+
+template <class T>
+inline void CUmatrix<T>::resize(Long_I newn, Long_I newm)
+{
+	if (newn != nn || newm != mm) {
+		Base::resize(newn*newm);
+		nn = newn; mm = newm;
+		if (v) delete v;
+		v = v_alloc();
+	}
+}
+
+template<class T> template<class T1>
+inline void CUmatrix<T>::resize(const CUmatrix<T1>& v)
+{ resize(v.nrows(), v.ncols()); }
+
+template<class T> template<class T1>
+inline void CUmatrix<T>::resize(const NRmatrix<T1>& v)
+{ resize(v.nrows(), v.ncols()); }
 
 template <class T>
 CUmatrix<T>::~CUmatrix()
