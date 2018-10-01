@@ -90,7 +90,7 @@ void test_class()
 
 	// assignment operator
 	{
-		// = NRvec<>
+		// = NR*<>
 			//already tested
 		
 		// = scalar
@@ -101,7 +101,55 @@ void test_class()
 		if (vDoub != 3.14) error("failed!");
 
 		// copy assignment
+		linspace(vDoub, 10., 1., 10);
+		gvDoub = vDoub;
+		GvecDoub gvDoub1(10);
+		gvDoub1 = gvDoub;
+		VecDoub vDoub1;
+		gvDoub1.get(vDoub1);
+		if (vDoub1 != vDoub) error("failed!");
 	}
+
+	// test class CUref alone
+	{
+		GvecDoub gvDoub(3); gvDoub = 0.;
+		CUref<Doub> ref(gvDoub.ptr());
+		ref = 5.6;
+		VecDoub vDoub; gvDoub.get(vDoub);
+		if (vDoub[0] != 5.6 || vDoub[1] != 0. || vDoub[2] != 0.) error("failed!");
+		if (ref != 5.6) error("failed!");
+		const CUref<Doub> ref1(gvDoub.ptr());
+		if (ref != 5.6) error("failed!");
+		ref += 1.1;
+		cout << "ref = " << ref - 6.7 << endl;
+		if (abs(ref - 6.7) > 1e-15) error("failed!");
+		// TODO: -=, *=, /=
+	}
+
+	// // .end()
+	// {
+	// 	VecDoub vDoub(3); linspace(vDoub, 1.1, 3.3);
+	// 	GvecDoub gvDoub(vDoub);
+	// 	if (gvDoub.end() != 3.3) error("failed!");
+	// 	gvDoub.end() = 4.4;
+	// 	gvDoub.get(vDoub);
+	// 	if (vDoub[0] != 1.1 || vDoub[1] != 2.2 || vDoub.end() != 4.4) error("failed!");
+	// }
+	
+	// // operator()
+	// {
+	// 	VecDoub vDoub(3); linspace(vDoub, 1.1, 3.3);
+	// 	GvecDoub gvDoub(vDoub);
+	// 	if (gvDoub(0) != 1.1 || gvDoub(1) != 2.2 || gvDoub(2) != 3.3) error("failed!");
+	// 	gvDoub.get(vDoub);
+	// 	if (vDoub[0] != 1.1 || vDoub[1] != 2.2 || vDoub.end() != 4.4) error("failed!");
+	// }
+
+
+	// // operator[]
+	// if (gvDoub[0] != 1.1)  error("failed!");
+	// if (abs(gvDoub[2] - 3.3) > 1e-15)  error("failed!");
+	// if (abs(gvDoub[4] - 5.5) > 1e-15)  error("failed!");
 }
 
 int main()

@@ -38,6 +38,74 @@ void cumemset(T *dest, const T val, Long_I n)
 // 		dest[i] = src[i];
 // }
 
+// reference type to CUbase element
+template <class T>
+class CUref
+{
+protected:
+	T* p;
+public:
+	CUref(T* ptr);
+	// TODO: implicit conversion from CUref to T
+	inline operator T() const;
+	inline CUref& operator=(const T& rhs);
+	inline CUref& operator=(const T& rhs) const;
+	inline CUref& operator+=(const T& rhs);
+	inline CUref& operator-=(const T& rhs);
+	inline CUref& operator*=(const T& rhs);
+	inline CUref& operator/=(const T& rhs);
+};
+
+template <class T>
+inline CUref<T>::CUref(T* ptr): p(ptr) {}
+
+template <class T>
+inline CUref<T>::operator T() const
+{
+	T val;
+	cudaMemcpy(&val, p, sizeof(T), cudaMemcpyDeviceToHost);
+	return val;
+}
+
+template <class T>
+inline CUref<T>& CUref<T>::operator=(const T& rhs)
+{
+	cudaMemcpy(p, &rhs, sizeof(T), cudaMemcpyHostToDevice);
+	return *this;
+}
+
+template <class T>
+inline CUref<T>& CUref<T>::operator=(const T& rhs) const
+{ error("assignment to const obj!"); return *this; }
+
+template <class T>
+inline CUref<T>& CUref<T>::operator+=(const T& rhs)
+{
+	*this = *this + rhs;
+	return *this;
+}
+
+template <class T>
+inline CUref<T>& CUref<T>::operator-=(const T& rhs)
+{
+	*this = *this - rhs;
+	return *this;
+}
+
+template <class T>
+inline CUref<T>& CUref<T>::operator*=(const T& rhs)
+{
+	*this = *this * rhs;
+	return *this;
+}
+
+template <class T>
+inline CUref<T>& CUref<T>::operator/=(const T& rhs)
+{
+	*this = *this / rhs;
+	return *this;
+}
+
 // device memory
 template <class T>
 class CUbase
@@ -52,8 +120,10 @@ public:
 	inline const T* ptr() const;
 	inline Long_I size() const;
 	inline void resize(Long_I n);
-	inline T operator()(Long_I i) const; // read element
-	inline T end() const; // read last element
+	inline CUref<T> operator()(Long_I i);
+	inline const CUref<T> operator()(Long_I i) const;
+	inline CUref<T> end(); // last element
+	inline const CUref<T> end() const;
 	inline CUbase & operator=(const T &rhs); // set scalar
 	~CUbase();
 };
@@ -91,19 +161,37 @@ inline void CUbase<T>::resize(Long_I n)
 }
 
 template <class T>
-inline T CUbase<T>::operator()(Long_I i) const
+inline CUref<T> CUbase<T>::operator()(Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
 	error("NRvector subscript out of bounds")
 #endif
-	T val;
-	cudaMemcpy(&val, p+i, sizeof(T), cudaMemcpyDeviceToHost);
-	return val;
+	return CUref<T>(p+i);
 }
 
 template <class T>
-inline T CUbase<T>::end() const
+inline const CUref<T> CUbase<T>::operator()(Long_I i) const
+{
+#ifdef _CHECKBOUNDS_
+if (i<0 || i>=N)
+	error("NRvector subscript out of bounds");
+#endif
+	return CUref<T>(p+i);
+}
+
+template <class T>
+inline CUref<T> CUbase<T>::end()
+{
+#ifdef _CHECKBOUNDS_
+	if (N < 1)
+		error("Using end() for empty object")
+#endif
+	return CUref<T>(p+N-1);
+}
+
+template <class T>
+inline const CUref<T> CUbase<T>::end() const
 {
 #ifdef _CHECKBOUNDS_
 	if (N < 1)
@@ -111,7 +199,7 @@ inline T CUbase<T>::end() const
 #endif
 	T val;
 	cudaMemcpy(&val, p+N-1, sizeof(T), cudaMemcpyDeviceToHost);
-	return val;
+	return CUref<T>(p+N-1);
 }
 
 template <class T>
@@ -178,8 +266,10 @@ CUvector<T>::CUvector(const CUvector<T> &rhs)
 template <class T>
 inline CUvector<T> & CUvector<T>::operator=(const CUvector &rhs)
 {
+	if (this == &rhs) error("self assignment is forbidden!");
 	if (rhs.size() != N) error("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyDeviceToDevice);
+	return *this;
 }
 
 template <class T>
