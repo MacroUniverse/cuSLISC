@@ -112,44 +112,89 @@ void test_class()
 
 	// test class CUref alone
 	{
-		GvecDoub gvDoub(3); gvDoub = 0.;
+		GvecDoub gvDoub(3); gvDoub = 1.1;
 		CUref<Doub> ref(gvDoub.ptr());
+		if (ref.ptr() != gvDoub.ptr()) error("failed!");
 		ref = 5.6;
 		VecDoub vDoub; gvDoub.get(vDoub);
-		if (vDoub[0] != 5.6 || vDoub[1] != 0. || vDoub[2] != 0.) error("failed!");
+		if (vDoub[0] != 5.6 || vDoub[1] != 1.1 || vDoub[2] != 1.1) error("failed!");
 		if (ref != 5.6) error("failed!");
 		const CUref<Doub> ref1(gvDoub.ptr());
 		if (ref != 5.6) error("failed!");
 		ref += 1.1;
-		cout << "ref = " << ref - 6.7 << endl;
-		if (abs(ref - 6.7) > 1e-15) error("failed!");
-		// TODO: -=, *=, /=
+		if (abs(ref - 6.7) > 2e-15) error("failed!");
+		ref -= 1.7;
+		if (abs(ref - 5.) > 2e-15) error("failed!");
+		ref *= 2.;
+		if (abs(ref - 10.) > 2e-15) error("failed!");
+		ref /= 5.;
+		if (abs(ref - 2.) > 2e-15) error("failed!");
 	}
 
-	// // .end()
-	// {
-	// 	VecDoub vDoub(3); linspace(vDoub, 1.1, 3.3);
-	// 	GvecDoub gvDoub(vDoub);
-	// 	if (gvDoub.end() != 3.3) error("failed!");
-	// 	gvDoub.end() = 4.4;
-	// 	gvDoub.get(vDoub);
-	// 	if (vDoub[0] != 1.1 || vDoub[1] != 2.2 || vDoub.end() != 4.4) error("failed!");
-	// }
+	// test class CUptr alone
+	{
+		CUptr<Doub> ptr0; // default constructor
+		if (ptr0.ptr()) error("failed!");
+		GvecDoub gvDoub(3); gvDoub = 1.1;
+		CUptr<Doub> ptr(gvDoub[0].ptr()); // pointer constructor
+		if (ptr.ptr() != gvDoub.ptr()) error("failed!");
+		if (*ptr != 1.1) error("failed!"); // dereference
+		// operator[]
+		if (ptr[0] != 1.1 || ptr[1] != 1.1 || ptr[2] != 1.1) error("failed!"); 
+		ptr[1] = 2.2; ptr[2] = 3.3;
+		if (ptr[0] != 1.1 || ptr[1] != 2.2 || ptr[2] != 3.3) error("failed!");
+		ptr0 = ptr; // copy assignment
+		if (ptr0.ptr() != ptr.ptr()) error("failed!");
+		ptr0 = ptr[1].ptr(); // T* assignment
+		if (*ptr0 != 2.2) error("failed!");
+		// pointer arithmatics
+		ptr0 = ptr0 + 1;
+		if (*ptr0 != 3.3) error("failed!");
+		ptr0 = ptr0 - 2;
+		if (*ptr0 != 1.1) error("failed!");
+		ptr0 += 2;
+		if (*ptr0 != 3.3) error("failed!");
+		ptr0 -= 1;
+		if (*ptr0 != 2.2) error("failed!");
+	}
+
+	// .end()
+	{
+		VecDoub vDoub(3); linspace(vDoub, 1.1, 3.3);
+		GvecDoub gvDoub(vDoub);
+		if (gvDoub.end() != 3.3) error("failed!");
+		gvDoub.end() = 4.4;
+		gvDoub.get(vDoub);
+		if (vDoub[0] != 1.1 || vDoub[1] != 2.2 || vDoub.end() != 4.4) error("failed!");
+	}
 	
-	// // operator()
-	// {
-	// 	VecDoub vDoub(3); linspace(vDoub, 1.1, 3.3);
-	// 	GvecDoub gvDoub(vDoub);
-	// 	if (gvDoub(0) != 1.1 || gvDoub(1) != 2.2 || gvDoub(2) != 3.3) error("failed!");
-	// 	gvDoub.get(vDoub);
-	// 	if (vDoub[0] != 1.1 || vDoub[1] != 2.2 || vDoub.end() != 4.4) error("failed!");
-	// }
+	// operator()
+	{
+		VecDoub vDoub(4); vDoub[0] = 1.1; vDoub[1] = 2.2; vDoub[2] = 3.3; vDoub[3] = 4.4;
+		GvecDoub gvDoub(vDoub);
+		if (gvDoub(0) != 1.1 || gvDoub(1) != 2.2) error("failed!");
+		if (gvDoub(2) != 3.3 || gvDoub(3) != 4.4) error("failed!");
+		gvDoub(0) *= 4.; gvDoub(1) -= 2.2; gvDoub(2) += 1.1; gvDoub(3) /= 2.2;
+		gvDoub.get(vDoub);
+		if (abs(vDoub[0] - 4.4) > 2e-15) error("failed!");
+		if (abs(vDoub[1]) > 2e-15) error("failed!");
+		if (abs(vDoub[2] - 4.4) > 2e-15) error("failed!");
+		if (abs(vDoub[3] - 2.) > 2e-15) error("failed!");
+	}
 
-
-	// // operator[]
-	// if (gvDoub[0] != 1.1)  error("failed!");
-	// if (abs(gvDoub[2] - 3.3) > 1e-15)  error("failed!");
-	// if (abs(gvDoub[4] - 5.5) > 1e-15)  error("failed!");
+	// operator[]
+	{
+		VecDoub vDoub(4); vDoub[0] = 1.1; vDoub[1] = 2.2; vDoub[2] = 3.3; vDoub[3] = 4.4;
+		GvecDoub gvDoub(vDoub);
+		if (gvDoub[0] != 1.1 || gvDoub[1] != 2.2) error("failed!");
+		if (gvDoub[2] != 3.3 || gvDoub[3] != 4.4) error("failed!");
+		gvDoub[0] *= 4.; gvDoub[1] -= 2.2; gvDoub[2] += 1.1; gvDoub[3] /= 2.2;
+		gvDoub.get(vDoub);
+		if (abs(vDoub[0] - 4.4) > 2e-15) error("failed!");
+		if (abs(vDoub[1]) > 2e-15) error("failed!");
+		if (abs(vDoub[2] - 4.4) > 2e-15) error("failed!");
+		if (abs(vDoub[3] - 2.) > 2e-15) error("failed!");
+	}
 }
 
 int main()
