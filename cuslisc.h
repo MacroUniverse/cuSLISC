@@ -1,18 +1,25 @@
 // classes for cuda matrix
+#pragma once
 #include "nr3plus.h"
 
-Int NblMax, Nth0; // <<<nbl0(N),Nth0>>> for element-wise kernels
-
-// always call this function first
-// TODO: get GPU properties
-void cuInit()
-{
-	NblMax = 320; Nth0 = 32;
-}
+// manually set max block number and thread number
+// <<<nbl(Nbl*, Nth*, N), Nth*>>> for kernel call
+#ifdef CUSLISC_GTX1080
+const Int Nbl0 = 320, Nth0 = 32;
+const Int Nbl_sum = 320, Nth_sum = 32;
+#endif
+#ifdef CUSLISC_P100
+const Int Nbl0 = 320, Nth0 = 32;
+const Int Nbl_sum = 320, Nth_sum = 32;
+#endif
+#ifdef CUSLISC_V100
+const Int Nbl0 = 320, Nth0 = 32;
+const Int Nbl_sum = 320, Nth_sum = 32;
+#endif
 
 // calculate number of CUDA blocks needed
-inline Int nbl0(Int N)
-{ return min(NblMax, (N + Nth0 - 1)/Nth0); }
+inline Int nbl(Int NblMax, Int Nth, Int N)
+{ return min(NblMax, (N + Nth - 1)/Nth); }
 
 // set elements to same value
 template <class T>
@@ -228,7 +235,7 @@ inline const CUref<T> CUbase<T>::end() const
 template <class T>
 inline CUbase<T> & CUbase<T>::operator=(const T &rhs)
 {
-	if (N) cumemset<<<nbl0(N), Nth0>>>(p, rhs, N);
+	if (N) cumemset<<<nbl(Nbl0,Nth0,N), Nth0>>>(p, rhs, N);
 	return *this;
 }
 
@@ -273,7 +280,7 @@ CUvector<T>::CUvector(Long_I n) : Base(n) {}
 
 template <class T>
 CUvector<T>::CUvector(Long_I n, const T &a) : CUvector(n)
-{ cumemset<<<nbl0(N), Nth0>>>(p, a, N); }
+{ cumemset<<<nbl(Nbl0,Nth0,N), Nth0>>>(p, a, N); }
 
 template <class T>
 CUvector<T>::CUvector(NRvector<T> &v) : CUvector(v.size())
@@ -397,7 +404,7 @@ CUmatrix<T>::CUmatrix(Long_I n, Long_I m) : Base(n*m), nn(n), mm(m), v(v_alloc()
 
 template <class T>
 CUmatrix<T>::CUmatrix(Long_I n, Long_I m, const T &s) : CUmatrix(n, m)
-{ cumemset<<<nbl0(N), Nth0>>>(p, s, N); }
+{ cumemset<<<nbl(Nbl0,Nth0,N), Nth0>>>(p, s, N); }
 
 template <class T>
 CUmatrix<T>::CUmatrix(NRmatrix<T> &v) : CUmatrix(v.nrows(), v.ncols())
@@ -557,7 +564,7 @@ Base(n*m*k), nn(n), mm(m), kk(k), v(v_alloc()) {}
 
 template <class T>
 CUmat3d<T>::CUmat3d(Long_I n, Long_I m, Long_I k, const T &s) : CUmat3d(n, m, k)
-{ cumemset<<<nbl0(N), Nth0>>>(p, s, N); }
+{ cumemset<<<nbl(Nbl0,Nth0,N), Nth0>>>(p, s, N); }
 
 template <class T>
 CUmat3d<T>::CUmat3d(NRmat3d<T> &v) : CUmat3d(v.dim1(), v.dim2(), v.dim3())

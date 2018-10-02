@@ -1,6 +1,6 @@
 // test all cuda function
 
-#include "cuslisc.h"
+#include "cusliscplus.h"
 using std::cout; using std::endl; using std::string;
 using std::ifstream; using std::to_string;
 
@@ -481,17 +481,55 @@ void test_mat3d()
 	}
 }
 
+// test basic operations
+void test_basic()
+{
+	// plus(v, v1, v2)
+	{
+		// test sum_kernel()
+		GmatComp ga(10,10), ga1(10,10,Comp(1.,1.));
+		GmatDoub ga2(10,10,2.);
+		plus(ga, ga1, ga2);
+		MatComp a; ga.get(a);
+		MatComp a1(10,10,Comp(3.,1.));
+		if (a != a1) error("failed!");
+	}
+
+	// sum(v)
+	{
+		GmatComp gv(2, 2, Comp(1.,2.));
+		cout << "sum(gv) = " << sum(gv) << endl;
+	}
+}
+
+// temporary test
+void test()
+{
+	
+}
+
 int main()
 {
+	cout << "test_kernel()" << endl;
+	test_kernel<<<2,2>>>();
+	cudaDeviceSynchronize();
+	cout << "done!\n\n" << endl;
+
+
+	// temporary test
+	test();
+
 	// systematic tests
-	cuInit();
 	cout << "test_vector()" << endl;
 	test_vector();
 	cout << "test_matrix()" << endl;
 	test_matrix();
 	cout << "test_mat3d()" << endl;
 	test_mat3d();
+	cout << "test_basic()" << endl;
+	test_basic();
 	cout << "done testing!" << endl;
+	
 	// cuInit();
 	// CUvector<Doub> a(4);
 	// a = 3.1;
