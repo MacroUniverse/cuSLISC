@@ -1,7 +1,6 @@
 // test all cuda function
 
 #include "cuslisc.h"
-#include "nr3plus.h"
 using std::cout; using std::endl; using std::string;
 using std::ifstream; using std::to_string;
 

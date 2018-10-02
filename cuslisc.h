@@ -1,5 +1,5 @@
 // classes for cuda matrix
-#include "nr3.h"
+#include "nr3plus.h"
 
 Int NblMax, Nth0; // <<<nbl0(N),Nth0>>> for element-wise kernels
 
