@@ -258,7 +258,7 @@ public:
 	inline CUvector & operator=(const NRvector<T> &v); // NR assignment
 	inline CUref<T> operator[](Long_I i); //i'th element
 	inline const CUref<T> operator[](Long_I i) const;
-	inline void resize(Long_I newn); // resize (contents not preserved)
+	inline void resize(Long_I n); // resize (contents not preserved)
 	template <class T1>
 	inline void resize(const CUvector<T1> &v);
 	template <class T1>
@@ -370,7 +370,7 @@ public:
 	inline CUptr<T> operator[](Long_I i);  //subscripting: pointer to row i
 	// TODO: should return low level const
 	inline CUptr<T> operator[](Long_I i) const;
-	inline void resize(Long_I newn, Long_I newm); // resize (contents not preserved)
+	inline void resize(Long_I n, Long_I m); // resize (contents not preserved)
 	template <class T1>
 	inline void resize(const CUmatrix<T1> &v);
 	template <class T1>
@@ -462,11 +462,11 @@ inline CUptr<T> CUmatrix<T>::operator[](Long_I i) const
 }
 
 template <class T>
-inline void CUmatrix<T>::resize(Long_I newn, Long_I newm)
+inline void CUmatrix<T>::resize(Long_I n, Long_I m)
 {
-	if (newn != nn || newm != mm) {
-		Base::resize(newn*newm);
-		nn = newn; mm = newm;
+	if (n != nn || m != mm) {
+		Base::resize(n*m);
+		nn = n; mm = m;
 		if (v) delete v;
 		v = v_alloc();
 	}
