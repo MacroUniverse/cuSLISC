@@ -71,7 +71,7 @@ void test_vector()
 		if (vDoub1 != vDoub) error("failed!");
 	}
 
-	// test class CUref alone
+	// test class CUref
 	{
 		GvecDoub gvDoub(3); gvDoub = 1.1;
 		CUref<Doub> ref(gvDoub.ptr());
@@ -92,7 +92,7 @@ void test_vector()
 		if (abs(ref - 2.) > 2e-15) error("failed!");
 	}
 
-	// test class CUptr alone
+	// test class CUptr
 	{
 		CUptr<Doub> ptr0; // default constructor
 		if (ptr0.ptr()) error("failed!");
@@ -117,6 +117,25 @@ void test_vector()
 		if (*ptr0 != 3.3) error("failed!");
 		ptr0 -= 1;
 		if (*ptr0 != 2.2) error("failed!");
+	}
+
+	// test scalar
+	{
+		Gdoub gs;
+		if (!gs.ptr()) error("failed!");
+		gs = 3.1415;
+		if (gs != 3.1415) error("failed!");
+		gs -= 3.1;
+		if (abs(gs-0.0415) > 1e-16) error("failed!");
+		gs += 3.1;
+		if (abs(gs-3.1415) > 1e-16) error("failed!");
+		gs *= 2;
+		if (abs(gs-6.283) > 1e-16) error("failed!");
+		gs /= 2;
+		if (abs(gs-3.1415) > 1e-16) error("failed!");
+		Gcomp gs1(Comp(1.1, 2.2));
+		if ((Comp)gs1 != Comp(1.1,2.2)) error("failed!");
+		if (abs((Comp)gs1 + (Doub)gs - Comp(4.2415, 2.2)) > 1e-16)  error("failed!");
 	}
 
 	// .end()
@@ -549,7 +568,6 @@ void test_basic()
 // temporary test
 void test()
 {
-	
 }
 
 int main()
@@ -563,13 +581,13 @@ int main()
 	test();
 
 	// systematic tests
-	cout << "test_vector()" << endl;
+	cout << "test scalar and vector..." << endl;
 	test_vector();
-	cout << "test_matrix()" << endl;
+	cout << "test matrix..." << endl;
 	test_matrix();
-	cout << "test_mat3d()" << endl;
+	cout << "test mat3d..." << endl;
 	test_mat3d();
-	cout << "test_basic()" << endl;
+	cout << "test basic..." << endl;
 	test_basic();
 	cout << "done testing!" << endl;
 	

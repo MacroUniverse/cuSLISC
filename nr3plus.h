@@ -749,25 +749,16 @@ inline void operator*=(NRmat3d<T> &v, const T1 &s)
 { times_equals1(v, s); }
 
 template <class T, class T1>
-inline void divide_equals1(NRbase<T> &v, const T1 &s)
-{
-	Long i, N{ v.size() };
-	T sInv = 1. / s;
-	for (i = 0; i < N; ++i)
-		v(i) *= sInv;
-}
-
-template <class T, class T1>
 inline void operator/=(NRvector<T> &v, const T1 &s)
-{ divide_equals1(v, s); }
+{ v *= 1./s; }
 
 template <class T, class T1>
 inline void operator/=(NRmatrix<T> &v, const T1 &s)
-{ divide_equals1(v, s); }
+{ v *= 1./s; }
 
 template <class T, class T1>
 inline void operator/=(NRmat3d<T> &v, const T1 &s)
-{ divide_equals1(v, s); }
+{ v *= 1./s; }
 
 // TODO: operator /= for integers
 

@@ -51,7 +51,7 @@ typedef const Long Long_I;
 typedef Long Long_O, Long_IO;
 
 typedef const char Char_I; // 8 bit integer
-typedef char Char, Char_O, CharIO;
+typedef char Char, Char_O, Char_IO;
 typedef const unsigned char Uchar_I;
 typedef unsigned char Uchar, Uchar_O, Uchar_IO;
 

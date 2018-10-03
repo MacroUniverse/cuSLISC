@@ -301,39 +301,18 @@ inline void operator*=(CUmat3d<T> &v, const T1 &s)
 
 // v /= s
 // only works for floating point types
-template <class T, class T1>
-__global__ void divide_equals1_kernel(T *v, T1 sInv, Long N)
-{
-	Int i, stride, ind;
-	ind = blockIdx.x * blockDim.x + threadIdx.x;
-	stride = gridDim.x * blockDim.x;
-	for (i=ind; i<N; i+=stride)
-		v[i] *= sInv;
-}
 
 template <class T, class T1>
 inline void operator/=(CUvector<T> &v, const T1 &s)
-{
-	Int N = v.size();
-	Int Nbl = nbl(Nbl_divide_equals1, Nth_divide_equals1, N);
-	divide_equals1_kernel<<<Nbl, Nth_divide_equals1>>>(v.ptr(), 1./s, N);
-}
+{ v *= 1./s; }
 
 template <class T, class T1>
 inline void operator/=(CUmatrix<T> &v, const T1 &s)
-{
-	Int N = v.size();
-	Int Nbl = nbl(Nbl_divide_equals1, Nth_divide_equals1, N);
-	divide_equals1_kernel<<<Nbl, Nth_divide_equals1>>>(v.ptr(), 1./s, N);
-}
+{ v *= 1./s; }
 
 template <class T, class T1>
 inline void operator/=(CUmat3d<T> &v, const T1 &s)
-{
-	Int N = v.size();
-	Int Nbl = nbl(Nbl_divide_equals1, Nth_divide_equals1, N);
-	divide_equals1_kernel<<<Nbl, Nth_divide_equals1>>>(v.ptr(), 1./s, N);
-}
+{ v *= 1./s; }
 
 // plus(v, v1, s), plus(v, s, v1)
 template <class T, class T1, class T2> __global__

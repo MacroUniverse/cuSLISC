@@ -35,12 +35,19 @@ int main()
 
 A test suit is in "main.cu", it can also be used as a reference to cuSLISC. To build and run the project, use, "make" and "./main.x" command.
 
-## vector/matrix class template
-The class templates CUvector<T>, CUmatrix<T> and CUmat3d<T> are similar to NRvector<T>, NRmatrix<T> and NRmat3d<T>. GPU version of "VecDoub", "MatComp" are named "GvecDoub", "GmatComp" etc.
+## scalar/vector/matrix class template
+The class templates CUvector<T>, CUmatrix<T> and CUmat3d<T> are similar to NRvector<T>, NRmatrix<T> and NRmat3d<T>. GPU version of "VecDoub", "MatComp" are named "GvecDoub", "GmatComp" etc. In addition, scalar type on GPU are named such as "Gdoub", "Gcomp", etc.
 
 One main difference from SLISC is that GPU vectors/matrices must be resized explicitly.
 
 Note that GPU element access from CPU (such as operator() and operator[]) is very slow, and should mainly be used for debugging purpose.
 
+GPU data element access is realized using "CUref<T>" class, which has a implicit conversion to "T" and overloaded "operator=()". If there is more than one user defined conversion, explicitly convertion might be need to make from "CUref<T>" to "T".
+
 ## Known Bugs
 "Comp s{};" will not work inside kernel, need to use "Comp s; s = 0.;"
+
+## Dependency update
+(I'm not too sure about this)
+To update SLISC files, replace the files with newer version, and #include "cuda_complex.h" instead of #include "complex". To update MatFile files, no modification is needed.
+

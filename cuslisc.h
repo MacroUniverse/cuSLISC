@@ -68,9 +68,11 @@ class CUref
 protected:
 	T* p;
 public:
-	CUref(T* ptr);
-	inline T* ptr() {return p;}
-	inline const T* ptr() const {return p;}
+	CUref() = default;
+	explicit CUref(T* ptr);
+	void bind(T* ptr) {p = ptr;};
+	T* ptr() {return p;}
+	const T* ptr() const {return p;}
 	inline operator T() const;
 	inline CUref& operator=(const T& rhs);
 	inline CUref& operator+=(const T& rhs);
@@ -150,7 +152,28 @@ CUptr<T> operator+(const CUptr<T> &pcu, Long_I i) { return CUptr<T>(pcu.ptr()+i)
 template <class T>
 CUptr<T> operator-(const CUptr<T> &pcu, Long_I i) { return CUptr<T>(pcu.ptr()-i); }
 
-// device memory
+// scalar class
+template <class T>
+class CUscalar : public CUref<T>
+{
+public:
+	typedef CUref<T> Base;
+	using Base::p;
+	using Base::operator=;
+	//using Base::operator T;
+	CUscalar();
+	explicit CUscalar(const T &s);
+};
+
+template <class T>
+CUscalar<T>::CUscalar()
+{ cudaMalloc(&p, sizeof(T)); }
+
+template <class T>
+CUscalar<T>::CUscalar(const T &s) : CUscalar()
+{ *this = s; }
+
+// base class for CUvector, CUmatrix, CUmat3d
 template <class T>
 class CUbase
 {
@@ -671,7 +694,36 @@ template <class T>
 CUmat3d<T>::~CUmat3d()
 { v_free(); }
 
-// Matric and vector types
+// Scalar, vector and matrix types
+
+typedef const CUscalar<Int> Gint_I;
+typedef CUscalar<Int> Gint, Gint_O, Gint_IO;
+typedef const CUscalar<Uint> Guint_I;
+typedef CUscalar<Uint> Guint, Guint_O, Guint_IO;
+
+typedef const CUscalar<Long> Glong_I;
+typedef CUscalar<Long> Glong, Glong_O, Glong_IO;
+
+typedef const CUscalar<Llong> Gllong_I;
+typedef CUscalar<Llong> Gllong, Gllong_O, Gllong_IO;
+typedef const CUscalar<Ullong> Gullong_I;
+typedef CUscalar<Ullong> Gullong, Gullong_O, Gullong_IO;
+
+typedef const CUscalar<Char> Gchar_I;
+typedef CUscalar<Char> Gchar, Gchar_O, Gchar_IO;
+typedef const CUscalar<Uchar> Guchar_I;
+typedef CUscalar<Uchar> Guchar, Guchar_O, Guchar_IO;
+
+typedef const CUscalar<Doub> Gdoub_I;
+typedef CUscalar<Doub> Gdoub, Gdoub_O, Gdoub_IO;
+typedef const CUscalar<Ldoub> Gldoub_I;
+typedef CUscalar<Ldoub> Gldoub, Gldoub_O, Gldoub_IO;
+
+typedef const CUscalar<Comp> Gcomp_I;
+typedef CUscalar<Comp> Gcomp, Gcomp_O, Gcomp_IO;
+
+typedef const CUscalar<Bool> Gbool_I;
+typedef CUscalar<Bool> Gbool, Gbool_O, Gbool_IO;
 
 typedef const CUvector<Int> GvecInt_I;
 typedef CUvector<Int> GvecInt, GvecInt_O, GvecInt_IO;
