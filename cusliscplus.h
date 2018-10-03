@@ -335,8 +335,65 @@ inline void operator/=(CUmat3d<T> &v, const T1 &s)
 	divide_equals1_kernel<<<Nbl, Nth_divide_equals1>>>(v.ptr(), 1./s, N);
 }
 
+// plus(v, v1, s), plus(v, s, v1)
+template <class T, class T1, class T2> __global__
+void plus0_kernel(T *v, const T1 *v1, const T2 s, const Long N)
+{
+	Int i, stride, ind;
+	ind = blockIdx.x * blockDim.x + threadIdx.x;
+	stride = gridDim.x * blockDim.x;
+	for (i=ind; i<N; i+=stride)
+		v[i] = v1[i] + s;
+}
+
 template <class T, class T1, class T2>
-__global__ void plus1_kerel(T *v, T1 *v1, T2 *v2, Long N)
+inline void plus(CUvector<T> &v, const CUvector<T1> &v1, const T2 &s)
+{
+#ifdef _CHECKBOUNDS_
+	if (!shape_cmp(v, v1)) error("wrong shape!")
+#endif
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_plus0, Nth_plus0, N);
+	plus0_kernel<<<Nbl, Nth_plus0>>>(v.ptr(), v1.ptr(), s, N);
+}
+
+template <class T, class T1, class T2>
+inline void plus(CUmatrix<T> &v, const CUmatrix<T1> &v1, const T2 &s)
+{
+#ifdef _CHECKBOUNDS_
+	if (!shape_cmp(v, v1)) error("wrong shape!")
+#endif
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_plus0, Nth_plus0, N);
+	plus0_kernel<<<Nbl, Nth_plus0>>>(v.ptr(), v1.ptr(), s, N);
+}
+
+template <class T, class T1, class T2>
+inline void plus(CUmat3d<T> &v, const CUmat3d<T1> &v1, const T2 &s)
+{
+#ifdef _CHECKBOUNDS_
+	if (!shape_cmp(v, v1)) error("wrong shape!")
+#endif
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_plus0, Nth_plus0, N);
+	plus0_kernel<<<Nbl, Nth_plus0>>>(v.ptr(), v1.ptr(), s, N);
+}
+
+template <class T, class T1, class T2>
+inline void plus(CUvector<T> &v, const T1 &s, const CUvector<T2> &v1)
+{ plus(v, v1, s); }
+
+template <class T, class T1, class T2>
+inline void plus(CUmatrix<T> &v, const T1 &s, const CUmatrix<T2> &v1)
+{ plus(v, v1, s); }
+
+template <class T, class T1, class T2>
+inline void plus(CUmat3d<T> &v, const T1 &s, const CUmat3d<T2> &v1)
+{ plus(v, v1, s); }
+
+// plus(v, v1, v2)
+template <class T, class T1, class T2> __global__
+void plus1_kerel(T *v, const T1 *v1, const T2 *v2, const Long N)
 {
 	Int i, stride, ind;
 	ind = blockIdx.x * blockDim.x + threadIdx.x;
@@ -352,8 +409,8 @@ inline void plus(CUvector<T> &v, const CUvector<T1> &v1, const CUvector<T2> &v2)
 	if (!shape_cmp(v, v1) || !shape_cmp(v, v2)) error("wrong shape!");
 #endif
 	Int N = v.size();
-	Int Nbl = nbl(Nbl_plus, Nth_plus, N);
-	plus1_kerel<<<Nbl,Nth_plus>>>(v.ptr(), v1.ptr(), v2.ptr(), N);
+	Int Nbl = nbl(Nbl_plus1, Nth_plus1, N);
+	plus1_kerel<<<Nbl,Nth_plus1>>>(v.ptr(), v1.ptr(), v2.ptr(), N);
 }
 
 template <class T, class T1, class T2>
@@ -363,8 +420,8 @@ inline void plus(CUmatrix<T> &v, const CUmatrix<T1> &v1, const CUmatrix<T2> &v2)
 	if (!shape_cmp(v, v1) || !shape_cmp(v, v2)) error("wrong shape!");
 #endif
 	Int N = v.size();
-	Int Nbl = nbl(Nbl_plus, Nth_plus, N);
-	plus1_kerel<<<Nbl,Nth_plus>>>(v.ptr(), v1.ptr(), v2.ptr(), N);
+	Int Nbl = nbl(Nbl_plus1, Nth_plus1, N);
+	plus1_kerel<<<Nbl,Nth_plus1>>>(v.ptr(), v1.ptr(), v2.ptr(), N);
 }
 
 template <class T, class T1, class T2>
@@ -374,8 +431,27 @@ inline void plus(CUmat3d<T> &v, const CUmat3d<T1> &v1, const CUmat3d<T2> &v2)
 	if (!shape_cmp(v, v1) || !shape_cmp(v, v2)) error("wrong shape!");
 #endif
 	Int N = v.size();
-	Int Nbl = nbl(Nbl_plus, Nth_plus, N);
-	plus1_kerel<<<Nbl,Nth_plus>>>(v.ptr(), v1.ptr(), v2.ptr(), N);
+	Int Nbl = nbl(Nbl_plus1, Nth_plus1, N);
+	plus1_kerel<<<Nbl,Nth_plus1>>>(v.ptr(), v1.ptr(), v2.ptr(), N);
+}
+
+//minus(v)
+template <class T> __global__
+void minus0_kernel(T *v, const Long N)
+{
+	Int i, stride, ind;
+	ind = blockIdx.x * blockDim.x + threadIdx.x;
+	stride = gridDim.x * blockDim.x;
+	for (i=ind; i<N; i+=stride)
+		v[i] = -v[i];
+}
+
+template <class T>
+inline void minus(CUbase<T> &v)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_minus0, Nth_minus0, N);
+	minus0_kernel<<<Nbl,Nth_minus0>>>(v.ptr(), N);
 }
 
 //sum v1 in cpu to get total sum, size(v1) = Nblock
