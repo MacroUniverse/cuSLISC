@@ -15,6 +15,20 @@ template <class T1, class T2>
 Bool shape_cmp(const CUmat3d<T1> &a1, const CUmat3d<T2> &a2)
 { return (a1.dim1() == a2.dim1()) && (a1.dim2() == a2.dim2()) && (a1.dim3() == a2.dim3()); }
 
+// get device global variable
+template <class T>
+inline T getsym(const T &sym)
+{
+	T val;
+	cudaMemcpyFromSymbol(&val, sym, sizeof(T));
+	return val;
+}
+
+// set device global variable
+template <class T>
+inline void setsym(T &sym, const T val)
+{ cudaMemcpyToSymbol(sym, &val, sizeof(T)); }
+
 // a very simple kernel
 __global__ void test_kernel();
 
