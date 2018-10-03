@@ -41,3 +41,6 @@ The class templates CUvector<T>, CUmatrix<T> and CUmat3d<T> are similar to NRvec
 One main difference from SLISC is that GPU vectors/matrices must be resized explicitly.
 
 Note that GPU element access from CPU (such as operator() and operator[]) is very slow, and should mainly be used for debugging purpose.
+
+## Known Bugs
+"Comp s{};" will not work inside kernel, need to use "Comp s; s = 0.;"

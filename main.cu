@@ -475,7 +475,7 @@ void test_mat3d()
 		// resize(NRmatrix<>)
 		aDoub.resize(4,5,6);
 		gaComp.resize(aDoub);
-		if (gaComp.size() != 120)  error("failed!");
+		if (gaComp.size() != 120) error("failed!");
 		if (gaComp.dim1() != 4 || gaComp.dim2() != 5 || gaComp.dim3() != 6)
 			error("failed!");
 	}
@@ -484,9 +484,24 @@ void test_mat3d()
 // test basic operations
 void test_basic()
 {
+	// operator +=, -=, *=, /= (v, v)
+	{
+		GmatComp ga(10,10,Comp(1.,2.));
+		GmatDoub ga1(10,10,1.);
+		ga += ga1;
+		MatComp a; ga.get(a);
+		if (a != Comp(2.,2.)) error("failed!");
+		ga -= ga1; ga.get(a);
+		if (a != Comp(1.,2.)) error("failed!");
+		ga = Comp(3.14, 3.33); ga1 = 2.;
+		ga *= ga1; ga.get(a);
+		if (a != Comp(6.28, 6.66)) error("failed!");
+		ga /= ga1; ga.get(a);
+		if (a != Comp(3.14, 3.33)) error("failed!");
+	}
+
 	// plus(v, v1, v2)
 	{
-		// test sum_kernel()
 		GmatComp ga(10,10), ga1(10,10,Comp(1.,1.));
 		GmatDoub ga2(10,10,2.);
 		plus(ga, ga1, ga2);
@@ -495,10 +510,13 @@ void test_basic()
 		if (a != a1) error("failed!");
 	}
 
-	// sum(v)
+	// sum(v), norm2
 	{
-		GmatComp gv(2, 2, Comp(1.,2.));
-		cout << "sum(gv) = " << sum(gv) << endl;
+		GmatComp gv(10, 10, Comp(1.,2.));
+		if (sum(gv) != Comp(100.,200.)) error("failed!");
+		if (abs(norm2(gv)-500.)>2e-13) error("failed!");
+		GmatDoub gv1(10, 10, 1.2);
+		if (abs(norm2(gv1)-144.)>1e-15) error("failed!");
 	}
 }
 
@@ -514,7 +532,6 @@ int main()
 	test_kernel<<<2,2>>>();
 	cudaDeviceSynchronize();
 	cout << "done!\n\n" << endl;
-
 
 	// temporary test
 	test();

@@ -6,7 +6,13 @@
 // <<<nbl(Nbl*, Nth*, N), Nth*>>> for kernel call
 #ifdef CUSLISC_GTX1080
 const Int Nbl0 = 320, Nth0 = 32;
+const Int Nbl_plus_equals0 = 320, Nth_plus_equals0 = 32;
+const Int Nbl_minus_equals0 = 320, Nth_minus_equals0 = 32;
+const Int Nbl_times_equals0 = 320, Nth_times_equals0 = 32;
+const Int Nbl_divide_equals0 = 320, Nth_divide_equals0 = 32;
+const Int Nbl_plus = 320, Nth_plus = 32;
 const Int Nbl_sum = 320, Nth_sum = 32;
+const Int Nbl_norm2 = 320, Nth_norm2 = 32;
 #endif
 #ifdef CUSLISC_P100
 const Int Nbl0 = 320, Nth0 = 32;
