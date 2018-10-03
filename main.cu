@@ -484,7 +484,7 @@ void test_mat3d()
 // test basic operations
 void test_basic()
 {
-	// operator +=, -=, *=, /= (v, v)
+	// v += v; v -= v; v *= v; v /= v
 	{
 		GmatComp ga(10,10,Comp(1.,2.));
 		GmatDoub ga1(10,10,1.);
@@ -498,6 +498,18 @@ void test_basic()
 		if (a != Comp(6.28, 6.66)) error("failed!");
 		ga /= ga1; ga.get(a);
 		if (a != Comp(3.14, 3.33)) error("failed!");
+	}
+
+	// v +=s; v -= s; v *= s; v /= s
+	{
+		GmatComp ga(10,10,Comp(10.,20.));
+		ga += 10.; ga -= Comp(0.,10.);
+		MatComp a; ga.get(a);
+		if (a != Comp(20.,10.)) error("failed!");
+		ga *= 1.5; ga.get(a);
+		if (a != Comp(30.,15.)) error("failed!");
+		ga /= 1.5*I; ga.get(a);
+		if (a != Comp(10.,-20.)) error("failed!");
 	}
 
 	// plus(v, v1, v2)

@@ -194,8 +194,149 @@ inline void operator/=(CUmat3d<T> &v, const CUmat3d<T1> &v1)
 	divide_equals0_kernel<<<Nbl, Nth_divide_equals0>>>(v.ptr(), v1.ptr(), N);
 }
 
+// v += s
+template <class T, class T1>
+__global__ void plus_equals1_kernel(T *v, T1 s, Long N)
+{
+	Int i, stride, ind;
+	ind = blockIdx.x * blockDim.x + threadIdx.x;
+	stride = gridDim.x * blockDim.x;
+	for (i=ind; i<N; i+=stride)
+		v[i] += s;
+}
+
+template <class T, class T1>
+inline void operator+=(CUvector<T> &v, const T1 &s)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_plus_equals1, Nth_plus_equals1, N);
+	plus_equals1_kernel<<<Nbl, Nth_plus_equals1>>>(v.ptr(), s, N);
+}
+
+template <class T, class T1>
+inline void operator+=(CUmatrix<T> &v, const T1 &s)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_plus_equals1, Nth_plus_equals1, N);
+	plus_equals1_kernel<<<Nbl, Nth_plus_equals1>>>(v.ptr(), s, N);
+}
+
+template <class T, class T1>
+inline void operator+=(CUmat3d<T> &v, const T1 &s)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_plus_equals1, Nth_plus_equals1, N);
+	plus_equals1_kernel<<<Nbl, Nth_plus_equals1>>>(v.ptr(), s, N);
+}
+
+// v -= s
+template <class T, class T1>
+__global__ void minus_equals1_kernel(T *v, T1 s, Long N)
+{
+	Int i, stride, ind;
+	ind = blockIdx.x * blockDim.x + threadIdx.x;
+	stride = gridDim.x * blockDim.x;
+	for (i=ind; i<N; i+=stride)
+		v[i] -= s;
+}
+
+template <class T, class T1>
+inline void operator-=(CUvector<T> &v, const T1 &s)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_minus_equals1, Nth_minus_equals1, N);
+	minus_equals1_kernel<<<Nbl, Nth_minus_equals1>>>(v.ptr(), s, N);
+}
+
+template <class T, class T1>
+inline void operator-=(CUmatrix<T> &v, const T1 &s)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_minus_equals1, Nth_minus_equals1, N);
+	minus_equals1_kernel<<<Nbl, Nth_minus_equals1>>>(v.ptr(), s, N);
+}
+
+template <class T, class T1>
+inline void operator-=(CUmat3d<T> &v, const T1 &s)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_minus_equals1, Nth_minus_equals1, N);
+	minus_equals1_kernel<<<Nbl, Nth_minus_equals1>>>(v.ptr(), s, N);
+}
+
+// v *= s
+template <class T, class T1>
+__global__ void times_equals1_kernel(T *v, T1 s, Long N)
+{
+	Int i, stride, ind;
+	ind = blockIdx.x * blockDim.x + threadIdx.x;
+	stride = gridDim.x * blockDim.x;
+	for (i=ind; i<N; i+=stride)
+		v[i] *= s;
+}
+
+template <class T, class T1>
+inline void operator*=(CUvector<T> &v, const T1 &s)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_times_equals1, Nth_times_equals1, N);
+	times_equals1_kernel<<<Nbl, Nth_times_equals1>>>(v.ptr(), s, N);
+}
+
+template <class T, class T1>
+inline void operator*=(CUmatrix<T> &v, const T1 &s)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_times_equals1, Nth_times_equals1, N);
+	times_equals1_kernel<<<Nbl, Nth_times_equals1>>>(v.ptr(), s, N);
+}
+
+template <class T, class T1>
+inline void operator*=(CUmat3d<T> &v, const T1 &s)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_times_equals1, Nth_times_equals1, N);
+	times_equals1_kernel<<<Nbl, Nth_times_equals1>>>(v.ptr(), s, N);
+}
+
+// v /= s
+// only works for floating point types
+template <class T, class T1>
+__global__ void divide_equals1_kernel(T *v, T1 sInv, Long N)
+{
+	Int i, stride, ind;
+	ind = blockIdx.x * blockDim.x + threadIdx.x;
+	stride = gridDim.x * blockDim.x;
+	for (i=ind; i<N; i+=stride)
+		v[i] *= sInv;
+}
+
+template <class T, class T1>
+inline void operator/=(CUvector<T> &v, const T1 &s)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_divide_equals1, Nth_divide_equals1, N);
+	divide_equals1_kernel<<<Nbl, Nth_divide_equals1>>>(v.ptr(), 1./s, N);
+}
+
+template <class T, class T1>
+inline void operator/=(CUmatrix<T> &v, const T1 &s)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_divide_equals1, Nth_divide_equals1, N);
+	divide_equals1_kernel<<<Nbl, Nth_divide_equals1>>>(v.ptr(), 1./s, N);
+}
+
+template <class T, class T1>
+inline void operator/=(CUmat3d<T> &v, const T1 &s)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_divide_equals1, Nth_divide_equals1, N);
+	divide_equals1_kernel<<<Nbl, Nth_divide_equals1>>>(v.ptr(), 1./s, N);
+}
+
 template <class T, class T1, class T2>
-__global__ void plus0_kerel(T *v, T1 *v1, T2 *v2, Long N)
+__global__ void plus1_kerel(T *v, T1 *v1, T2 *v2, Long N)
 {
 	Int i, stride, ind;
 	ind = blockIdx.x * blockDim.x + threadIdx.x;
@@ -205,11 +346,36 @@ __global__ void plus0_kerel(T *v, T1 *v1, T2 *v2, Long N)
 }
 
 template <class T, class T1, class T2>
-inline void plus(CUbase<T> &v, const CUbase<T1> &v1, const CUbase<T2> &v2)
+inline void plus(CUvector<T> &v, const CUvector<T1> &v1, const CUvector<T2> &v2)
 {
+#ifdef _CHECKBOUNDS_
+	if (!shape_cmp(v, v1) || !shape_cmp(v, v2)) error("wrong shape!");
+#endif
 	Int N = v.size();
 	Int Nbl = nbl(Nbl_plus, Nth_plus, N);
-	plus0_kerel<<<Nbl,Nth_plus>>>(v.ptr(), v1.ptr(), v2.ptr(), N);
+	plus1_kerel<<<Nbl,Nth_plus>>>(v.ptr(), v1.ptr(), v2.ptr(), N);
+}
+
+template <class T, class T1, class T2>
+inline void plus(CUmatrix<T> &v, const CUmatrix<T1> &v1, const CUmatrix<T2> &v2)
+{
+#ifdef _CHECKBOUNDS_
+	if (!shape_cmp(v, v1) || !shape_cmp(v, v2)) error("wrong shape!");
+#endif
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_plus, Nth_plus, N);
+	plus1_kerel<<<Nbl,Nth_plus>>>(v.ptr(), v1.ptr(), v2.ptr(), N);
+}
+
+template <class T, class T1, class T2>
+inline void plus(CUmat3d<T> &v, const CUmat3d<T1> &v1, const CUmat3d<T2> &v2)
+{
+#ifdef _CHECKBOUNDS_
+	if (!shape_cmp(v, v1) || !shape_cmp(v, v2)) error("wrong shape!");
+#endif
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_plus, Nth_plus, N);
+	plus1_kerel<<<Nbl,Nth_plus>>>(v.ptr(), v1.ptr(), v2.ptr(), N);
 }
 
 //sum v1 in cpu to get total sum, size(v1) = Nblock
