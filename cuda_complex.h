@@ -174,7 +174,7 @@ public:
     typedef double value_type;
     CUDA_CALLABLE_MEMBER complex(){}
     CUDA_CALLABLE_MEMBER complex(double __re)
-        : __re_(__re) {}
+        : __re_(__re), __im_(0.) {}
     /*constexpr*/ CUDA_CALLABLE_MEMBER complex(double __re, double __im)
         : __re_(__re), __im_(__im) {}
     /*constexpr*/ CUDA_CALLABLE_MEMBER complex(const complex<float>& __c);

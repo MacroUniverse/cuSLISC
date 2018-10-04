@@ -4,6 +4,30 @@
 using std::cout; using std::endl; using std::string;
 using std::ifstream; using std::to_string;
 
+__device__ Doub glob_dev_Doub;
+__device__ Comp glob_dev_Comp;
+__constant__ Doub glob_const_Doub;
+__constant__ Comp glob_const_Comp;
+
+void test_global()
+{
+	// __device__ var
+	setsym(glob_dev_Doub, 3.14);
+	if (getsym(glob_dev_Doub) != 3.14) error("failed!");
+	setsym(glob_dev_Comp, Comp(1.1,2.2));
+	if (getsym(glob_dev_Comp) != Comp(1.1,2.2)) error("failed!");
+	setsym(glob_dev_Comp, 3.14);
+	if (getsym(glob_dev_Comp) != Comp(3.14,0.)) error("failed!");
+
+	// __const__ var
+	setsym(glob_const_Doub, 6.28);
+	if (getsym(glob_const_Doub) != 6.28) error("failed!");
+	setsym(glob_const_Comp, Comp(1.1,2.2));
+	if (getsym(glob_const_Comp) != Comp(1.1,2.2)) error("failed!");
+	setsym(glob_dev_Comp, 3.14);
+	if (getsym(glob_dev_Comp) != Comp(3.14,0.)) error("failed!");
+}
+
 void test_vector()
 {
 	// default initialize
@@ -555,13 +579,17 @@ void test_basic()
 		if (a != Comp(-3.14, 6.28)) error("failed!");
 	}
 
-	// sum(v), norm2
+	// sum(v), norm2(v), norm(v)
 	{
 		GmatComp gv(10, 10, Comp(1.,2.));
 		if (sum(gv) != Comp(100.,200.)) error("failed!");
 		if (abs(norm2(gv)-500.)>2e-13) error("failed!");
 		GmatDoub gv1(10, 10, 1.2);
 		if (abs(norm2(gv1)-144.)>1e-15) error("failed!");
+		gv /= norm(gv);
+		if (abs(norm2(gv)-1.)>1e-15) error("failed!");
+		gv1 /= norm(gv1);
+		if (abs(norm2(gv1)-1.)>1e-15) error("failed!");
 	}
 }
 
@@ -581,6 +609,8 @@ int main()
 	test();
 
 	// systematic tests
+	cout << "test gpu global var..." << endl;
+	test_global();
 	cout << "test scalar and vector..." << endl;
 	test_vector();
 	cout << "test matrix..." << endl;

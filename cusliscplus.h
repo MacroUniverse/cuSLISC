@@ -25,9 +25,15 @@ inline T getsym(const T &sym)
 }
 
 // set device global variable
-template <class T>
-inline void setsym(T &sym, const T val)
-{ cudaMemcpyToSymbol(sym, &val, sizeof(T)); }
+template <class T, class T1>
+inline void setsym(T &sym, const T1 &val)
+{
+	T val1; val1 = (T)val;
+	cudaMemcpyToSymbol(sym, &val1, sizeof(T));
+#ifdef _CHECKSETSYS_
+	if (getsym(sym) != val1) error("failed!");
+#endif
+}
 
 // a very simple kernel
 __global__ void test_kernel();
@@ -519,7 +525,7 @@ void norm2_kernel(T *v1, const T *v, Long N)
 		v1[blockIdx.x] = cache[0];
 }
 
-// norm2 for Comp
+// norm2_kernel for Comp
 __global__ void norm2_kernel(Doub *v1, const Comp *v, Long N);
 
 template <class T>
@@ -533,3 +539,7 @@ inline Doub norm2(const CUbase<T> &gv)
 	gv1.get(v1);
 	return sum(v1);
 }
+
+template <class T>
+inline Doub norm(const CUbase<T> &gv)
+{ return sqrt(norm2(gv)); }

@@ -1,7 +1,8 @@
 # Makefile
 
 exe = main.x
-gputype = CUSLISC_GTX1080
+gputype = -D CUSLISC_GTX1080
+debug = -D _CHECKSETSYS_ -D _CHECKBOUND_
 
 source = main.cu nr3plus.cu cusliscplus.cu
 objects = $(source:.cu=.o)
@@ -13,7 +14,7 @@ $(exe):$(objects)
 	$(compiler) -o $(exe) $(flags) $(objects)
 
 $(objects):$(source)
-	$(compiler) -c $(flags) $(source) -D $(gputype)
+	$(compiler) -c $(flags) $(source) $(gputype) $(debug)
 
 # clean all except source
 clean:
