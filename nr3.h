@@ -60,8 +60,8 @@ typedef double Doub, Doub_O, Doub_IO;
 typedef const long double Ldoub_I;
 typedef long double Ldoub, Ldoub_O, Ldoub_IO;
 
-typedef const complex<double> Comp_I;
-typedef complex<double> Comp, Comp_O, Comp_IO;
+typedef const Cump::complex<double> Comp_I;
+typedef Cump::complex<double> Comp, Comp_O, Comp_IO;
 
 typedef const bool Bool_I;
 typedef bool Bool, Bool_O, Bool_IO;

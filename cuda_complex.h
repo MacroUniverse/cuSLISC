@@ -1,7 +1,8 @@
-/* Modified by Hongyu Shi 2018/5/20:
+/* Modified by Hongyu Shi 2018/10/4:
 1. fixed some warnings by adding "CUDA_CALLABLE_MEMBER" before some functions.
 2. added inline for one function to prevent multidefinition.
 3. defined empty constructor instead of using default arguments in complex<>(real, imag)
+4. complex<double>(real) constructor will initialize imag part to 0.
 */
 
 // An implementation of C++ std::complex for use on CUDA devices.
@@ -35,9 +36,11 @@
 #define CUDA_CALLABLE_MEMBER
 #endif
 
-
 #include <math.h>
 #include <sstream>
+
+namespace Cump
+{
 
 template<class _Tp> class  complex;
 
@@ -1157,6 +1160,6 @@ operator<<(std::basic_ostream<_CharT, _Traits>& __os, const complex<_Tp>& __x)
     return __os << __s.str();
 }
 
-//} // close namespace cuda_complex
+} // close namespace Cump
 
 #endif  // CUDA_COMPLEX_HPP

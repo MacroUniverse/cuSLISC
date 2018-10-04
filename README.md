@@ -44,10 +44,18 @@ Note that GPU element access from CPU (such as operator() and operator[]) is ver
 
 GPU data element access is realized using "CUref<T>" class, which has a implicit conversion to "T" and overloaded "operator=()". If there is more than one user defined conversion, explicitly convertion might be need to make from "CUref<T>" to "T".
 
+# Developer Notes
+
+## Complex type
+Currently, both cpu and gpu code must use "cuda_complex.h" for complex type. The disadvantage is SLISC project must be modified, and ".cpp" extension is now allowed.
+
+Thus it is best to use "std::complex" for cpu code, and another complex type for gpu code. CUDA provides "cuComplex.h", however, it's grammar is too ugly. I want to use the same grammar, but just a different type name. So, the best solution is to use "cuda_complex.h" in gpu code only, let's name it "Cump" instead of "Comp".
+
 ## Known Bugs
 "Comp s{};" will not work inside kernel, need to use "Comp s; s = 0.;"
 
 ## Dependency update
-(I'm not too sure about this)
-To update SLISC files, replace the files with newer version, and #include "cuda_complex.h" instead of #include "complex". To update MatFile files, no modification is needed.
+Do not update any dependencies directly, always update in their own project then copy here.
+To update SLISC files, replace the files with newer version, and #include "cuda_complex.h" instead of #include "complex".
+To update MatFile files, no modification is needed.
 

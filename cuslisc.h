@@ -1,6 +1,7 @@
 // classes for cuda matrix
 #pragma once
 #include "nr3plus.h"
+#include "cuda_complex.h"
 
 // manually set max block number and thread number
 // <<<nbl(Nbl*, Nth*, N), Nth*>>> for kernel call
