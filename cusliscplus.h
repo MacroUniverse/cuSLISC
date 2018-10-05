@@ -24,17 +24,25 @@ inline T getsym(const T &sym)
 	return val;
 }
 
+inline Comp getsym(Cump_I &sym)
+{
+	Comp val;
+	cudaMemcpyFromSymbol(&val, sym, sizeof(Comp));
+	return val;
+}
+
 // set device global variable
 
-template <class T, class T1>
-inline void setsym(T &sym, const T1 &val)
-{
-	T val1; val1 = (T)val;
-	cudaMemcpyToSymbol(sym, &val1, sizeof(T));
-#ifdef _CHECKSETSYS_
-	if (getsym(sym) != val1) error("failed!");
-#endif
-}
+// this might be unnecessary
+// template <class T, class T1>
+// inline void setsym(T &sym, const T1 &val)
+// {
+// 	T val1; val1 = (T)val;
+// 	cudaMemcpyToSymbol(sym, &val1, sizeof(T));
+// #ifdef _CHECKSETSYS_
+// 	if (getsym(sym) != val1) error("failed!");
+// #endif
+// }
 
 template <class T>
 inline void setsym(T &sym, const T &val)
@@ -45,12 +53,11 @@ inline void setsym(T &sym, const T &val)
 #endif
 }
 
-inline void setsym(Cump &sym, const Comp &val)
+inline void setsym(Cump &sym, Comp_I &val)
 {
 	cudaMemcpyToSymbol(sym, &val, sizeof(Comp));
 #ifdef _CHECKSETSYS_
-	Cump val1 = getsym(sym);
-	if ( val1 != val ) error("failed!");
+	if ( getsym(sym) != val ) error("failed!");
 #endif
 }
 

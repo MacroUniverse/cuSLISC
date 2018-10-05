@@ -13,19 +13,20 @@ inline Cump_I & toCump(Comp_I &s) { return reinterpret_cast<Cump_I&>(s); }
 
 // internal use only!
 inline Bool operator==(Comp_I &s1, Cump_I &s2)
-{ return (real(s1)==real(s2) && imag(s1)==imag(s2)); }
+{ return toCump(s1) == s2; }
 
 inline Bool operator==(Cump_I &s1, Comp_I &s2) { return s2 == s1; }
 
 inline Bool operator!=(Comp_I &s1, Cump_I &s2)
-{ return (real(s1)!=real(s2) || imag(s1)!=imag(s2)); }
+{ return toCump(s1) != s2; }
 
 inline Bool operator!=(Cump_I &s1, Comp_I &s2) { return s2 != s1; }
 
 // manually set max block number and thread number
+// TODO : optimize these numbers
 // <<<nbl(Nbl*, Nth*, N), Nth*>>> for kernel call
 #ifdef CUSLISC_GTX1080
-const Int Nbl0 = 320, Nth0 = 32;
+const Int Nbl_cumemset = 320, Nth_cumemset = 32;
 const Int Nbl_plus_equals0 = 320, Nth_plus_equals0 = 32;
 const Int Nbl_minus_equals0 = 320, Nth_minus_equals0 = 32;
 const Int Nbl_times_equals0 = 320, Nth_times_equals0 = 32;
@@ -43,11 +44,11 @@ const Int Nbl_sum = 320, Nth_sum = 32;
 const Int Nbl_norm2 = 320, Nth_norm2 = 32;
 #endif
 #ifdef CUSLISC_P100
-const Int Nbl0 = 320, Nth0 = 32;
+const Int Nbl_cumemset = 320, Nth_cumemset = 32;
 const Int Nbl_sum = 320, Nth_sum = 32;
 #endif
 #ifdef CUSLISC_V100
-const Int Nbl0 = 320, Nth0 = 32;
+const Int Nbl_cumemset = 320, Nth_cumemset = 32;
 const Int Nbl_sum = 320, Nth_sum = 32;
 #endif
 
@@ -56,8 +57,7 @@ inline Int nbl(Int NblMax, Int Nth, Int N)
 { return min(NblMax, (N + Nth - 1)/Nth); }
 
 // set elements to same value
-template <class T>
-__global__
+template <class T> __global__
 void cumemset(T *dest, const T val, Long_I n)
 {
 	Int i, ind, stride;
@@ -67,10 +67,9 @@ void cumemset(T *dest, const T val, Long_I n)
 		dest[i] = val;
 }
 
-// copy elements using CUDA instead of cudaMemcpyDeviceToDevice
+// copy elements using kernel instead of cudaMemcpyDeviceToDevice
 // advantage unknown
-template <class T>
-__global__
+template <class T> __global__
 void cumemcpy(T *dest, const T *src, Long_I n)
 {
 	Int i, ind, stride;
@@ -81,7 +80,6 @@ void cumemcpy(T *dest, const T *src, Long_I n)
 }
 
 // reference type to CUbase element
-// "const CUref" is low level const
 template <class T>
 class CUref
 {
@@ -90,15 +88,19 @@ protected:
 public:
 	CUref() {};
 	explicit CUref(T* ptr) : p(ptr) {}
-	void bind(T* ptr) {p = ptr;};
-	T* ptr() {return p;}
-	const T* ptr() const {return p;}
+	void bind(T* ptr) { p = ptr; };
+	T* ptr() { return p; }
+	const T* ptr() const { return p; }
 	inline operator T() const;
 	inline CUref& operator=(const T& rhs);
-	inline CUref& operator+=(const T& rhs) { *this = *this + rhs; return *this; }
-	inline CUref& operator-=(const T& rhs) { *this = *this - rhs; return *this; }
-	inline CUref& operator*=(const T& rhs) { *this = *this * rhs; return *this; }
-	inline CUref& operator/=(const T& rhs) { *this = *this / rhs; return *this; }
+	template <class T1>
+	inline CUref& operator+=(const T1& rhs) { *this = T(*this) + rhs; return *this; }
+	template <class T1>
+	inline CUref& operator-=(const T1& rhs) { *this = T(*this) - rhs; return *this; }
+	template <class T1>
+	inline CUref& operator*=(const T1& rhs) { *this = T(*this) * rhs; return *this; }
+	template <class T1>
+	inline CUref& operator/=(const T1& rhs) { *this = T(*this) / rhs; return *this; }
 };
 
 template <class T>
@@ -123,23 +125,27 @@ class CUref<Comp>
 protected:
 	Cump* p;
 public:
-	CUref() {};
+	CUref() {}
 	explicit CUref(Cump* ptr) : p(ptr) {}
 	void bind(Cump* ptr) {p = ptr;};
 	Cump* ptr() {return p;}
 	const Cump* ptr() const {return p;}
 	inline operator Comp() const;
 	inline CUref& operator=(Comp_I &rhs);
-	inline CUref& operator+=(Comp_I &rhs) { *this = Comp() + rhs; return *this; }
-	inline CUref& operator-=(Comp_I &rhs) { *this = Comp() - rhs; return *this; }
-	inline CUref& operator*=(Comp_I &rhs) { *this = Comp() * rhs; return *this; }
-	inline CUref& operator/=(Comp_I &rhs) { *this = Comp() / rhs; return *this; }
+	template <class T1>
+	inline CUref& operator+=(const T1 &rhs) { *this = Comp() + rhs; return *this; }
+	template <class T1>
+	inline CUref& operator-=(const T1 &rhs) { *this = Comp() - rhs; return *this; }
+	template <class T1>
+	inline CUref& operator*=(const T1 &rhs) { *this = Comp() * rhs; return *this; }
+	template <class T1>
+	inline CUref& operator/=(const T1 &rhs) { *this = Comp() / rhs; return *this; }
 };
 
 inline CUref<Comp>::operator Comp() const
 {
 	Comp val;
-	cudaMemcpy(&val, p, sizeof(Cump), cudaMemcpyDeviceToHost);
+	cudaMemcpy(&val, p, sizeof(Comp), cudaMemcpyDeviceToHost);
 	return val;
 }
 
@@ -151,7 +157,7 @@ inline CUref<Comp>& CUref<Comp>::operator=(Comp_I &rhs)
 
 // pointer type to CUbase element
 // note : const CUptr is top level const
-// TODO : create a class for low level const
+// TODO : create a class for low level const, or is CUptr<const T> a low level const??
 template <class T>
 class CUptr
 {
@@ -160,19 +166,24 @@ protected:
 public:
 	CUptr() : p(nullptr) {}
 	CUptr(T *ptr) : p(ptr) {}
-	T* ptr() const {return p;}
-	CUref<T> operator*() const {return CUref<T>(p);} // dereference
-	CUref<T> operator[](Long_I i) const {return CUref<T>(p+i);}
-	CUptr & operator=(const CUptr &rhs) {p = rhs.ptr(); return *this;} // copy assignment
-	CUptr & operator=(T* ptr) {p = ptr; return *this;} // T* assignment
+	T* ptr() const { return p; }
+	inline CUref<T> & operator*() const; // dereference
+	CUref<T> operator[](Long_I i) const { return CUref<T>(p+i); }
+	CUptr & operator=(const CUptr &rhs) { p = rhs.ptr(); return *this; } // copy assignment
+	CUptr & operator=(T* ptr) { p = ptr; return *this; } // T* assignment
 	void operator+=(Long_I i) { p += i; }
 	void operator-=(Long_I i) { p -= i; }
 };
 
 template <class T>
-CUptr<T> operator+(const CUptr<T> &pcu, Long_I i) { return CUptr<T>(pcu.ptr()+i); }
+inline CUref<T> & CUptr<T>::operator*() const
+{ return reinterpret_cast<CUref<T>&>(*const_cast<CUptr<T>*>(this)); }
+
 template <class T>
-CUptr<T> operator-(const CUptr<T> &pcu, Long_I i) { return CUptr<T>(pcu.ptr()-i); }
+inline CUptr<T> operator+(const CUptr<T> &pcu, Long_I i) { return CUptr<T>(pcu.ptr()+i); }
+
+template <class T>
+inline CUptr<T> operator-(const CUptr<T> &pcu, Long_I i) { return CUptr<T>(pcu.ptr()-i); }
 
 template <>
 class CUptr<Comp>
@@ -183,7 +194,7 @@ public:
 	CUptr() : p(nullptr) {}
 	CUptr(Cump *ptr) : p(ptr) {}
 	Cump* ptr() const {return p;}
-	CUref<Comp> operator*() const {return CUref<Comp>(p);} // dereference
+	inline CUref<Comp> & operator*() const; // dereference
 	CUref<Comp> operator[](Long_I i) const {return CUref<Comp>(p+i);}
 	CUptr & operator=(const CUptr &rhs) {p = rhs.ptr(); return *this;} // copy assignment
 	CUptr & operator=(Cump* ptr) {p = ptr; return *this;} // Cump* assignment
@@ -191,10 +202,12 @@ public:
 	void operator-=(Long_I i) { p -= i; }
 };
 
-template <class T>
-CUptr<Comp> operator+(const CUptr<Comp> &pcu, Long_I i) { return CUptr<Comp>(pcu.ptr()+i); }
-template <class T>
-CUptr<Comp> operator-(const CUptr<Comp> &pcu, Long_I i) { return CUptr<Comp>(pcu.ptr()-i); }
+inline CUref<Comp> & CUptr<Comp>::operator*() const
+{ return reinterpret_cast<CUref<Comp>&>(*const_cast<CUptr<Comp>*>(this)); }
+
+inline CUptr<Comp> operator+(const CUptr<Comp> &pcu, Long_I i) { return CUptr<Comp>(pcu.ptr()+i); }
+
+inline CUptr<Comp> operator-(const CUptr<Comp> &pcu, Long_I i) { return CUptr<Comp>(pcu.ptr()-i); }
 
 // scalar class
 template <class T>
@@ -213,8 +226,8 @@ template <class T>
 class CUbase
 {
 protected:
-	Long N;// number of elements
 	T* p; // pointer to the first element
+	Long N; // number of elements
 public:
 	CUbase() : N(0), p(nullptr) {}
 	explicit CUbase(Long_I n) : N(n) { cudaMalloc(&p, N*sizeof(T)); }
@@ -286,7 +299,7 @@ inline const CUref<T> CUbase<T>::end() const
 template <class T>
 inline CUbase<T> & CUbase<T>::operator=(const T &rhs)
 {
-	if (N) cumemset<<<nbl(Nbl0,Nth0,N), Nth0>>>(p, rhs, N);
+	if (N) cumemset<<<nbl(Nbl_cumemset,Nth_cumemset,N), Nth_cumemset>>>(p, rhs, N);
 	return *this;
 }
 
@@ -294,11 +307,11 @@ template <>
 class CUbase<Comp>
 {
 protected:
-	Long N;// number of elements
 	Cump* p; // pointer to the first element
+	Long N;// number of elements
 public:
 	CUbase() : N(0), p(nullptr) {}
-	explicit CUbase(Long_I n) : N(n) { cudaMalloc(&p, N*sizeof(Cump)); }
+	explicit CUbase(Long_I n) : N(n) { cudaMalloc(&p, N*sizeof(Comp)); }
 	Cump* ptr() { return p; } // get pointer
 	const Cump* ptr() const { return p; }
 	Long_I size() const { return N; }
@@ -361,7 +374,7 @@ inline const CUref<Comp> CUbase<Comp>::end() const
 
 inline CUbase<Comp> & CUbase<Comp>::operator=(Comp_I &rhs)
 {
-	if (N) cumemset<<<nbl(Nbl0,Nth0,N), Nth0>>>(p, Cump(real(rhs),imag(rhs)), N);
+	if (N) cumemset<<<nbl(Nbl_cumemset,Nth_cumemset,N), Nth_cumemset>>>(p, toCump(rhs), N);
 	return *this;
 }
 
