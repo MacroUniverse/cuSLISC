@@ -393,7 +393,6 @@ public:
 	CUvector(Long_I n, const T &a);	//initialize to constant value
 	CUvector(NRvector<T> &v); // initialize from cpu vector
 	CUvector(const CUvector &rhs);	// Copy constructor forbidden
-	// TODO: implement operator=(CU*<T>) in NR to replace get()
 	template <class T1>
 	inline void get(NRvector<T1> &v) const; // copy to cpu vector
 	inline CUvector & operator=(const CUvector &rhs);	// copy assignment
@@ -503,7 +502,6 @@ public:
 	CUmatrix(const CUmatrix &rhs);		// Copy constructor forbidden
 	inline Long nrows() const;
 	inline Long ncols() const;
-	// TODO: implement operator=(CU*<T>) in NR to replace get()
 	template <class T1>
 	inline void get(NRmatrix<T1> &v) const; // copy to cpu vector
 	inline CUmatrix & operator=(const CUmatrix &rhs); //copy assignment
@@ -655,7 +653,6 @@ public:
 	inline Long dim1() const;
 	inline Long dim2() const;
 	inline Long dim3() const;
-	// TODO: implement operator=(CU*<T>) in NR to replace get()
 	template <class T1>
 	inline void get(NRmat3d<T1> &v) const; // copy to cpu matrix
 	inline CUmat3d & operator=(const CUmat3d &rhs);	//copy assignment

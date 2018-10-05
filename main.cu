@@ -51,15 +51,23 @@ void test_vector()
 		GvecDoub gvDoub(4);
 		gvDoub = vDoub;
 		if (gvDoub.size() != 4) error("failed!");
-		gvDoub.get(vDoub1);
+		vDoub1 = gvDoub;
 		if (vDoub1 != vDoub) error("failed!");
+
+		VecComp vComp, vComp1;
+		linspace(vComp, 0., Comp(3.,3.), 4);
+		GvecComp gvComp(4);
+		gvComp = vComp;
+		if (gvComp.size() != 4) error("failed!");
+		vComp1 = gvComp;
+		if (vComp1 != vComp) error("failed!");
 	}
 
 	// const initialize
 	{
 		GvecDoub gvDoub(3, 1.23);
 		VecDoub vDoub;
-		gvDoub.get(vDoub);
+		vDoub = gvDoub;
 		if (vDoub.size() != 3) error("failed!");
 		if (vDoub != 1.23) error("failed!")
 	}
@@ -68,7 +76,7 @@ void test_vector()
 	{
 		VecDoub vDoub, vDoub1; linspace(vDoub, 0., 3., 4);
 		GvecDoub gvDoub(vDoub);
-		gvDoub.get(vDoub1);
+		vDoub1 = gvDoub;
 		if (gvDoub.size() != 4) error("failed!");
 		if (vDoub1 != vDoub) error("failed!");
 	}
@@ -82,7 +90,7 @@ void test_vector()
 		GvecDoub gvDoub(10);
 		gvDoub = 3.14;
 		VecDoub vDoub;
-		gvDoub.get(vDoub);
+		vDoub = gvDoub;
 		if (vDoub != 3.14) error("failed!");
 
 		// copy assignment
@@ -91,7 +99,7 @@ void test_vector()
 		GvecDoub gvDoub1(10);
 		gvDoub1 = gvDoub;
 		VecDoub vDoub1;
-		gvDoub1.get(vDoub1);
+		vDoub1 = gvDoub1;
 		if (vDoub1 != vDoub) error("failed!");
 	}
 
@@ -101,7 +109,7 @@ void test_vector()
 		CUref<Doub> ref(gvDoub.ptr());
 		if (ref.ptr() != gvDoub.ptr()) error("failed!");
 		ref = 5.6;
-		VecDoub vDoub; gvDoub.get(vDoub);
+		VecDoub vDoub; vDoub = gvDoub;
 		if (vDoub[0] != 5.6 || vDoub[1] != 1.1 || vDoub[2] != 1.1) error("failed!");
 		if (ref != 5.6) error("failed!");
 		const CUref<Doub> ref1(gvDoub.ptr());
@@ -179,7 +187,7 @@ void test_vector()
 		if (gvDoub(0) != 1.1 || gvDoub(1) != 2.2) error("failed!");
 		if (gvDoub(2) != 3.3 || gvDoub(3) != 4.4) error("failed!");
 		gvDoub(0) *= 4.; gvDoub(1) -= 2.2; gvDoub(2) += 1.1; gvDoub(3) /= 2.2;
-		gvDoub.get(vDoub);
+		vDoub = gvDoub;
 		if (abs(vDoub[0] - 4.4) > 2e-15) error("failed!");
 		if (abs(vDoub[1]) > 2e-15) error("failed!");
 		if (abs(vDoub[2] - 4.4) > 2e-15) error("failed!");
@@ -193,7 +201,7 @@ void test_vector()
 		if (gvDoub[0] != 1.1 || gvDoub[1] != 2.2) error("failed!");
 		if (gvDoub[2] != 3.3 || gvDoub[3] != 4.4) error("failed!");
 		gvDoub[0] *= 4.; gvDoub[1] -= 2.2; gvDoub[2] += 1.1; gvDoub[3] /= 2.2;
-		gvDoub.get(vDoub);
+		vDoub = gvDoub;
 		if (abs(vDoub[0] - 4.4) > 2e-15) error("failed!");
 		if (abs(vDoub[1]) > 2e-15) error("failed!");
 		if (abs(vDoub[2] - 4.4) > 2e-15) error("failed!");
@@ -248,7 +256,7 @@ void test_matrix()
 		if (gaDoub.size() != 4) error("failed!");
 		if (gaDoub.nrows() != 2) error("failed!");
 		if (gaDoub.ncols() != 2) error("failed!");
-		gaDoub.get(aDoub1);
+		aDoub1 = gaDoub;
 		if (aDoub1 != aDoub) error("failed!");
 	}
 
@@ -256,7 +264,7 @@ void test_matrix()
 	{
 		GmatDoub gaDoub(2, 3, 1.23);
 		MatDoub aDoub;
-		gaDoub.get(aDoub);
+		aDoub = gaDoub;
 		if (aDoub.size() != 6) error("failed!");
 		if (aDoub.nrows() != 2 || aDoub.ncols() != 3) error("failed!");
 		if (aDoub != 1.23) error("failed!");
@@ -266,7 +274,7 @@ void test_matrix()
 	{
 		MatDoub aDoub(2,3), aDoub1; linspace(aDoub, 0., 5.);
 		GmatDoub gaDoub(aDoub);
-		gaDoub.get(aDoub1);
+		aDoub1 = gaDoub;
 		if (gaDoub.size() != 6) error("failed!");
 		if (gaDoub.nrows() != 2 || gaDoub.ncols() != 3) error("failed!");
 		if (aDoub1 != aDoub) error("failed!");
@@ -281,7 +289,7 @@ void test_matrix()
 		GmatDoub gaDoub(2, 3);
 		gaDoub = 3.14;
 		MatDoub aDoub;
-		gaDoub.get(aDoub);
+		aDoub = gaDoub;
 		if (aDoub != 3.14) error("failed!");
 
 		// copy assignment
@@ -290,7 +298,7 @@ void test_matrix()
 		GmatDoub gaDoub1(2, 3);
 		gaDoub1 = gaDoub;
 		MatDoub aDoub1;
-		gaDoub1.get(aDoub1);
+		aDoub1 = gaDoub1;
 		if (aDoub1 != aDoub) error("failed!");
 	}
 
@@ -300,7 +308,7 @@ void test_matrix()
 		GmatDoub gaDoub(aDoub);
 		if (gaDoub.end() != 9.9) error("failed!");
 		gaDoub.end() = 10.10;
-		gaDoub.get(aDoub);
+		aDoub = gaDoub;
 		if (aDoub(0) != 1.1 || aDoub(1) != 2.2 || aDoub.end() != 10.10) error("failed!");
 	}
 
@@ -311,7 +319,7 @@ void test_matrix()
 		if (gaDoub(0) != 1.1 || gaDoub(1) != 2.2) error("failed!");
 		if (gaDoub(2) != 3.3 || gaDoub(3) != 4.4) error("failed!");
 		gaDoub(0) *= 4.; gaDoub(1) -= 2.2; gaDoub(2) += 1.1; gaDoub(3) /= 2.2;
-		gaDoub.get(aDoub);
+		aDoub = gaDoub;
 		if (abs(aDoub(0) - 4.4) > 2e-15) error("failed!");
 		if (abs(aDoub(1)) > 2e-15) error("failed!");
 		if (abs(aDoub(2) - 4.4) > 2e-15) error("failed!");
@@ -325,7 +333,7 @@ void test_matrix()
 		if (gaDoub[0][0] != 1.1 || gaDoub[0][1] != 2.2) error("failed!");
 		if (gaDoub[1][0] != 3.3 || gaDoub[1][1] != 4.4) error("failed!");
 		gaDoub[0][0] *= 4.; gaDoub[0][1] -= 2.2; gaDoub[1][0] += 1.1; gaDoub[1][1] /= 2.2;
-		gaDoub.get(aDoub);
+		aDoub = gaDoub;
 		if (abs(aDoub(0) - 4.4) > 2e-15) error("failed!");
 		if (abs(aDoub(1)) > 2e-15) error("failed!");
 		if (abs(aDoub(2) - 4.4) > 2e-15) error("failed!");
@@ -343,7 +351,7 @@ void test_matrix()
 		MatDoub aDoub(2, 3); linspace(aDoub, 0., 5.);
 		gaDoub = aDoub;
 		MatDoub aDoub1;
-		gaDoub.get(aDoub1);
+		aDoub1 = gaDoub;
 		if (aDoub1 != aDoub) error("failed!");
 		gaDoub.resize(0, 0);
 		if (gaDoub.size() != 0)  error("failed!");
@@ -396,7 +404,7 @@ void test_mat3d()
 		if (gaDoub.dim1() != 2) error("failed!");
 		if (gaDoub.dim2() != 3) error("failed!");
 		if (gaDoub.dim3() != 4) error("failed!");
-		gaDoub.get(aDoub1);
+		aDoub1 = gaDoub;
 		if (aDoub1 != aDoub) error("failed!");
 	}
 
@@ -404,7 +412,7 @@ void test_mat3d()
 	{
 		Gmat3Doub gaDoub(2, 3, 4, 1.23);
 		Mat3Doub aDoub;
-		gaDoub.get(aDoub);
+		aDoub = gaDoub;
 		if (aDoub.size() != 24) error("failed!");
 		if (aDoub.dim1() != 2 || aDoub.dim2() != 3 || aDoub.dim3() != 4)
 			error("failed!");
@@ -415,7 +423,7 @@ void test_mat3d()
 	{
 		Mat3Doub aDoub(2,3,4), aDoub1; linspace(aDoub, 0., 23.);
 		Gmat3Doub gaDoub(aDoub);
-		gaDoub.get(aDoub1);
+		aDoub1 = gaDoub;
 		if (gaDoub.size() != 24) error("failed!");
 		if (gaDoub.dim1() != 2 || gaDoub.dim2() != 3 || gaDoub.dim3() != 4)
 			error("failed!");
@@ -431,7 +439,7 @@ void test_mat3d()
 		Gmat3Doub gaDoub(2, 3, 4);
 		gaDoub = 3.14;
 		Mat3Doub aDoub;
-		gaDoub.get(aDoub);
+		aDoub = gaDoub;
 		if (aDoub != 3.14) error("failed!");
 
 		// copy assignment
@@ -441,7 +449,7 @@ void test_mat3d()
 		Gmat3Doub gaDoub1(2, 3, 4);
 		gaDoub1 = gaDoub;
 		Mat3Doub aDoub1;
-		gaDoub1.get(aDoub1);
+		aDoub1 = gaDoub1;
 		if (aDoub1 != aDoub) error("failed!");
 	}
 
@@ -451,7 +459,7 @@ void test_mat3d()
 		Gmat3Doub gaDoub(aDoub);
 		if (gaDoub.end() != 8.8) error("failed!");
 		gaDoub.end() = 9.9;
-		gaDoub.get(aDoub);
+		aDoub = gaDoub;
 		if (aDoub(0) != 1.1 || aDoub(1) != 2.2 || aDoub.end() != 9.9)
 			error("failed!");
 	}
@@ -463,7 +471,7 @@ void test_mat3d()
 		if (gaDoub(0) != 1.1 || gaDoub(2) != 2.2) error("failed!");
 		if (gaDoub(3) != 3.3 || gaDoub(7) != 4.4) error("failed!");
 		gaDoub(0) *= 4.; gaDoub(2) -= 2.2; gaDoub(3) += 1.1; gaDoub(7) /= 2.2;
-		gaDoub.get(aDoub);
+		aDoub = gaDoub;
 		if (abs(aDoub(0) - 4.4) > 2e-15) error("failed!");
 		if (abs(aDoub(2)) > 2e-15) error("failed!");
 		if (abs(aDoub(3) - 4.4) > 2e-15) error("failed!");
@@ -478,7 +486,7 @@ void test_mat3d()
 		if (gaDoub[1][0][0] != 3.3 || gaDoub[1][0][1] != 4.4) error("failed!");
 		gaDoub[0][0][0] *= 4.; gaDoub[0][0][1] -= 2.2;
 		gaDoub[1][0][0] += 1.1; gaDoub[1][0][1] /= 2.2;
-		gaDoub.get(aDoub);
+		aDoub = gaDoub;
 		if (abs(aDoub(0) - 4.4) > 2e-15) error("failed!");
 		if (abs(aDoub(1)) > 2e-15) error("failed!");
 		if (abs(aDoub(4) - 4.4) > 2e-15) error("failed!");
@@ -497,7 +505,7 @@ void test_mat3d()
 		Mat3Doub aDoub(2, 3, 4); linspace(aDoub, 0., 23.);
 		gaDoub = aDoub;
 		Mat3Doub aDoub1;
-		gaDoub.get(aDoub1);
+		aDoub1 = gaDoub;
 		if (aDoub1 != aDoub) error("failed!");
 		gaDoub.resize(0, 0, 0);
 		if (gaDoub.size() != 0)  error("failed!");
@@ -532,14 +540,14 @@ void test_basic()
 		GmatComp ga(10,10,Comp(1.,2.));
 		GmatDoub ga1(10,10,1.);
 		ga += ga1;
-		MatComp a; ga.get(a);
+		MatComp a; a = ga;
 		if (a != Comp(2.,2.)) error("failed!");
-		ga -= ga1; ga.get(a);
+		ga -= ga1; a = ga;
 		if (a != Comp(1.,2.)) error("failed!");
 		ga = Comp(3.14, 3.33); ga1 = 2.;
-		ga *= ga1; ga.get(a);
+		ga *= ga1; a = ga;
 		if (a != Comp(6.28, 6.66)) error("failed!");
-		ga /= ga1; ga.get(a);
+		ga /= ga1; a = ga;
 		if (a != Comp(3.14, 3.33)) error("failed!");
 	}
 
@@ -547,11 +555,11 @@ void test_basic()
 	{
 		GmatComp ga(10,10,Comp(10.,20.));
 		ga += 10.; ga -= Comp(0.,10.);
-		MatComp a; ga.get(a);
+		MatComp a; a = ga;
 		if (a != Comp(20.,10.)) error("failed!");
-		ga *= 1.5; ga.get(a);
+		ga *= 1.5; a = ga;
 		if (a != Comp(30.,15.)) error("failed!");
-		ga /= Comp(0.,1.5); ga.get(a);
+		ga /= Comp(0.,1.5); a = ga;
 		if (a != Comp(10.,-20.)) error("failed!");
 	}
 
@@ -560,13 +568,13 @@ void test_basic()
 		GmatComp ga(10,10);
 		GmatDoub ga1(10,10, 2.2);
 		MatComp a;
-		plus(ga, ga1, -0.2); ga.get(a);
+		plus(ga, ga1, -0.2); a = ga;
 		if (a != 2.) error("failed!");
-		ga = 0.; plus(ga, -0.2, ga1); ga.get(a);
+		ga = 0.; plus(ga, -0.2, ga1); a = ga;
 		if (a != 2.) error("failed!");
 		ga1 = 2.;
 		GmatComp ga2(10,10,Comp(1.,1.));
-		ga = 0.; plus(ga, ga1, ga2); ga.get(a);
+		ga = 0.; plus(ga, ga1, ga2); a = ga;
 		MatComp a1(10,10,Comp(3.,1.));
 		if (a != a1) error("failed!");
 	}
@@ -575,7 +583,7 @@ void test_basic()
 	{
 		GmatComp ga(10,10,Comp(3.14,-6.28));
 		MatComp a;
-		minus(ga); ga.get(a);
+		minus(ga); a = ga;
 		if (a != Comp(-3.14, 6.28)) error("failed!");
 	}
 
@@ -620,21 +628,4 @@ int main()
 	cout << "test basic..." << endl;
 	test_basic();
 	cout << "done testing!" << endl;
-	
-	// cuInit();
-	// CUvector<Doub> a(4);
-	// a = 3.1;
-	// cout << "a.size() = " << a.size() << endl;
-	// VecDoub v;
-	// a.get(v);
-	// cout << "a = " << endl;
-	// disp(v);
-
-	// VecDoub v1(4); linspace(v1, 0.1, 3.4);
-	// cout << "v1 = " << endl;
-	// disp(v1);
-	// a = v1;
-	// a.get(v);
-	// cout << "a = " << endl;
-	// disp(v);
 }

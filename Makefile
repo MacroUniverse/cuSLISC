@@ -16,7 +16,7 @@ $(exe):$(objects)
 	$(compiler) -o $(exe) $(flags) $(objects)
 
 $(objects):$(source)
-	$(compiler) -c $(flags) $(source) $(gputype) $(debug)
+	$(compiler) -c $(flags) $(source) -D _CUSLISC_ $(gputype) $(debug)
 
 # clean all except source
 clean:
