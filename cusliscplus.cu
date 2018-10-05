@@ -7,7 +7,7 @@ __global__ void test_kernel()
 
 //sum v1 in cpu to get norm2, size(v1) = Nblock
 __global__
-void norm2_kernel(Doub *v1, const Cump *v, Long N)
+void norm2_kernel(Doub *v1, Cump_I *v, Long N)
 {
 	__shared__ Doub cache[Nth_sum];
 	Long i, ind, stride, cacheIdx;

@@ -49,7 +49,7 @@ GPU data element access is realized using "CUref<T>" class, which has a implicit
 ## Complex type
 Currently, both cpu and gpu code must use "cuda_complex.h" for complex type. The disadvantage is SLISC project must be modified, and ".cpp" extension is now allowed.
 
-Thus it is best to use "std::complex" for cpu code, and another complex type for gpu code. CUDA provides "cuComplex.h", however, it's grammar is too ugly. I want to use the same grammar, but just a different type name. So, the best solution is to use "cuda_complex.h" in gpu code only, let's name it "Cump" instead of "Comp".
+Thus it is best to use "std::complex" for cpu code, and another complex type for gpu code. CUDA provides "cuComplex.h", however, it's grammar is too ugly. I want to use the same grammar, but just a different type name. So, the best solution is to use "cuda_complex.h" in gpu code only, let's name it "Cump" instead of "Comp". Fow users who doesn't know cuda programming, they should not need to know the existence of "Cump", so there should not be types such as "CUbase<Cump>". It is necessary that "CUbase<Comp>" is specialized, because it needs to have a "Cump*" member. In fact, we should specialize all of "CUref", "CUptr", "CUbase", etc.!
 
 ## Known Bugs
 "Comp s{};" will not work inside kernel, need to use "Comp s; s = 0.;"

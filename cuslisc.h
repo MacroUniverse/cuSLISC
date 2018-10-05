@@ -3,9 +3,22 @@
 #include "nr3plus.h"
 #include "cuda_complex.h"
 
-// use Cump as Comp in cuda kernel
+// complex type for cuda kernel
+// should not be used in host code
 typedef const cuda_complex::complex<Doub> Cump_I;
 typedef cuda_complex::complex<Doub> Cump, Cump_O, Cump_IO;
+
+// internal use only!
+inline Bool operator==(Comp_I &s1, Cump_I &s2)
+{ return (real(s1)==real(s2) && imag(s1)==imag(s2)); }
+
+inline Bool operator==(Cump_I &s1, Comp_I &s2) { return s2 == s1; }
+
+inline Bool operator!=(Comp_I &s1, Cump_I &s2)
+{ return (real(s1)!=real(s2) || imag(s1)!=imag(s2)); }
+
+inline Bool operator!=(Cump_I &s1, Comp_I &s2) { return s2 != s1; }
+
 
 // manually set max block number and thread number
 // <<<nbl(Nbl*, Nth*, N), Nth*>>> for kernel call
@@ -73,21 +86,18 @@ class CUref
 protected:
 	T* p;
 public:
-	CUref() = default;
-	explicit CUref(T* ptr);
+	CUref() {};
+	explicit CUref(T* ptr) : p(ptr) {}
 	void bind(T* ptr) {p = ptr;};
 	T* ptr() {return p;}
 	const T* ptr() const {return p;}
 	inline operator T() const;
 	inline CUref& operator=(const T& rhs);
-	inline CUref& operator+=(const T& rhs);
-	inline CUref& operator-=(const T& rhs);
-	inline CUref& operator*=(const T& rhs);
-	inline CUref& operator/=(const T& rhs);
+	inline CUref& operator+=(const T& rhs) { *this = *this + rhs; return *this; }
+	inline CUref& operator-=(const T& rhs) { *this = *this - rhs; return *this; }
+	inline CUref& operator*=(const T& rhs) { *this = *this * rhs; return *this; }
+	inline CUref& operator/=(const T& rhs) { *this = *this / rhs; return *this; }
 };
-
-template <class T>
-inline CUref<T>::CUref(T* ptr): p(ptr) {}
 
 template <class T>
 inline CUref<T>::operator T() const
@@ -104,31 +114,36 @@ inline CUref<T>& CUref<T>::operator=(const T& rhs)
 	return *this;
 }
 
-template <class T>
-inline CUref<T>& CUref<T>::operator+=(const T& rhs)
+// CUref<Comp>
+template <>
+class CUref<Comp>
 {
-	*this = *this + rhs;
-	return *this;
+protected:
+	Cump* p;
+public:
+	CUref() {};
+	explicit CUref(Cump* ptr) : p(ptr) {}
+	void bind(Cump* ptr) {p = ptr;};
+	Cump* ptr() {return p;}
+	const Cump* ptr() const {return p;}
+	inline operator Comp() const;
+	inline CUref& operator=(Comp_I &rhs);
+	inline CUref& operator+=(Comp_I &rhs) { *this = Comp() + rhs; return *this; }
+	inline CUref& operator-=(Comp_I &rhs) { *this = Comp() - rhs; return *this; }
+	inline CUref& operator*=(Comp_I &rhs) { *this = Comp() * rhs; return *this; }
+	inline CUref& operator/=(Comp_I &rhs) { *this = Comp() / rhs; return *this; }
+};
+
+inline CUref<Comp>::operator Comp() const
+{
+	Comp val;
+	cudaMemcpy(&val, p, sizeof(Cump), cudaMemcpyDeviceToHost);
+	return val;
 }
 
-template <class T>
-inline CUref<T>& CUref<T>::operator-=(const T& rhs)
+inline CUref<Comp>& CUref<Comp>::operator=(Comp_I &rhs)
 {
-	*this = *this - rhs;
-	return *this;
-}
-
-template <class T>
-inline CUref<T>& CUref<T>::operator*=(const T& rhs)
-{
-	*this = *this * rhs;
-	return *this;
-}
-
-template <class T>
-inline CUref<T>& CUref<T>::operator/=(const T& rhs)
-{
-	*this = *this / rhs;
+	cudaMemcpy(p, &rhs, sizeof(Comp), cudaMemcpyHostToDevice);
 	return *this;
 }
 
@@ -157,6 +172,28 @@ CUptr<T> operator+(const CUptr<T> &pcu, Long_I i) { return CUptr<T>(pcu.ptr()+i)
 template <class T>
 CUptr<T> operator-(const CUptr<T> &pcu, Long_I i) { return CUptr<T>(pcu.ptr()-i); }
 
+template <>
+class CUptr<Comp>
+{
+protected:
+	Cump* p;
+public:
+	CUptr() : p(nullptr) {}
+	CUptr(Cump *ptr) : p(ptr) {}
+	Cump* ptr() const {return p;}
+	CUref<Comp> operator*() const {return CUref<Comp>(p);} // dereference
+	CUref<Comp> operator[](Long_I i) const {return CUref<Comp>(p+i);}
+	CUptr & operator=(const CUptr &rhs) {p = rhs.ptr(); return *this;} // copy assignment
+	CUptr & operator=(Cump* ptr) {p = ptr; return *this;} // Cump* assignment
+	void operator+=(Long_I i) { p += i; }
+	void operator-=(Long_I i) { p -= i; }
+};
+
+template <class T>
+CUptr<Comp> operator+(const CUptr<Comp> &pcu, Long_I i) { return CUptr<Comp>(pcu.ptr()+i); }
+template <class T>
+CUptr<Comp> operator-(const CUptr<Comp> &pcu, Long_I i) { return CUptr<Comp>(pcu.ptr()-i); }
+
 // scalar class
 template <class T>
 class CUscalar : public CUref<T>
@@ -165,18 +202,9 @@ public:
 	typedef CUref<T> Base;
 	using Base::p;
 	using Base::operator=;
-	//using Base::operator T;
-	CUscalar();
-	explicit CUscalar(const T &s);
+	CUscalar() { cudaMalloc(&p, sizeof(T)); }
+	explicit CUscalar(const T &s) : CUscalar() { *this = s; }
 };
-
-template <class T>
-CUscalar<T>::CUscalar()
-{ cudaMalloc(&p, sizeof(T)); }
-
-template <class T>
-CUscalar<T>::CUscalar(const T &s) : CUscalar()
-{ *this = s; }
 
 // base class for CUvector, CUmatrix, CUmat3d
 template <class T>
@@ -186,38 +214,19 @@ protected:
 	Long N;// number of elements
 	T* p; // pointer to the first element
 public:
-	CUbase();
-	explicit CUbase(Long_I n);
-	inline T* ptr();// get pointer
-	inline const T* ptr() const;
-	inline Long_I size() const;
+	CUbase() : N(0), p(nullptr) {}
+	explicit CUbase(Long_I n) : N(n) { cudaMalloc(&p, N*sizeof(T)); }
+	T* ptr() { return p; } // get pointer
+	const T* ptr() const { return p; }
+	Long_I size() const { return N; }
 	inline void resize(Long_I n);
 	inline CUref<T> operator()(Long_I i);
 	inline const CUref<T> operator()(Long_I i) const;
 	inline CUref<T> end(); // last element
 	inline const CUref<T> end() const;
 	inline CUbase & operator=(const T &rhs); // set scalar
-	~CUbase();
+	~CUbase() { if (p) cudaFree(p); }
 };
-
-template <class T>
-CUbase<T>::CUbase(): N(0), p(nullptr) {}
-
-template <class T>
-CUbase<T>::CUbase(Long_I n) : N(n)
-{ cudaMalloc(&p, N*sizeof(T)); }
-
-template <class T>
-inline T* CUbase<T>::ptr()
-{ return p; }
-
-template <class T>
-inline const T* CUbase<T>::ptr() const
-{ return p; }
-
-template <class T>
-inline Long_I CUbase<T>::size() const
-{ return N; }
 
 template <class T>
 inline void CUbase<T>::resize(Long_I n)
@@ -269,8 +278,6 @@ inline const CUref<T> CUbase<T>::end() const
 	if (N < 1)
 		error("Using end() for empty object")
 #endif
-	T val;
-	cudaMemcpy(&val, p+N-1, sizeof(T), cudaMemcpyDeviceToHost);
 	return CUref<T>(p+N-1);
 }
 
@@ -281,10 +288,80 @@ inline CUbase<T> & CUbase<T>::operator=(const T &rhs)
 	return *this;
 }
 
-template <class T>
-CUbase<T>::~CUbase()
-{ if (p) cudaFree(p); }
+template <>
+class CUbase<Comp>
+{
+protected:
+	Long N;// number of elements
+	Cump* p; // pointer to the first element
+public:
+	CUbase() : N(0), p(nullptr) {}
+	explicit CUbase(Long_I n) : N(n) { cudaMalloc(&p, N*sizeof(Cump)); }
+	Cump* ptr() { return p; } // get pointer
+	const Cump* ptr() const { return p; }
+	Long_I size() const { return N; }
+	inline void resize(Long_I n);
+	inline CUref<Comp> operator()(Long_I i);
+	inline const CUref<Comp> operator()(Long_I i) const;
+	inline CUref<Comp> end(); // last element
+	inline const CUref<Comp> end() const;
+	inline CUbase & operator=(Comp_I &rhs); // set scalar
+	~CUbase() { if (p) cudaFree(p); }
+};
 
+inline void CUbase<Comp>::resize(Long_I n)
+{
+	if (n != N) {
+		if (p != nullptr) cudaFree(p);
+		N = n;
+		if (n > 0)
+			cudaMalloc(&p, N*sizeof(Comp));
+		else
+			p = nullptr;
+	}
+}
+
+inline CUref<Comp> CUbase<Comp>::operator()(Long_I i)
+{
+#ifdef _CHECKBOUNDS_
+if (i<0 || i>=N)
+	error("CUbase subscript out of bounds")
+#endif
+	return CUref<Comp>(p+i);
+}
+
+inline const CUref<Comp> CUbase<Comp>::operator()(Long_I i) const
+{
+#ifdef _CHECKBOUNDS_
+if (i<0 || i>=N)
+	error("CUbase subscript out of bounds");
+#endif
+	return CUref<Comp>(p+i);
+}
+
+inline CUref<Comp> CUbase<Comp>::end()
+{
+#ifdef _CHECKBOUNDS_
+	if (N < 1)
+		error("Using end() for empty object")
+#endif
+	return CUref<Comp>(p+N-1);
+}
+
+inline const CUref<Comp> CUbase<Comp>::end() const
+{
+#ifdef _CHECKBOUNDS_
+	if (N < 1)
+		error("Using end() for empty object")
+#endif
+	return CUref<Comp>(p+N-1);
+}
+
+inline CUbase<Comp> & CUbase<Comp>::operator=(Comp_I &rhs)
+{
+	if (N) cumemset<<<nbl(Nbl0,Nth0,N), Nth0>>>(p, Cump(real(rhs),imag(rhs)), N);
+	return *this;
+}
 
 // Vector Class
 
@@ -296,8 +373,8 @@ public:
 	using Base::p;
 	using Base::N;
 	using Base::operator=;
-	CUvector();
-	explicit CUvector(Long_I n);
+	CUvector() {};
+	explicit CUvector(Long_I n) : Base(n) {}
 	CUvector(Long_I n, const T &a);	//initialize to constant value
 	CUvector(NRvector<T> &v); // initialize from cpu vector
 	CUvector(const CUvector &rhs);	// Copy constructor forbidden
@@ -316,14 +393,8 @@ public:
 };
 
 template <class T>
-CUvector<T>::CUvector() {}
-
-template <class T>
-CUvector<T>::CUvector(Long_I n) : Base(n) {}
-
-template <class T>
 CUvector<T>::CUvector(Long_I n, const T &a) : CUvector(n)
-{ cumemset<<<nbl(Nbl0,Nth0,N), Nth0>>>(p, a, N); }
+{ *this = a; }
 
 template <class T>
 CUvector<T>::CUvector(NRvector<T> &v) : CUvector(v.size())
@@ -452,7 +523,7 @@ CUmatrix<T>::CUmatrix(Long_I n, Long_I m) : Base(n*m), nn(n), mm(m), v(v_alloc()
 
 template <class T>
 CUmatrix<T>::CUmatrix(Long_I n, Long_I m, const T &s) : CUmatrix(n, m)
-{ cumemset<<<nbl(Nbl0,Nth0,N), Nth0>>>(p, s, N); }
+{ *this = s; }
 
 template <class T>
 CUmatrix<T>::CUmatrix(NRmatrix<T> &v) : CUmatrix(v.nrows(), v.ncols())
@@ -617,7 +688,7 @@ Base(n*m*k), nn(n), mm(m), kk(k), v(v_alloc()) {}
 
 template <class T>
 CUmat3d<T>::CUmat3d(Long_I n, Long_I m, Long_I k, const T &s) : CUmat3d(n, m, k)
-{ cumemset<<<nbl(Nbl0,Nth0,N), Nth0>>>(p, s, N); }
+{ *this = s; }
 
 template <class T>
 CUmat3d<T>::CUmat3d(NRmat3d<T> &v) : CUmat3d(v.dim1(), v.dim2(), v.dim3())
@@ -739,8 +810,8 @@ typedef CUscalar<Doub> Gdoub, Gdoub_O, Gdoub_IO;
 typedef const CUscalar<Ldoub> Gldoub_I;
 typedef CUscalar<Ldoub> Gldoub, Gldoub_O, Gldoub_IO;
 
-typedef const CUscalar<Cump> Gcump_I;
-typedef CUscalar<Cump> Gcump, Gcump_O, Gcump_IO;
+typedef const CUscalar<Comp> Gcomp_I;
+typedef CUscalar<Comp> Gcomp, Gcomp_O, Gcomp_IO;
 
 typedef const CUscalar<Bool> Gbool_I;
 typedef CUscalar<Bool> Gbool, Gbool_O, Gbool_IO;
@@ -775,8 +846,8 @@ typedef CUvector<Doub> GvecDoub, GvecDoub_O, GvecDoub_IO;
 typedef const CUvector<Doub*> GvecDoubp_I;
 typedef CUvector<Doub*> GvecDoubp, GvecDoubp_O, GvecDoubp_IO;
 
-typedef const CUvector<Cump> GvecCump_I;
-typedef CUvector<Cump> GvecCump, GvecCump_O, GvecCump_IO;
+typedef const CUvector<Comp> GvecComp_I;
+typedef CUvector<Comp> GvecComp, GvecComp_O, GvecComp_IO;
 
 typedef const CUvector<Bool> GvecBool_I;
 typedef CUvector<Bool> GvecBool, GvecBool_O, GvecBool_IO;
@@ -802,8 +873,8 @@ typedef CUmatrix<Uchar> GmatUchar, GmatUchar_O, GmatUchar_IO;
 typedef const CUmatrix<Doub> GmatDoub_I;
 typedef CUmatrix<Doub> GmatDoub, GmatDoub_O, GmatDoub_IO;
 
-typedef const CUmatrix<Cump> GmatCump_I;
-typedef CUmatrix<Cump> GmatCump, GmatCump_O, GmatCump_IO;
+typedef const CUmatrix<Comp> GmatComp_I;
+typedef CUmatrix<Comp> GmatComp, GmatComp_O, GmatComp_IO;
 
 typedef const CUmatrix<Bool> GmatBool_I;
 typedef CUmatrix<Bool> GmatBool, GmatBool_O, GmatBool_IO;
@@ -811,5 +882,5 @@ typedef CUmatrix<Bool> GmatBool, GmatBool_O, GmatBool_IO;
 typedef const CUmat3d<Doub> Gmat3Doub_I;
 typedef CUmat3d<Doub> Gmat3Doub, Gmat3Doub_O, Gmat3Doub_IO;
 
-typedef const CUmat3d<Cump> Gmat3Cump_I;
-typedef CUmat3d<Cump> Gmat3Cump, Gmat3Cump_O, Gmat3Cump_IO;
+typedef const CUmat3d<Comp> Gmat3Comp_I;
+typedef CUmat3d<Comp> Gmat3Comp, Gmat3Comp_O, Gmat3Comp_IO;

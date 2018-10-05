@@ -25,6 +25,7 @@ inline T getsym(const T &sym)
 }
 
 // set device global variable
+
 template <class T, class T1>
 inline void setsym(T &sym, const T1 &val)
 {
@@ -32,6 +33,24 @@ inline void setsym(T &sym, const T1 &val)
 	cudaMemcpyToSymbol(sym, &val1, sizeof(T));
 #ifdef _CHECKSETSYS_
 	if (getsym(sym) != val1) error("failed!");
+#endif
+}
+
+template <class T>
+inline void setsym(T &sym, const T &val)
+{
+	cudaMemcpyToSymbol(sym, &val, sizeof(T));
+#ifdef _CHECKSETSYS_
+	if (getsym(sym) != val) error("failed!");
+#endif
+}
+
+inline void setsym(Cump &sym, const Comp &val)
+{
+	cudaMemcpyToSymbol(sym, &val, sizeof(Comp));
+#ifdef _CHECKSETSYS_
+	Cump val1 = getsym(sym);
+	if ( val1 != val ) error("failed!");
 #endif
 }
 
@@ -261,23 +280,7 @@ __global__ void minus_equals1_kernel(T *v, T1 s, Long N)
 }
 
 template <class T, class T1>
-inline void operator-=(CUvector<T> &v, const T1 &s)
-{
-	Int N = v.size();
-	Int Nbl = nbl(Nbl_minus_equals1, Nth_minus_equals1, N);
-	minus_equals1_kernel<<<Nbl, Nth_minus_equals1>>>(v.ptr(), s, N);
-}
-
-template <class T, class T1>
-inline void operator-=(CUmatrix<T> &v, const T1 &s)
-{
-	Int N = v.size();
-	Int Nbl = nbl(Nbl_minus_equals1, Nth_minus_equals1, N);
-	minus_equals1_kernel<<<Nbl, Nth_minus_equals1>>>(v.ptr(), s, N);
-}
-
-template <class T, class T1>
-inline void operator-=(CUmat3d<T> &v, const T1 &s)
+inline void operator-=(CUbase<T> &v, const T1 &s)
 {
 	Int N = v.size();
 	Int Nbl = nbl(Nbl_minus_equals1, Nth_minus_equals1, N);
@@ -493,6 +496,18 @@ inline T sum(const CUbase<T> &gv)
 	return sum(v1);
 }
 
+template <>
+inline Comp sum(const CUbase<Comp> &gv)
+{
+	Long N = gv.size();
+	Int Nbl = nbl(Nbl_sum, Nth_sum, N);
+	CUvector<Comp> gv1(Nbl);
+	NRvector<Comp> v1(Nbl);
+	sum_kernel<<<Nbl, Nth_sum>>>((Cump*)gv1.ptr(), (Cump*)gv.ptr(), N);
+	gv1.get(v1);
+	return sum(v1);
+}
+
 //sum v1 in cpu to get norm2, size(v1) = Nblock
 // works only for non-complex types
 template <class T> __global__
@@ -526,7 +541,7 @@ void norm2_kernel(T *v1, const T *v, Long N)
 }
 
 // norm2_kernel for Cump
-__global__ void norm2_kernel(Doub *v1, const Cump *v, Long N);
+__global__ void norm2_kernel(Doub *v1, Cump_I *v, Long N);
 
 template <class T>
 inline Doub norm2(const CUbase<T> &gv)
