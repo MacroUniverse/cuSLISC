@@ -525,8 +525,8 @@ void norm2_kernel(T *v1, const T *v, Long N)
 		v1[blockIdx.x] = cache[0];
 }
 
-// norm2_kernel for Comp
-__global__ void norm2_kernel(Doub *v1, const Comp *v, Long N);
+// norm2_kernel for Cump
+__global__ void norm2_kernel(Doub *v1, const Cump *v, Long N);
 
 template <class T>
 inline Doub norm2(const CUbase<T> &gv)

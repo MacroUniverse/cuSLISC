@@ -3,6 +3,10 @@
 #include "nr3plus.h"
 #include "cuda_complex.h"
 
+// use Cump as Comp in cuda kernel
+typedef const cuda_complex::complex<Doub> Cump_I;
+typedef cuda_complex::complex<Doub> Cump, Cump_O, Cump_IO;
+
 // manually set max block number and thread number
 // <<<nbl(Nbl*, Nth*, N), Nth*>>> for kernel call
 #ifdef CUSLISC_GTX1080
@@ -298,7 +302,8 @@ public:
 	CUvector(NRvector<T> &v); // initialize from cpu vector
 	CUvector(const CUvector &rhs);	// Copy constructor forbidden
 	// TODO: implement operator=(CU*<T>) in NR to replace get()
-	inline void get(NRvector<T> &v) const; // copy to cpu vector
+	template <class T1>
+	inline void get(NRvector<T1> &v) const; // copy to cpu vector
 	inline CUvector & operator=(const CUvector &rhs);	// copy assignment
 	inline CUvector & operator=(const NRvector<T> &v); // NR assignment
 	inline CUref<T> operator[](Long_I i); //i'th element
@@ -353,7 +358,7 @@ inline CUref<T> CUvector<T>::operator[](Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("CUvector subscript out of bounds")
+	error("CUvector subscript out of bounds");
 #endif
 	return CUref<T>(p+i);
 }
@@ -362,15 +367,19 @@ template <class T>
 inline const CUref<T> CUvector<T>::operator[](Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
-if (i<0 || i>=N)
-	error("CUvector subscript out of bounds");
+	if (i<0 || i>=N)
+		error("CUvector subscript out of bounds");
 #endif
 	return CUref<T>(p+i);
 }
 
-template <class T>
-inline void CUvector<T>::get(NRvector<T> &v) const
+template <class T> template <class T1>
+inline void CUvector<T>::get(NRvector<T1> &v) const
 {
+#ifdef _CHECKTYPE_
+	if (sizeof(T) != sizeof(T1))
+		error("wrong type size!");
+#endif
 	v.resize(N);
 	cudaMemcpy(v.ptr(), p, N*sizeof(T), cudaMemcpyDeviceToHost);
 }
@@ -409,7 +418,8 @@ public:
 	inline Long nrows() const;
 	inline Long ncols() const;
 	// TODO: implement operator=(CU*<T>) in NR to replace get()
-	inline void get(NRmatrix<T> &v) const; // copy to cpu vector
+	template <class T1>
+	inline void get(NRmatrix<T1> &v) const; // copy to cpu vector
 	inline CUmatrix & operator=(const CUmatrix &rhs); //copy assignment
 	inline CUmatrix & operator=(const NRmatrix<T> &rhs); //NR assignment
 	inline CUptr<T> operator[](Long_I i);  //subscripting: pointer to row i
@@ -462,9 +472,13 @@ template <class T>
 inline Long CUmatrix<T>::ncols() const
 { return mm; }
 
-template <class T>
-inline void CUmatrix<T>::get(NRmatrix<T> &a) const
+template <class T> template <class T1>
+inline void CUmatrix<T>::get(NRmatrix<T1> &a) const
 {
+#ifdef _CHECKTYPE_
+	if (sizeof(T) != sizeof(T1))
+		error("wrong type size!");
+#endif
 	a.resize(nn, mm);
 	cudaMemcpy(a.ptr(), p, N*sizeof(T), cudaMemcpyDeviceToHost);
 }
@@ -556,7 +570,8 @@ public:
 	inline Long dim2() const;
 	inline Long dim3() const;
 	// TODO: implement operator=(CU*<T>) in NR to replace get()
-	inline void get(NRmat3d<T> &v) const; // copy to cpu matrix
+	template <class T1>
+	inline void get(NRmat3d<T1> &v) const; // copy to cpu matrix
 	inline CUmat3d & operator=(const CUmat3d &rhs);	//copy assignment
 	inline CUmat3d & operator=(const NRmat3d<T> &rhs); //NR assignment
 	inline CUptr<T>* operator[](Long_I i);	//subscripting: pointer to row i
@@ -626,9 +641,13 @@ template <class T>
 inline Long CUmat3d<T>::dim3() const
 { return kk; }
 
-template <class T>
-inline void CUmat3d<T>::get(NRmat3d<T> &a) const
+template <class T> template <class T1>
+inline void CUmat3d<T>::get(NRmat3d<T1> &a) const
 {
+#ifdef _CHECKTYPE_
+	if (sizeof(T) != sizeof(T1))
+		error("wrong type size");
+#endif
 	a.resize(nn, mm, kk);
 	cudaMemcpy(a.ptr(), p, N*sizeof(T), cudaMemcpyDeviceToHost);
 }
@@ -720,8 +739,8 @@ typedef CUscalar<Doub> Gdoub, Gdoub_O, Gdoub_IO;
 typedef const CUscalar<Ldoub> Gldoub_I;
 typedef CUscalar<Ldoub> Gldoub, Gldoub_O, Gldoub_IO;
 
-typedef const CUscalar<Comp> Gcomp_I;
-typedef CUscalar<Comp> Gcomp, Gcomp_O, Gcomp_IO;
+typedef const CUscalar<Cump> Gcump_I;
+typedef CUscalar<Cump> Gcump, Gcump_O, Gcump_IO;
 
 typedef const CUscalar<Bool> Gbool_I;
 typedef CUscalar<Bool> Gbool, Gbool_O, Gbool_IO;
@@ -756,8 +775,8 @@ typedef CUvector<Doub> GvecDoub, GvecDoub_O, GvecDoub_IO;
 typedef const CUvector<Doub*> GvecDoubp_I;
 typedef CUvector<Doub*> GvecDoubp, GvecDoubp_O, GvecDoubp_IO;
 
-typedef const CUvector<Comp> GvecComp_I;
-typedef CUvector<Comp> GvecComp, GvecComp_O, GvecComp_IO;
+typedef const CUvector<Cump> GvecCump_I;
+typedef CUvector<Cump> GvecCump, GvecCump_O, GvecCump_IO;
 
 typedef const CUvector<Bool> GvecBool_I;
 typedef CUvector<Bool> GvecBool, GvecBool_O, GvecBool_IO;
@@ -783,8 +802,8 @@ typedef CUmatrix<Uchar> GmatUchar, GmatUchar_O, GmatUchar_IO;
 typedef const CUmatrix<Doub> GmatDoub_I;
 typedef CUmatrix<Doub> GmatDoub, GmatDoub_O, GmatDoub_IO;
 
-typedef const CUmatrix<Comp> GmatComp_I;
-typedef CUmatrix<Comp> GmatComp, GmatComp_O, GmatComp_IO;
+typedef const CUmatrix<Cump> GmatCump_I;
+typedef CUmatrix<Cump> GmatCump, GmatCump_O, GmatCump_IO;
 
 typedef const CUmatrix<Bool> GmatBool_I;
 typedef CUmatrix<Bool> GmatBool, GmatBool_O, GmatBool_IO;
@@ -792,5 +811,5 @@ typedef CUmatrix<Bool> GmatBool, GmatBool_O, GmatBool_IO;
 typedef const CUmat3d<Doub> Gmat3Doub_I;
 typedef CUmat3d<Doub> Gmat3Doub, Gmat3Doub_O, Gmat3Doub_IO;
 
-typedef const CUmat3d<Comp> Gmat3Comp_I;
-typedef CUmat3d<Comp> Gmat3Comp, Gmat3Comp_O, Gmat3Comp_IO;
+typedef const CUmat3d<Cump> Gmat3Cump_I;
+typedef CUmat3d<Cump> Gmat3Cump, Gmat3Cump_O, Gmat3Cump_IO;

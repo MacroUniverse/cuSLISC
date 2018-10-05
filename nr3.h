@@ -12,7 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
-#include "cuda_complex.h"
+#include <complex>
 #include <iomanip>
 #include <vector>
 #include <limits>
@@ -60,8 +60,8 @@ typedef double Doub, Doub_O, Doub_IO;
 typedef const long double Ldoub_I;
 typedef long double Ldoub, Ldoub_O, Ldoub_IO;
 
-typedef const Cump::complex<double> Comp_I;
-typedef Cump::complex<double> Comp, Comp_O, Comp_IO;
+typedef const std::complex<double> Comp_I;
+typedef std::complex<double> Comp, Comp_O, Comp_IO;
 
 typedef const bool Bool_I;
 typedef bool Bool, Bool_O, Bool_IO;
@@ -91,7 +91,7 @@ protected:
 	inline void move(NRbase &rhs);
 public:
 	NRbase();
-	NRbase(Long_I n);
+	explicit NRbase(Long_I n);
 	inline T* ptr(); // get pointer
 	inline const T* ptr() const;
 	inline Long_I size() const;
@@ -146,7 +146,7 @@ inline T & NRbase<T>::operator()(Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("NRvector subscript out of bounds")
+	error("NRbase subscript out of bounds");
 #endif
 	return p[i];
 }
@@ -156,7 +156,7 @@ inline const T & NRbase<T>::operator()(Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i>=N)
-		error("NRvector subscript out of bounds")
+		error("NRbase subscript out of bounds");
 #endif
 	return p[i];
 }
@@ -166,7 +166,7 @@ inline T & NRbase<T>::end()
 {
 #ifdef _CHECKBOUNDS_
 	if (N < 1)
-		error("Using end() for empty object")
+		error("Using end() for empty object");
 #endif
 	return p[N-1];
 }
@@ -176,7 +176,7 @@ inline const T & NRbase<T>::end() const
 {
 #ifdef _CHECKBOUNDS_
 	if (N < 1)
-		error("Using end() for empty object")
+		error("Using end() for empty object");
 #endif
 	return p[N-1];
 }
@@ -186,7 +186,7 @@ inline T& NRbase<T>::end(Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 	if (i <= 0 || i > N)
-		error("index out of bound")
+		error("index out of bound");
 #endif
 	return p[N-i];
 }
@@ -196,7 +196,7 @@ inline const T& NRbase<T>::end(Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 	if (i <= 0 || i > N)
-		error("index out of bound")
+		error("index out of bound");
 #endif
 	return p[N-i];
 }
@@ -246,13 +246,13 @@ NRvector<T>::NRvector(Long_I n, const T *a) : NRvector(n)
 template <class T>
 NRvector<T>::NRvector(const NRvector<T> &rhs)
 {
-	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!")
+	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!");
 }
 
 template <class T>
 inline NRvector<T> & NRvector<T>::operator=(const NRvector<T> &rhs)
 {
-	if (this == &rhs) error("self assignment is forbidden!")
+	if (this == &rhs) error("self assignment is forbidden!");
 	resize(rhs);
 	memcpy(p, rhs.p, N*sizeof(T));
 	return *this;
@@ -268,7 +268,7 @@ inline NRvector<T>& NRvector<T>::operator=(const T &rhs)
 template <class T>
 inline void NRvector<T>::operator<<(NRvector<T> &rhs)
 {
-	if (this == &rhs) error("self move is forbidden!")
+	if (this == &rhs) error("self move is forbidden!");
 	Base::move(rhs);
 }
 
@@ -277,7 +277,7 @@ inline T & NRvector<T>::operator[](Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("NRvector subscript out of bounds")
+	error("NRvector subscript out of bounds");
 #endif
 	return p[i];
 }
@@ -287,7 +287,7 @@ inline const T & NRvector<T>::operator[](Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("NRvector subscript out of bounds")
+	error("NRvector subscript out of bounds");
 #endif
 	return p[i];
 }
@@ -326,7 +326,7 @@ public:
 	inline const T* operator[](Long_I i) const;
 	inline Long nrows() const;
 	inline Long ncols() const;
-	inline void resize(Long_I newn, Long_I newm); // resize (contents not preserved)
+	inline void resize(Long_I n, Long_I m); // resize (contents not preserved)
 	template <class T1>
 	inline void resize(const NRmatrix<T1> &a);
 	~NRmatrix();
@@ -360,13 +360,13 @@ NRmatrix<T>::NRmatrix(Long_I n, Long_I m, const T *ptr) : NRmatrix(n, m)
 template <class T>
 NRmatrix<T>::NRmatrix(const NRmatrix<T> &rhs)
 {
-	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!")
+	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!");
 }
 
 template <class T>
 inline NRmatrix<T> & NRmatrix<T>::operator=(const NRmatrix<T> &rhs)
 {
-	if (this == &rhs) error("self assignment is forbidden!")
+	if (this == &rhs) error("self assignment is forbidden!");
 	resize(rhs.nn, rhs.mm);
 	memcpy(p, rhs.p, N*sizeof(T));
 	return *this;
@@ -382,7 +382,7 @@ inline NRmatrix<T> & NRmatrix<T>::operator=(const T &rhs)
 template <class T>
 inline void NRmatrix<T>::operator<<(NRmatrix<T> &rhs)
 {
-	if (this == &rhs) error("self move is forbidden!")
+	if (this == &rhs) error("self move is forbidden!");
 	Base::move(rhs);
 	if (v) delete v;
 	nn = rhs.nn; mm = rhs.mm; v = rhs.v;
@@ -394,7 +394,7 @@ inline T* NRmatrix<T>::operator[](Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i>=nn)
-		error("NRmatrix subscript out of bounds")
+		error("NRmatrix subscript out of bounds");
 #endif
 	return v[i];
 }
@@ -404,7 +404,7 @@ inline const T* NRmatrix<T>::operator[](Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i>=nn)
-		error("NRmatrix subscript out of bounds")
+		error("NRmatrix subscript out of bounds");
 #endif
 	return v[i];
 }
@@ -418,11 +418,11 @@ inline Long NRmatrix<T>::ncols() const
 { return mm; }
 
 template <class T>
-inline void NRmatrix<T>::resize(Long_I newn, Long_I newm)
+inline void NRmatrix<T>::resize(Long_I n, Long_I m)
 {
-	if (newn != nn || newm != mm) {
-		Base::resize(newn*newm);
-		nn = newn; mm = newm;
+	if (n != nn || m != mm) {
+		Base::resize(n*m);
+		nn = n; mm = m;
 		if (v) delete v;
 		v = v_alloc();
 	}
@@ -463,8 +463,8 @@ public:
 	inline void resize(Long_I n, Long_I m, Long_I k);
 	template <class T1>
 	inline void resize(const NRmat3d<T1> &a);
-	inline T** operator[](Long_I i);	//subscripting: pointer to row i
-	inline const T* const * operator[](Long_I i) const;
+	inline T*const * operator[](Long_I i);	//subscripting: pointer to row i
+	inline const T*const * operator[](Long_I i) const;
 	inline Long dim1() const;
 	inline Long dim2() const;
 	inline Long dim3() const;
@@ -508,13 +508,13 @@ NRmat3d<T>::NRmat3d(Long_I n, Long_I m, Long_I k, const T &s) : NRmat3d(n, m, k)
 template <class T>
 NRmat3d<T>::NRmat3d(const NRmat3d<T> &rhs)
 {
-	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!")
+	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!");
 }
 
 template <class T>
 inline NRmat3d<T> &NRmat3d<T>::operator=(const NRmat3d<T> &rhs)
 {
-	if (this == &rhs) error("self assignment is forbidden!")
+	if (this == &rhs) error("self assignment is forbidden!");
 	resize(rhs.nn, rhs.mm, rhs.kk);
 	memcpy(p, rhs.p, N*sizeof(T));
 	return *this;
@@ -530,7 +530,7 @@ inline NRmat3d<T> & NRmat3d<T>::operator=(const T &rhs)
 template <class T>
 inline void NRmat3d<T>::operator<<(NRmat3d<T> &rhs)
 {
-	if (this == &rhs) error("self move is forbidden!")
+	if (this == &rhs) error("self move is forbidden!");
 	Base::move(rhs);
 	nn = rhs.nn; mm = rhs.mm; kk = rhs.kk;
 	v_free(); v = rhs.v;
@@ -553,21 +553,21 @@ template <class T1>
 inline void NRmat3d<T>::resize(const NRmat3d<T1> &a) { resize(a.dim1(), a.dim2(), a.dim3()); }
 
 template <class T>
-inline T** NRmat3d<T>::operator[](Long_I i)
+inline T*const * NRmat3d<T>::operator[](Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i >= nn)
-		error("NRmatrix subscript out of bounds")
+		error("NRmatrix subscript out of bounds");
 #endif
 	return v[i];
 }
 
 template <class T>
-inline const T* const * NRmat3d<T>::operator[](Long_I i) const
+inline const T*const * NRmat3d<T>::operator[](Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i >= nn)
-		error("NRmatrix subscript out of bounds")
+		error("NRmatrix subscript out of bounds");
 #endif
 	return v[i];
 }
@@ -697,16 +697,16 @@ inline void SWAP(T &a, T &b)
 // NR3 compatibility issues
 
 struct Complex
-{ Complex() { error("Replace all \"Complex\" with \"Comp!\"") } };
+{ Complex() { error("Replace all \"Complex\" with \"Comp!\""); } };
 
 struct VecComplex
-{ VecComplex() { error("Replace all \"Complex\" with \"Comp!\"") } };
+{ VecComplex() { error("Replace all \"Complex\" with \"Comp!\""); } };
 
 struct MatComplex
-{ MatComplex() { error("Replace all \"Complex\" with \"Comp!\"") } };
+{ MatComplex() { error("Replace all \"Complex\" with \"Comp!\""); } };
 
 struct Mat3DDoub
-{ Mat3DDoub() { error("Replace all \"Mat3D\" with \"Mat3\"") } };
+{ Mat3DDoub() { error("Replace all \"Mat3D\" with \"Mat3\""); } };
 
 struct Mat3DComplex
-{ Mat3DComplex() { error("Replace all \"Mat3D\" with \"Mat3\"") } };
+{ Mat3DComplex() { error("Replace all \"Mat3D\" with \"Mat3\""); } };

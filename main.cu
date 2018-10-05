@@ -5,27 +5,27 @@ using std::cout; using std::endl; using std::string;
 using std::ifstream; using std::to_string;
 
 __device__ Doub glob_dev_Doub;
-__device__ Comp glob_dev_Comp;
+__device__ Cump glob_dev_Cump;
 __constant__ Doub glob_const_Doub;
-__constant__ Comp glob_const_Comp;
+__constant__ Cump glob_const_Cump;
 
 void test_global()
 {
 	// __device__ var
 	setsym(glob_dev_Doub, 3.14);
 	if (getsym(glob_dev_Doub) != 3.14) error("failed!");
-	setsym(glob_dev_Comp, Comp(1.1,2.2));
-	if (getsym(glob_dev_Comp) != Comp(1.1,2.2)) error("failed!");
-	setsym(glob_dev_Comp, 3.14);
-	if (getsym(glob_dev_Comp) != Comp(3.14,0.)) error("failed!");
+	setsym(glob_dev_Cump, Cump(1.1,2.2));
+	if (getsym(glob_dev_Cump) != Cump(1.1,2.2)) error("failed!");
+	setsym(glob_dev_Cump, 3.14);
+	if (getsym(glob_dev_Cump) != Cump(3.14,0.)) error("failed!");
 
 	// __const__ var
 	setsym(glob_const_Doub, 6.28);
 	if (getsym(glob_const_Doub) != 6.28) error("failed!");
-	setsym(glob_const_Comp, Comp(1.1,2.2));
-	if (getsym(glob_const_Comp) != Comp(1.1,2.2)) error("failed!");
-	setsym(glob_dev_Comp, 3.14);
-	if (getsym(glob_dev_Comp) != Comp(3.14,0.)) error("failed!");
+	setsym(glob_const_Cump, Cump(1.1,2.2));
+	if (getsym(glob_const_Cump) != Cump(1.1,2.2)) error("failed!");
+	setsym(glob_dev_Cump, 3.14);
+	if (getsym(glob_dev_Cump) != Cump(3.14,0.)) error("failed!");
 }
 
 void test_vector()
@@ -157,9 +157,9 @@ void test_vector()
 		if (abs(gs-6.283) > 1e-16) error("failed!");
 		gs /= 2;
 		if (abs(gs-3.1415) > 1e-16) error("failed!");
-		Gcomp gs1(Comp(1.1, 2.2));
-		if ((Comp)gs1 != Comp(1.1,2.2)) error("failed!");
-		if (abs((Comp)gs1 + (Doub)gs - Comp(4.2415, 2.2)) > 1e-16)  error("failed!");
+		Gcump gs1(Cump(1.1, 2.2));
+		if ((Cump)gs1 != Cump(1.1,2.2)) error("failed!");
+		if (abs((Cump)gs1 + (Doub)gs - Cump(4.2415, 2.2)) > 1e-16)  error("failed!");
 	}
 
 	// .end()
@@ -355,15 +355,15 @@ void test_matrix()
 		if (gaDoub.ptr() != nullptr) error("failed!");
 		// resize(CUmatrix<>)
 		gaDoub.resize(2, 3);
-		GmatComp gaComp;
-		gaComp.resize(gaDoub);
-		if (gaComp.size() != 6)  error("failed!");
-		if (gaComp.nrows() != 2 || gaComp.ncols() != 3) error("failed!");
+		GmatCump gaCump;
+		gaCump.resize(gaDoub);
+		if (gaCump.size() != 6)  error("failed!");
+		if (gaCump.nrows() != 2 || gaCump.ncols() != 3) error("failed!");
 		// resize(NRmatrix<>)
 		aDoub.resize(4,5);
-		gaComp.resize(aDoub);
-		if (gaComp.size() != 20)  error("failed!");
-		if (gaComp.nrows() != 4 || gaComp.ncols() != 5) error("failed!");
+		gaCump.resize(aDoub);
+		if (gaCump.size() != 20)  error("failed!");
+		if (gaCump.nrows() != 4 || gaCump.ncols() != 5) error("failed!");
 	}
 }
 
@@ -510,16 +510,16 @@ void test_mat3d()
 		if (gaDoub.ptr() != nullptr) error("failed!");
 		// resize(CUmatrix<>)
 		gaDoub.resize(2, 3, 4);
-		Gmat3Comp gaComp;
-		gaComp.resize(gaDoub);
-		if (gaComp.size() != 24)  error("failed!");
-		if (gaComp.dim1() != 2 || gaComp.dim2() != 3 || gaComp.dim3() != 4)
+		Gmat3Cump gaCump;
+		gaCump.resize(gaDoub);
+		if (gaCump.size() != 24)  error("failed!");
+		if (gaCump.dim1() != 2 || gaCump.dim2() != 3 || gaCump.dim3() != 4)
 			error("failed!");
 		// resize(NRmatrix<>)
 		aDoub.resize(4,5,6);
-		gaComp.resize(aDoub);
-		if (gaComp.size() != 120) error("failed!");
-		if (gaComp.dim1() != 4 || gaComp.dim2() != 5 || gaComp.dim3() != 6)
+		gaCump.resize(aDoub);
+		if (gaCump.size() != 120) error("failed!");
+		if (gaCump.dim1() != 4 || gaCump.dim2() != 5 || gaCump.dim3() != 6)
 			error("failed!");
 	}
 }
@@ -529,14 +529,14 @@ void test_basic()
 {
 	// v += v; v -= v; v *= v; v /= v
 	{
-		GmatComp ga(10,10,Comp(1.,2.));
+		GmatCump ga(10,10,Cump(1.,2.));
 		GmatDoub ga1(10,10,1.);
 		ga += ga1;
 		MatComp a; ga.get(a);
 		if (a != Comp(2.,2.)) error("failed!");
 		ga -= ga1; ga.get(a);
 		if (a != Comp(1.,2.)) error("failed!");
-		ga = Comp(3.14, 3.33); ga1 = 2.;
+		ga = Cump(3.14, 3.33); ga1 = 2.;
 		ga *= ga1; ga.get(a);
 		if (a != Comp(6.28, 6.66)) error("failed!");
 		ga /= ga1; ga.get(a);
@@ -545,19 +545,19 @@ void test_basic()
 
 	// v +=s; v -= s; v *= s; v /= s;
 	{
-		GmatComp ga(10,10,Comp(10.,20.));
-		ga += 10.; ga -= Comp(0.,10.);
+		GmatCump ga(10,10,Cump(10.,20.));
+		ga += 10.; ga -= Cump(0.,10.);
 		MatComp a; ga.get(a);
 		if (a != Comp(20.,10.)) error("failed!");
 		ga *= 1.5; ga.get(a);
 		if (a != Comp(30.,15.)) error("failed!");
-		ga /= 1.5*I; ga.get(a);
+		ga /= Cump(0.,1.5); ga.get(a);
 		if (a != Comp(10.,-20.)) error("failed!");
 	}
 
 	// plus(v, v1, s); plus(v, s, v1); plus(v, v1, v2);
 	{
-		GmatComp ga(10,10);
+		GmatCump ga(10,10);
 		GmatDoub ga1(10,10, 2.2);
 		MatComp a;
 		plus(ga, ga1, -0.2); ga.get(a);
@@ -565,7 +565,7 @@ void test_basic()
 		ga = 0.; plus(ga, -0.2, ga1); ga.get(a);
 		if (a != 2.) error("failed!");
 		ga1 = 2.;
-		GmatComp ga2(10,10,Comp(1.,1.));
+		GmatCump ga2(10,10,Cump(1.,1.));
 		ga = 0.; plus(ga, ga1, ga2); ga.get(a);
 		MatComp a1(10,10,Comp(3.,1.));
 		if (a != a1) error("failed!");
@@ -573,7 +573,7 @@ void test_basic()
 
 	// minus(v);
 	{
-		GmatComp ga(10,10,Comp(3.14,-6.28));
+		GmatCump ga(10,10,Cump(3.14,-6.28));
 		MatComp a;
 		minus(ga); ga.get(a);
 		if (a != Comp(-3.14, 6.28)) error("failed!");
@@ -581,8 +581,8 @@ void test_basic()
 
 	// sum(v), norm2(v), norm(v)
 	{
-		GmatComp gv(10, 10, Comp(1.,2.));
-		if (sum(gv) != Comp(100.,200.)) error("failed!");
+		GmatCump gv(10, 10, Cump(1.,2.));
+		if (sum(gv) != Cump(100.,200.)) error("failed!");
 		if (abs(norm2(gv)-500.)>2e-13) error("failed!");
 		GmatDoub gv1(10, 10, 1.2);
 		if (abs(norm2(gv1)-144.)>1e-15) error("failed!");

@@ -39,7 +39,7 @@
 #include <math.h>
 #include <sstream>
 
-namespace Cump
+namespace cuda_complex
 {
 
 template<class _Tp> class  complex;
