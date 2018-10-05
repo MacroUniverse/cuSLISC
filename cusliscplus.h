@@ -157,14 +157,20 @@ __global__ void times_equals0_kernel(T *v, T1 *v1, Long N)
 }
 
 template <class T, class T1>
+inline void times_equals0(CUbase<T> &v, const CUbase<T1> &v1)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_times_equals0, Nth_times_equals0, N);
+	times_equals0_kernel<<<Nbl, Nth_times_equals0>>>(v.ptr(), v1.ptr(), N);
+}
+
+template <class T, class T1>
 inline void operator*=(CUvector<T> &v, const CUvector<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
 	if (!shape_cmp(v, v1)) error("wrong shape!")
 #endif
-	Int N = v.size();
-	Int Nbl = nbl(Nbl_times_equals0, Nth_times_equals0, N);
-	times_equals0_kernel<<<Nbl, Nth_times_equals0>>>(v.ptr(), v1.ptr(), N);
+	times_equals0(v, v1);
 }
 
 template <class T, class T1>
@@ -173,9 +179,7 @@ inline void operator*=(CUmatrix<T> &v, const CUmatrix<T1> &v1)
 #ifdef _CHECKBOUNDS_
 	if (!shape_cmp(v, v1)) error("wrong shape!")
 #endif
-	Int N = v.size();
-	Int Nbl = nbl(Nbl_times_equals0, Nth_times_equals0, N);
-	times_equals0_kernel<<<Nbl, Nth_times_equals0>>>(v.ptr(), v1.ptr(), N);
+	times_equals0(v, v1);
 }
 
 template <class T, class T1>
@@ -184,9 +188,7 @@ inline void operator*=(CUmat3d<T> &v, const CUmat3d<T1> &v1)
 #ifdef _CHECKBOUNDS_
 	if (!shape_cmp(v, v1)) error("wrong shape!")
 #endif
-	Int N = v.size();
-	Int Nbl = nbl(Nbl_times_equals0, Nth_times_equals0, N);
-	times_equals0_kernel<<<Nbl, Nth_times_equals0>>>(v.ptr(), v1.ptr(), N);
+	times_equals0(v, v1);
 }
 
 // v /= v
@@ -201,14 +203,20 @@ __global__ void divide_equals0_kernel(T *v, T1 *v1, Long N)
 }
 
 template <class T, class T1>
+inline void divide_equals0(CUbase<T> &v, const CUbase<T1> &v1)
+{
+	Int N = v.size();
+	Int Nbl = nbl(Nbl_divide_equals0, Nth_divide_equals0, N);
+	divide_equals0_kernel<<<Nbl, Nth_divide_equals0>>>(v.ptr(), v1.ptr(), N);
+}
+
+template <class T, class T1>
 inline void operator/=(CUvector<T> &v, const CUvector<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
 	if (!shape_cmp(v, v1)) error("wrong shape!")
 #endif
-	Int N = v.size();
-	Int Nbl = nbl(Nbl_divide_equals0, Nth_divide_equals0, N);
-	divide_equals0_kernel<<<Nbl, Nth_divide_equals0>>>(v.ptr(), v1.ptr(), N);
+	divide_equals0(v, v1);
 }
 
 template <class T, class T1>
@@ -217,9 +225,7 @@ inline void operator/=(CUmatrix<T> &v, const CUmatrix<T1> &v1)
 #ifdef _CHECKBOUNDS_
 	if (!shape_cmp(v, v1)) error("wrong shape!")
 #endif
-	Int N = v.size();
-	Int Nbl = nbl(Nbl_divide_equals0, Nth_divide_equals0, N);
-	divide_equals0_kernel<<<Nbl, Nth_divide_equals0>>>(v.ptr(), v1.ptr(), N);
+	divide_equals0(v, v1);
 }
 
 template <class T, class T1>
@@ -228,9 +234,7 @@ inline void operator/=(CUmat3d<T> &v, const CUmat3d<T1> &v1)
 #ifdef _CHECKBOUNDS_
 	if (!shape_cmp(v, v1)) error("wrong shape!")
 #endif
-	Int N = v.size();
-	Int Nbl = nbl(Nbl_divide_equals0, Nth_divide_equals0, N);
-	divide_equals0_kernel<<<Nbl, Nth_divide_equals0>>>(v.ptr(), v1.ptr(), N);
+	divide_equals0(v, v1);
 }
 
 // v += s
@@ -376,7 +380,7 @@ inline void plus(CUmat3d<T> &v, const CUmat3d<T1> &v1, const T2 &s)
 #ifdef _CHECKBOUNDS_
 	if (!shape_cmp(v, v1)) error("wrong shape!")
 #endif
-	plus0(v.ptr(), v1.ptr(), s);
+	plus0(v, v1, s);
 }
 
 template <class T, class T1, class T2>
