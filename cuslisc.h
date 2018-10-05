@@ -8,6 +8,9 @@
 typedef const cuda_complex::complex<Doub> Cump_I;
 typedef cuda_complex::complex<Doub> Cump, Cump_O, Cump_IO;
 
+inline Cump& toCump(Comp &s) { return reinterpret_cast<Cump&>(s); }
+inline Cump_I & toCump(Comp_I &s) { return reinterpret_cast<Cump_I&>(s); }
+
 // internal use only!
 inline Bool operator==(Comp_I &s1, Cump_I &s2)
 { return (real(s1)==real(s2) && imag(s1)==imag(s2)); }
@@ -18,7 +21,6 @@ inline Bool operator!=(Comp_I &s1, Cump_I &s2)
 { return (real(s1)!=real(s2) || imag(s1)!=imag(s2)); }
 
 inline Bool operator!=(Cump_I &s1, Comp_I &s2) { return s2 != s1; }
-
 
 // manually set max block number and thread number
 // <<<nbl(Nbl*, Nth*, N), Nth*>>> for kernel call
