@@ -27,8 +27,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef CUDA_COMPLEX_HPP
-#define CUDA_COMPLEX_HPP
+#pragma once
 
 #ifdef __CUDACC__
 #define CUDA_CALLABLE_MEMBER __host__ __device__
@@ -812,7 +811,7 @@ exp(const complex<_Tp>& __x)
     }
     else if (isnan(__x.real()) && __x.imag() == 0)
         return __x;
-    _Tp __e = exp(__x.real());
+    _Tp __e = ::exp(__x.real());
     return complex<_Tp>(__e * cos(__i), __e * sin(__i));
 }
 
@@ -1161,5 +1160,3 @@ operator<<(std::basic_ostream<_CharT, _Traits>& __os, const complex<_Tp>& __x)
 }
 
 } // close namespace Cump
-
-#endif  // CUDA_COMPLEX_HPP
