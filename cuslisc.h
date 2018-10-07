@@ -1,12 +1,13 @@
 // classes for cuda matrix
 #pragma once
 #include "nr3plus.h"
-#include "cuda_complex.h"
+//#include "cuda_complex.h"
+#include "complex/complex.h"
 
 // complex type for cuda kernel
 // should not be used in host code
-typedef const cuda_complex::complex<Doub> Cump_I;
-typedef cuda_complex::complex<Doub> Cump, Cump_O, Cump_IO;
+typedef const cuslisc::complex<Doub> Cump_I;
+typedef cuslisc::complex<Doub> Cump, Cump_O, Cump_IO;
 
 inline Cump& toCump(Comp &s) { return reinterpret_cast<Cump&>(s); }
 inline Cump_I & toCump(Comp_I &s) { return reinterpret_cast<Cump_I&>(s); }

@@ -15,12 +15,11 @@
  *  limitations under the License.
  */
 
-#include <thrust/complex.h>
 #include <cfloat>
 #include <cmath>
-#include <thrust/detail/complex/c99math.h>
+//#include <thrust/detail/complex/c99math.h>
 
-namespace thrust
+namespace cuslisc
 {
 
   /* --- Binary Arithmetic Operators --- */
@@ -146,14 +145,26 @@ template <typename ValueType>
 
 namespace detail{
 namespace complex{	
-__host__ __device__ inline float abs(const thrust::complex<float>& z){
+__host__ __device__ inline float abs(const cuslisc::complex<float>& z){
   return hypotf(z.real(),z.imag());
 }
 
-__host__ __device__ inline double abs(const thrust::complex<double>& z){
+__host__ __device__ inline double abs(const cuslisc::complex<double>& z){
   return hypot(z.real(),z.imag());
 }
 }
+}
+
+template <typename ValueType>
+  __host__ __device__
+  inline ValueType real(const complex<ValueType>& z){
+  return z.real();
+}
+
+template <typename ValueType>
+  __host__ __device__
+  inline ValueType imag(const complex<ValueType>& z){
+  return z.imag();
 }
 
 template <>
@@ -208,11 +219,11 @@ template <>
   return z.real()*z.real() + z.imag()*z.imag();
 }
 
-template <typename ValueType>
-  __host__ __device__
-  inline complex<ValueType> polar(const ValueType & m, const ValueType & theta){ 
-  return complex<ValueType>(m * std::cos(theta),m * std::sin(theta));
-}
+// template <typename ValueType>
+//   __host__ __device__
+//   inline complex<ValueType> polar(const ValueType & m, const ValueType & theta){ 
+//   return complex<ValueType>(m * std::cos(theta),m * std::sin(theta));
+// }
 
 }
 

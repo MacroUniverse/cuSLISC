@@ -15,9 +15,7 @@
  *  limitations under the License.
  */
 
-#include <thrust/complex.h>
-
-namespace thrust
+namespace cuslisc
 {
 
 /* --- Constructors --- */
@@ -141,23 +139,23 @@ template <typename T>
 
 } 
 
-#include <thrust/detail/complex/arithmetic.h>
-#include <thrust/detail/complex/cproj.h>
-#include <thrust/detail/complex/cexp.h>
-#include <thrust/detail/complex/cexpf.h>
-#include <thrust/detail/complex/clog.h>
-#include <thrust/detail/complex/clogf.h>
-#include <thrust/detail/complex/cpow.h>
-#include <thrust/detail/complex/cpowf.h>
-#include <thrust/detail/complex/ccosh.h>
-#include <thrust/detail/complex/ccoshf.h>
-#include <thrust/detail/complex/csinh.h>
-#include <thrust/detail/complex/csinhf.h>
-#include <thrust/detail/complex/ctanh.h>
-#include <thrust/detail/complex/ctanhf.h>
-#include <thrust/detail/complex/csqrt.h>
-#include <thrust/detail/complex/csqrtf.h>
-#include <thrust/detail/complex/catrig.h>
-#include <thrust/detail/complex/catrigf.h>
-#include <thrust/detail/complex/stream.h>
+#include "arithmetic.h"
+// #include <thrust/detail/complex/cproj.h>
+// #include <thrust/detail/complex/cexp.h>
+// #include <thrust/detail/complex/cexpf.h>
+// #include <thrust/detail/complex/clog.h>
+// #include <thrust/detail/complex/clogf.h>
+// #include <thrust/detail/complex/cpow.h>
+// #include <thrust/detail/complex/cpowf.h>
+// #include <thrust/detail/complex/ccosh.h>
+// #include <thrust/detail/complex/ccoshf.h>
+// #include <thrust/detail/complex/csinh.h>
+// #include <thrust/detail/complex/csinhf.h>
+// #include <thrust/detail/complex/ctanh.h>
+// #include <thrust/detail/complex/ctanhf.h>
+// #include <thrust/detail/complex/csqrt.h>
+// #include <thrust/detail/complex/csqrtf.h>
+// #include <thrust/detail/complex/catrig.h>
+// #include <thrust/detail/complex/catrigf.h>
+// #include <thrust/detail/complex/stream.h>
 
