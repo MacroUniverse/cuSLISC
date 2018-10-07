@@ -112,8 +112,6 @@ void test_vector()
 		VecDoub vDoub; vDoub = gvDoub;
 		if (vDoub[0] != 5.6 || vDoub[1] != 1.1 || vDoub[2] != 1.1) error("failed!");
 		if (ref != 5.6) error("failed!");
-		const CUref<Doub> ref1(gvDoub.ptr());
-		if (ref != 5.6) error("failed!");
 		ref += 1.1;
 		if (abs(ref - 6.7) > 2e-15) error("failed!");
 		ref -= 1.7;
@@ -122,9 +120,25 @@ void test_vector()
 		if (abs(ref - 10.) > 2e-15) error("failed!");
 		ref /= 5.;
 		if (abs(ref - 2.) > 2e-15) error("failed!");
+
+		GvecComp gvComp(3); gvComp = Comp(1.1,1.1);
+		CUref<Comp> ref2(gvComp.ptr());
+		if (ref2.ptr() != gvComp.ptr()) error("failed!");
+		ref2 = Comp(5.6,5.6);
+		VecComp vComp; vComp = gvComp;
+		if (vComp[0] != Comp(5.6,5.6) || vComp[1] != Comp(1.1,1.1) || vComp[2] != Comp(1.1,1.1)) error("failed!");
+		if (ref2 != Comp(5.6,5.6)) error("failed!");
+		ref2 += Comp(1.1,1.1);
+		if (abs((Comp)ref2 - Comp(6.7,6.7)) > 2e-15) error("failed!");
+		ref2 -= Comp(1.7,1.7);
+		if (abs((Comp)ref2 - Comp(5.,5.)) > 2e-15) error("failed!");
+		ref2 *= 2.;
+		if (abs((Comp)ref2 - Comp(10.,10.)) > 4e-15) error("failed!");
+		ref2 /= 5.;
+		if (abs((Comp)ref2 - Comp(2.,2.)) > 2e-15) error("failed!");
 	}
 
-	// test class CUptr
+	// test class CUptr<Doub>
 	{
 		CUptr<Doub> ptr0; // default constructor
 		if (ptr0.ptr()) error("failed!");
@@ -151,6 +165,33 @@ void test_vector()
 		if (*ptr0 != 2.2) error("failed!");
 	}
 
+	// test class CUptr<Comp>
+	{
+		CUptr<Comp> ptr0; // default constructor
+		if (ptr0.ptr()) error("failed!");
+		GvecComp gvComp(3); gvComp = Comp(1.1,1.1);
+		CUptr<Comp> ptr(gvComp[0].ptr()); // pointer constructor
+		if (ptr.ptr() != gvComp.ptr()) error("failed!");
+		if (*ptr != Comp(1.1,1.1)) error("failed!"); // dereference
+		// operator[]
+		if (ptr[0] != Comp(1.1,1.1) || ptr[1] != Comp(1.1,1.1) || ptr[2] != Comp(1.1,1.1)) error("failed!"); 
+		ptr[1] = Comp(2.2,2.2); ptr[2] = Comp(3.3,3.3);
+		if (ptr[0] != Comp(1.1,1.1) || ptr[1] != Comp(2.2,2.2) || ptr[2] != Comp(3.3,3.3)) error("failed!");
+		ptr0 = ptr; // copy assignment
+		if (ptr0.ptr() != ptr.ptr()) error("failed!");
+		ptr0 = ptr[1].ptr(); // T* assignment
+		if (*ptr0 != Comp(2.2,2.2)) error("failed!");
+		// pointer arithmatics
+		ptr0 = ptr0 + 1;
+		if (*ptr0 != Comp(3.3,3.3)) error("failed!");
+		ptr0 = ptr0 - 2;
+		if (*ptr0 != Comp(1.1,1.1)) error("failed!");
+		ptr0 += 2;
+		if (*ptr0 != Comp(3.3,3.3)) error("failed!");
+		ptr0 -= 1;
+		if (*ptr0 != Comp(2.2,2.2)) error("failed!");
+	}
+
 	// test scalar
 	{
 		Gdoub gs;
@@ -167,7 +208,7 @@ void test_vector()
 		if (abs(gs-3.1415) > 1e-16) error("failed!");
 		Gcomp gs1(Comp(1.1, 2.2));
 		if ((Comp)gs1 != Comp(1.1,2.2)) error("failed!");
-		if (abs((Comp)gs1 + (Doub)gs - Comp(4.2415, 2.2)) > 1e-16)  error("failed!");
+		if (abs((Comp)gs1 + (Comp)gs - Comp(4.2415, 2.2)) > 1e-16)  error("failed!");
 	}
 
 	// .end()

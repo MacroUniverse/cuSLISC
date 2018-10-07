@@ -74,6 +74,9 @@ inline void operator+=(GvecDoub &v, GvecDoub_I &v1)
 ### Complex type for kernel
 Cump (cuslisc::complex\<double>) is the complex type to be used in kernels (although it can also be used in cpu, this is not recommended). Cump is basically thrust::complex\<double>, buth with a default constructor "Cump() = default;", so that it can be declared in file scope as a "__device__" or "__constant__", or declared as "__shared__" inside kernel, or passed by value into kernel, because those usage requires a POD type (trivial type). So keep in mind that default initialized "Cump" will not be "(0,0)".
 
+### MatFile project
+cuSLISC is compatible with MatFile
+
 # Developer Notes
 
 ## Cump

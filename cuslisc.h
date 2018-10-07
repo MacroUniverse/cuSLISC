@@ -87,20 +87,21 @@ class KerT
 
 template<>
 class KerT<Comp>
-{ public: typedef Cump type; }
+{ public: typedef Cump type; };
 
 // reference type to CUbase element
 template <typename T>
 class CUref
 {
 protected:
-	T* p;
+	typedef typename KerT<T>::type T1;
+	T1 * p;
 public:
 	CUref() {};
-	explicit CUref(T* ptr) : p(ptr) {}
-	void bind(T* ptr) { p = ptr; };
-	T* ptr() { return p; }
-	const T* ptr() const { return p; }
+	explicit CUref(T1* ptr) : p(ptr) {}
+	void bind(T1* ptr) { p = ptr; };
+	T1* ptr() { return p; }
+	const T1* ptr() const { return p; }
 	inline operator T() const;
 	inline CUref& operator=(const T& rhs);
 	template <typename T1>
@@ -128,43 +129,6 @@ inline CUref<T>& CUref<T>::operator=(const T& rhs)
 	return *this;
 }
 
-// CUref<Comp>
-template <>
-class CUref<Comp>
-{
-protected:
-	Cump* p;
-public:
-	CUref() {}
-	explicit CUref(Cump* ptr) : p(ptr) {}
-	void bind(Cump* ptr) {p = ptr;};
-	Cump* ptr() {return p;}
-	const Cump* ptr() const {return p;}
-	inline operator Comp() const;
-	inline CUref& operator=(Comp_I &rhs);
-	template <typename T1>
-	inline CUref& operator+=(const T1 &rhs) { *this = Comp() + rhs; return *this; }
-	template <typename T1>
-	inline CUref& operator-=(const T1 &rhs) { *this = Comp() - rhs; return *this; }
-	template <typename T1>
-	inline CUref& operator*=(const T1 &rhs) { *this = Comp() * rhs; return *this; }
-	template <typename T1>
-	inline CUref& operator/=(const T1 &rhs) { *this = Comp() / rhs; return *this; }
-};
-
-inline CUref<Comp>::operator Comp() const
-{
-	Comp val;
-	cudaMemcpy(&val, p, sizeof(Comp), cudaMemcpyDeviceToHost);
-	return val;
-}
-
-inline CUref<Comp>& CUref<Comp>::operator=(Comp_I &rhs)
-{
-	cudaMemcpy(p, &rhs, sizeof(Comp), cudaMemcpyHostToDevice);
-	return *this;
-}
-
 // pointer type to CUbase element
 // note : const CUptr is top level const
 // TODO : create a class for low level const, or is CUptr<const T> a low level const??
@@ -172,15 +136,16 @@ template <typename T>
 class CUptr
 {
 protected:
-	T* p;
+	typedef typename KerT<T>::type T1;
+	T1* p;
 public:
 	CUptr() : p(nullptr) {}
-	CUptr(T *ptr) : p(ptr) {}
-	T* ptr() const { return p; }
+	CUptr(T1 *ptr) : p(ptr) {}
+	T1* ptr() const { return p; }
 	inline CUref<T> & operator*() const; // dereference
 	CUref<T> operator[](Long_I i) const { return CUref<T>(p+i); }
 	CUptr & operator=(const CUptr &rhs) { p = rhs.ptr(); return *this; } // copy assignment
-	CUptr & operator=(T* ptr) { p = ptr; return *this; } // T* assignment
+	CUptr & operator=(T1* ptr) { p = ptr; return *this; } // T1* assignment
 	void operator+=(Long_I i) { p += i; }
 	void operator-=(Long_I i) { p -= i; }
 };
@@ -195,34 +160,12 @@ inline CUptr<T> operator+(const CUptr<T> &pcu, Long_I i) { return CUptr<T>(pcu.p
 template <typename T>
 inline CUptr<T> operator-(const CUptr<T> &pcu, Long_I i) { return CUptr<T>(pcu.ptr()-i); }
 
-template <>
-class CUptr<Comp>
-{
-protected:
-	Cump* p;
-public:
-	CUptr() : p(nullptr) {}
-	CUptr(Cump *ptr) : p(ptr) {}
-	Cump* ptr() const {return p;}
-	inline CUref<Comp> & operator*() const; // dereference
-	CUref<Comp> operator[](Long_I i) const {return CUref<Comp>(p+i);}
-	CUptr & operator=(const CUptr &rhs) {p = rhs.ptr(); return *this;} // copy assignment
-	CUptr & operator=(Cump* ptr) {p = ptr; return *this;} // Cump* assignment
-	void operator+=(Long_I i) { p += i; }
-	void operator-=(Long_I i) { p -= i; }
-};
-
-inline CUref<Comp> & CUptr<Comp>::operator*() const
-{ return reinterpret_cast<CUref<Comp>&>(*const_cast<CUptr<Comp>*>(this)); }
-
-inline CUptr<Comp> operator+(const CUptr<Comp> &pcu, Long_I i) { return CUptr<Comp>(pcu.ptr()+i); }
-
-inline CUptr<Comp> operator-(const CUptr<Comp> &pcu, Long_I i) { return CUptr<Comp>(pcu.ptr()-i); }
-
 // scalar class
 template <typename T>
 class CUscalar : public CUref<T>
 {
+private:
+	typedef typename KerT<T>::type T1;
 public:
 	typedef CUref<T> Base;
 	using Base::p;
@@ -235,14 +178,16 @@ public:
 template <typename T>
 class CUbase
 {
+private:
+	typedef typename KerT<T>::type Tker;
 protected:
-	T* p; // pointer to the first element
+	Tker* p; // pointer to the first element
 	Long N; // number of elements
 public:
 	CUbase() : N(0), p(nullptr) {}
 	explicit CUbase(Long_I n) : N(n) { cudaMalloc(&p, N*sizeof(T)); }
-	T* ptr() { return p; } // get pointer
-	const T* ptr() const { return p; }
+	Tker* ptr() { return p; } // get pointer
+	const Tker* ptr() const { return p; }
 	Long_I size() const { return N; }
 	inline void resize(Long_I n);
 	inline CUref<T> operator()(Long_I i);
@@ -271,7 +216,7 @@ inline CUref<T> CUbase<T>::operator()(Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("CUbase subscript out of bounds")
+	error("CUbase subscript out of bounds!")
 #endif
 	return CUref<T>(p+i);
 }
@@ -281,7 +226,7 @@ inline const CUref<T> CUbase<T>::operator()(Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("CUbase subscript out of bounds");
+	error("CUbase subscript out of bounds!");
 #endif
 	return CUref<T>(p+i);
 }
@@ -291,7 +236,7 @@ inline CUref<T> CUbase<T>::end()
 {
 #ifdef _CHECKBOUNDS_
 	if (N < 1)
-		error("Using end() for empty object")
+		error("Using end() for empty object!")
 #endif
 	return CUref<T>(p+N-1);
 }
@@ -301,7 +246,7 @@ inline const CUref<T> CUbase<T>::end() const
 {
 #ifdef _CHECKBOUNDS_
 	if (N < 1)
-		error("Using end() for empty object")
+		error("Using end() for empty object!")
 #endif
 	return CUref<T>(p+N-1);
 }
@@ -309,7 +254,7 @@ inline const CUref<T> CUbase<T>::end() const
 template <typename T>
 inline CUbase<T> & CUbase<T>::operator=(const T &rhs)
 {
-	if (N) cumemset<<<nbl(Nbl_cumemset,Nth_cumemset,N), Nth_cumemset>>>(p, rhs, N);
+	if (N) cumemset<<<nbl(Nbl_cumemset,Nth_cumemset,N), Nth_cumemset>>>(p, (Tker&)rhs, N);
 	return *this;
 }
 
@@ -318,7 +263,7 @@ class CUbase<Comp>
 {
 protected:
 	Cump* p; // pointer to the first element
-	Long N;// number of elements
+	Long N; // number of elements
 public:
 	CUbase() : N(0), p(nullptr) {}
 	explicit CUbase(Long_I n) : N(n) { cudaMalloc(&p, N*sizeof(Comp)); }
