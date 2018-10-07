@@ -179,15 +179,18 @@ template <typename T>
 class CUbase
 {
 private:
-	typedef typename KerT<T>::type Tker;
+	// it is weired that I cannot use "kernel_type*" instead of "p_kernel_type", although they have the same typeid!
+	typedef typename KerT<T>::type kernel_type;
+	typedef typename KerT<T>::type* p_kernel_type;
+	typedef const typename KerT<T>::type* p_const_kernel_type;
 protected:
-	Tker* p; // pointer to the first element
+	p_kernel_type p; // pointer to the first element
 	Long N; // number of elements
 public:
 	CUbase() : N(0), p(nullptr) {}
 	explicit CUbase(Long_I n) : N(n) { cudaMalloc(&p, N*sizeof(T)); }
-	Tker* ptr() { return p; } // get pointer
-	const Tker* ptr() const { return p; }
+	p_kernel_type ptr() { return p; } // get pointer
+	p_const_kernel_type ptr() const { return p; }
 	Long_I size() const { return N; }
 	inline void resize(Long_I n);
 	inline CUref<T> operator()(Long_I i);
@@ -254,82 +257,7 @@ inline const CUref<T> CUbase<T>::end() const
 template <typename T>
 inline CUbase<T> & CUbase<T>::operator=(const T &rhs)
 {
-	if (N) cumemset<<<nbl(Nbl_cumemset,Nth_cumemset,N), Nth_cumemset>>>(p, (Tker&)rhs, N);
-	return *this;
-}
-
-template <>
-class CUbase<Comp>
-{
-protected:
-	Cump* p; // pointer to the first element
-	Long N; // number of elements
-public:
-	CUbase() : N(0), p(nullptr) {}
-	explicit CUbase(Long_I n) : N(n) { cudaMalloc(&p, N*sizeof(Comp)); }
-	Cump* ptr() { return p; } // get pointer
-	const Cump* ptr() const { return p; }
-	Long_I size() const { return N; }
-	inline void resize(Long_I n);
-	inline CUref<Comp> operator()(Long_I i);
-	inline const CUref<Comp> operator()(Long_I i) const;
-	inline CUref<Comp> end(); // last element
-	inline const CUref<Comp> end() const;
-	inline CUbase & operator=(Comp_I &rhs); // set scalar
-	~CUbase() { if (p) cudaFree(p); }
-};
-
-inline void CUbase<Comp>::resize(Long_I n)
-{
-	if (n != N) {
-		if (p != nullptr) cudaFree(p);
-		N = n;
-		if (n > 0)
-			cudaMalloc(&p, N*sizeof(Comp));
-		else
-			p = nullptr;
-	}
-}
-
-inline CUref<Comp> CUbase<Comp>::operator()(Long_I i)
-{
-#ifdef _CHECKBOUNDS_
-if (i<0 || i>=N)
-	error("CUbase subscript out of bounds")
-#endif
-	return CUref<Comp>(p+i);
-}
-
-inline const CUref<Comp> CUbase<Comp>::operator()(Long_I i) const
-{
-#ifdef _CHECKBOUNDS_
-if (i<0 || i>=N)
-	error("CUbase subscript out of bounds");
-#endif
-	return CUref<Comp>(p+i);
-}
-
-inline CUref<Comp> CUbase<Comp>::end()
-{
-#ifdef _CHECKBOUNDS_
-	if (N < 1)
-		error("Using end() for empty object")
-#endif
-	return CUref<Comp>(p+N-1);
-}
-
-inline const CUref<Comp> CUbase<Comp>::end() const
-{
-#ifdef _CHECKBOUNDS_
-	if (N < 1)
-		error("Using end() for empty object")
-#endif
-	return CUref<Comp>(p+N-1);
-}
-
-inline CUbase<Comp> & CUbase<Comp>::operator=(Comp_I &rhs)
-{
-	if (N) cumemset<<<nbl(Nbl_cumemset,Nth_cumemset,N), Nth_cumemset>>>(p, toCump(rhs), N);
+	if (N) cumemset<<<nbl(Nbl_cumemset,Nth_cumemset,N), Nth_cumemset>>>(p, (kernel_type&)rhs, N);
 	return *this;
 }
 
