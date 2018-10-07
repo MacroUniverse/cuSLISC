@@ -137,23 +137,23 @@ template <typename ValueType>
 /* --- Other Basic Arithmetic Functions --- */
 
 // As std::hypot is only C++11 we have to use the C interface
-template <typename ValueType>
-  __host__ __device__
-  inline ValueType abs(const complex<ValueType>& z){
-  return hypot(z.real(),z.imag());
-}
+// template <typename ValueType>
+//   __host__ __device__
+//   inline ValueType abs(const complex<ValueType>& z){
+//   return hypot(z.real(),z.imag());
+// }
 
-namespace detail{
-namespace complex{	
-__host__ __device__ inline float abs(const cuslisc::complex<float>& z){
-  return hypotf(z.real(),z.imag());
-}
+// namespace detail{
+// namespace complex{	
+// __host__ __device__ inline float abs(const cuslisc::complex<float>& z){
+//   return hypotf(z.real(),z.imag());
+// }
 
-__host__ __device__ inline double abs(const cuslisc::complex<double>& z){
-  return hypot(z.real(),z.imag());
-}
-}
-}
+// __host__ __device__ inline double abs(const cuslisc::complex<double>& z){
+//   return hypot(z.real(),z.imag());
+// }
+// }
+// }
 
 template <typename ValueType>
   __host__ __device__
@@ -167,16 +167,16 @@ template <typename ValueType>
   return z.imag();
 }
 
-template <>
-  __host__ __device__
-  inline float abs(const complex<float>& z){
-  return detail::complex::abs(z);
-}
-template<>
-  __host__ __device__
-  inline double abs(const complex<double>& z){
-  return detail::complex::abs(z);
-}
+// template <>
+//   __host__ __device__
+//   inline float abs(const complex<float>& z){
+//   return detail::complex::abs(z);
+// }
+// template<>
+//   __host__ __device__
+//   inline double abs(const complex<double>& z){
+//   return detail::complex::abs(z);
+// }
 
 
 template <typename ValueType>
@@ -191,33 +191,33 @@ template <typename ValueType>
   return complex<ValueType>(z.real(),-z.imag());
 }
 
-template <typename ValueType>
-  __host__ __device__
-  inline ValueType norm(const complex<ValueType>& z){
-  return z.real()*z.real() + z.imag()*z.imag();
-}
+// template <typename ValueType>
+//   __host__ __device__
+//   inline ValueType norm(const complex<ValueType>& z){
+//   return z.real()*z.real() + z.imag()*z.imag();
+// }
 
-template <>
-  __host__ __device__
-  inline float norm(const complex<float>& z){
-  if(std::abs(z.real()) < ::sqrtf(FLT_MIN) && std::abs(z.imag()) < ::sqrtf(FLT_MIN)){
-    float a = z.real()*4.0f;
-    float b = z.imag()*4.0f;
-    return (a*a+b*b)/16.0f;
-  } 
-  return z.real()*z.real() + z.imag()*z.imag();
-}
+// template <>
+//   __host__ __device__
+//   inline float norm(const complex<float>& z){
+//   if(std::abs(z.real()) < ::sqrtf(FLT_MIN) && std::abs(z.imag()) < ::sqrtf(FLT_MIN)){
+//     float a = z.real()*4.0f;
+//     float b = z.imag()*4.0f;
+//     return (a*a+b*b)/16.0f;
+//   } 
+//   return z.real()*z.real() + z.imag()*z.imag();
+// }
 
-template <>
-  __host__ __device__
-  inline double norm(const complex<double>& z){
-  if(std::abs(z.real()) < ::sqrt(DBL_MIN) && std::abs(z.imag()) < ::sqrt(DBL_MIN)){
-    double a = z.real()*4.0;
-    double b = z.imag()*4.0;
-    return (a*a+b*b)/16.0;
-  } 
-  return z.real()*z.real() + z.imag()*z.imag();
-}
+// template <>
+//   __host__ __device__
+//   inline double norm(const complex<double>& z){
+//   if(std::abs(z.real()) < ::sqrt(DBL_MIN) && std::abs(z.imag()) < ::sqrt(DBL_MIN)){
+//     double a = z.real()*4.0;
+//     double b = z.imag()*4.0;
+//     return (a*a+b*b)/16.0;
+//   } 
+//   return z.real()*z.real() + z.imag()*z.imag();
+// }
 
 // template <typename ValueType>
 //   __host__ __device__

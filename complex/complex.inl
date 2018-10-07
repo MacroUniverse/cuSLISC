@@ -140,6 +140,7 @@ template <typename T>
 } 
 
 #include "arithmetic.h"
+#include "use_thrust_complex.h"
 // #include <thrust/detail/complex/cproj.h>
 // #include <thrust/detail/complex/cexp.h>
 // #include <thrust/detail/complex/cexpf.h>
