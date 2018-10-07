@@ -604,6 +604,20 @@ void test_basic()
 // temporary test
 void test()
 {
+	Cump s(0.,3.14159265358979323);
+	cout << "abs(s) = " << (Comp)abs(s) << endl;
+	cout << "exp(s) = " << (Comp)exp(s) << endl;
+	cout << "sqrt(s) = " << (Comp)sqrt(s) << endl;
+	cout << "log(s) = " << (Comp)log(s) << endl;
+	cout << "sin(s) = " << (Comp)sin(s) << endl;
+	cout << "cos(s) = " << (Comp)cos(s) << endl;
+	cout << "sinh(s) = " << (Comp)sinh(s) << endl;
+	cout << "cosh(s) = " << (Comp)cosh(s) << endl;
+	cout << "exp(s) = " << (Comp)exp(s) << endl;
+	cout << "exp(s) = " << (Comp)exp(s) << endl;
+	cout << "exp(s) = " << (Comp)exp(s) << endl;
+	cout << "exp(s) = " << (Comp)exp(s) << endl;
+	cout << "exp(s) = " << (Comp)exp(s) << endl;
 }
 
 int main()
