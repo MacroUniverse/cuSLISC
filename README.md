@@ -83,5 +83,3 @@ Thus it is best to use "std::complex" for cpu code, and another complex type for
 
 ## Dependency update
 Do not update any dependencies directly, always update in their own project then copy here.
-To update SLISC files, replace the files with newer version, and #include "cuda_complex.h" instead of #include "complex".
-To update MatFile files, no modification is needed.
