@@ -67,9 +67,11 @@ public:
 
   /* --- Constructors --- */
 
-  // empty constructor is needed for cuda __device__, __constant__ variables in file scope, and __shared__ variables in kernel.
-  inline __host__ __device__      
-  complex() {};
+  // default constructor is needed for a POD type. A POD type can be used as
+  // cuda __device__, __constant__ variables in file scope, and __shared__ variables in kernel
+  // and be passed by value into a kernel function.
+  // empty constructor "complex() {}" will not do.
+  complex() = default;
 
   /*! Construct a complex number from its real and imaginary parts.
    *

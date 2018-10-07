@@ -71,9 +71,12 @@ inline void operator+=(GvecDoub &v, GvecDoub_I &v1)
 }
 ```
 
+### Complex type for kernel
+Cump (cuslisc::complex\<double>) is the complex type to be used in kernels (although it can also be used in cpu, this is not recommended). Cump is basically thrust::complex\<double>, buth with a default constructor "Cump() = default;", so that it can be declared in file scope as a "__device__" or "__constant__", or declared as "__shared__" inside kernel, or passed by value into kernel, because those usage requires a POD type (trivial type). So keep in mind that default initialized "Cump" will not be "(0,0)".
+
 # Developer Notes
 
-## Complex type
+## Cump
 Before, both cpu and gpu code must use "cuda_complex.h" for complex type. The disadvantage is SLISC project must be modified, and ".cpp" extension is now allowed.
 
 Thus it is best to use "std::complex" for cpu code, and another complex type for gpu code. CUDA provides "cuComplex.h", however, it's grammar is too ugly. I want to use the same grammar, but just a different type name. So, the best solution is to use "cuda_complex.h" in gpu code only, let's name it "Cump" instead of "Comp". Fow users who doesn't know cuda programming, they should not need to know the existence of "Cump", so there should not be types such as "CUbase\<Cump>". It is necessary that "CUref\<Comp>", "CUptr\<Comp>" and "CUbase\<Comp>" are specialized, because they need to have a "Cump*" member.

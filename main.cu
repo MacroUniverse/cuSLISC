@@ -229,6 +229,60 @@ void test_vector()
 	}
 }
 
+// __global__
+// void test_Cump_kernel(Cump* v, Int N, Cump s1, Cump s2)
+// {
+// 	__shared__ Cump temp[2];
+// 	// temp[0] = s1 + s2;
+// 	// v[0] = temp[0];
+// 	// cout << "abs(s) = " << abs(s) << endl;
+// 	// cout << "pow(s,2.) = " << pow(s,2.) << endl;
+// 	// cout << "pow(2.,s) = " << pow(2.,s) << endl;
+// 	// cout << "pow(s,s) = " << pow(s,s1) << endl;
+// 	// cout << "exp(s) = " << exp(s) << endl;
+// 	// cout << "sqrt(s) = " << sqrt(s) << endl;
+// 	// cout << "log(s) = " << log(s) << endl;
+// 	// cout << "sin(s) = " << sin(s) << endl;
+// 	// cout << "cos(s) = " << cos(s) << endl;
+// 	// cout << "sinh(s) = " << sinh(s) << endl;
+// 	// cout << "cosh(s) = " << cosh(s) << endl;
+// }
+
+//sum v1 in cpu to get total sum, size(v1) = Nblock
+__global__
+void test_Cump_kernel(Cump *v, Long N, Cump s1, Cump s2)
+{
+	__shared__ Cump cache[4];
+	cache[0] = s1 + s2; v[0] = cache[0];
+	cache[1] = s1 - s2; v[1] = cache[1];
+	cache[2] = s1 * s2; v[2] = cache[2];
+	cache[3] = s1 / s2; v[3] = cache[3];
+	v[4] = abs(s1);
+	v[5] = pow(s1, 2.);
+	v[6] = pow(s1, s2);
+	v[7] = exp(s1);
+	v[8] = real(s1);
+	v[9] = imag(s1);
+}
+
+void test_Cump()
+{
+	Int N = 10;
+	GvecComp gv(N, 0.); Cump s1(1.1, 2.2), s2(2.2, 4.4);
+	test_Cump_kernel<<<1,1>>>(gv.ptr(), N, s1, s2);
+	VecComp v; v = gv;
+	if (v[0] != (Comp)s1 + (Comp)s2) error("failed!");
+	if (v[1] != (Comp)s1 - (Comp)s2) error("failed!");
+	if (v[2] != (Comp)s1 * (Comp)s2) error("failed!");
+	if (v[3] != (Comp)s1 / (Comp)s2) error("failed!");
+	if (v[4] != abs((Comp)s1)) error("failed!");
+	if (abs(v[5] - pow((Comp)s1, 2.)) > 1e-15) error("failed!");
+	if (abs(v[6] - pow((Comp)s1, (Comp)s2)) > 1e-15) error("failed!");
+	if (v[7] != exp((Comp)s1)) error("failed!");
+	if (v[8] != real((Comp)s1)) error("failed!");
+	if (v[9] != imag((Comp)s1)) error("failed!");
+}
+
 void test_matrix()
 {
 	// default initialize
@@ -604,20 +658,6 @@ void test_basic()
 // temporary test
 void test()
 {
-	Cump s(0.,3.14159265358979323);
-	cout << "abs(s) = " << (Comp)abs(s) << endl;
-	cout << "exp(s) = " << (Comp)exp(s) << endl;
-	cout << "sqrt(s) = " << (Comp)sqrt(s) << endl;
-	cout << "log(s) = " << (Comp)log(s) << endl;
-	cout << "sin(s) = " << (Comp)sin(s) << endl;
-	cout << "cos(s) = " << (Comp)cos(s) << endl;
-	cout << "sinh(s) = " << (Comp)sinh(s) << endl;
-	cout << "cosh(s) = " << (Comp)cosh(s) << endl;
-	cout << "exp(s) = " << (Comp)exp(s) << endl;
-	cout << "exp(s) = " << (Comp)exp(s) << endl;
-	cout << "exp(s) = " << (Comp)exp(s) << endl;
-	cout << "exp(s) = " << (Comp)exp(s) << endl;
-	cout << "exp(s) = " << (Comp)exp(s) << endl;
 }
 
 int main()
@@ -635,6 +675,8 @@ int main()
 	test_global();
 	cout << "test scalar and vector..." << endl;
 	test_vector();
+	cout << "test Cump..." << endl;
+	test_Cump();
 	cout << "test matrix..." << endl;
 	test_matrix();
 	cout << "test mat3d..." << endl;
