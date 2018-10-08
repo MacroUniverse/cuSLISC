@@ -1,27 +1,8 @@
 // classes for cuda matrix
 #pragma once
 #include "nr3plus.h"
-//#include "cuda_complex.h"
-#include "complex/complex.h"
-
-// complex type for cuda kernel
-// should not be used in host code
-typedef const cuslisc::complex<Doub> Cump_I;
-typedef cuslisc::complex<Doub> Cump, Cump_O, Cump_IO;
-
-inline Cump& toCump(Comp &s) { return reinterpret_cast<Cump&>(s); }
-inline Cump_I & toCump(Comp_I &s) { return reinterpret_cast<Cump_I&>(s); }
-
-// internal use only!
-inline Bool operator==(Comp_I &s1, Cump_I &s2)
-{ return toCump(s1) == s2; }
-
-inline Bool operator==(Cump_I &s1, Comp_I &s2) { return s2 == s1; }
-
-inline Bool operator!=(Comp_I &s1, Cump_I &s2)
-{ return toCump(s1) != s2; }
-
-inline Bool operator!=(Cump_I &s1, Comp_I &s2) { return s2 != s1; }
+#include "cuda_complex.h"
+//#include "complex/complex.h"
 
 // manually set max block number and thread number
 // TODO : optimize these numbers
@@ -52,6 +33,35 @@ const Int Nbl_sum = 320, Nth_sum = 32;
 const Int Nbl_cumemset = 320, Nth_cumemset = 32;
 const Int Nbl_sum = 320, Nth_sum = 32;
 #endif
+
+// complex type for cuda kernel
+// should not be used in host code
+typedef const cuslisc::complex<Doub> Cump_I;
+typedef cuslisc::complex<Doub> Cump, Cump_O, Cump_IO;
+
+inline Cump& toCump(Comp &s) { return reinterpret_cast<Cump&>(s); }
+inline Cump_I & toCump(Comp_I &s) { return reinterpret_cast<Cump_I&>(s); }
+
+// specialized overloading of operator== for Comp
+// so that "CUref<Comp>" can be implicitly converted to "Comp" when used as argument
+// because template version in STL does not support such conversion
+inline Bool operator==(Comp_I &s1, Comp_I &s2)
+{ return real(s1)==real(s2) && imag(s1)==imag(s2); }
+
+inline Bool operator!=(Comp_I &s1, Comp_I &s2)
+{ return real(s1)!=real(s2) || imag(s1)!=imag(s2); }
+
+// TODO: this will cause segmentation fault! might be a big bug!
+// inline Bool operator==(Comp_I &s1, Comp_I &s2) { return s1 == s2; }
+// inline Bool operator!=(Comp_I &s1, Comp_I &s2) { return s1 != s2; }
+
+// these should never be needed
+// inline Bool operator==(Comp_I &s1, Cump_I &s2)
+// { return toCump(s1) == s2; }
+// inline Bool operator==(Cump_I &s1, Comp_I &s2) { return s2 == s1; }
+// inline Bool operator!=(Comp_I &s1, Cump_I &s2)
+// { return toCump(s1) != s2; }
+// inline Bool operator!=(Cump_I &s1, Comp_I &s2) { return s2 != s1; }
 
 // calculate number of CUDA blocks needed
 inline Int nbl(Int NblMax, Int Nth, Int N)

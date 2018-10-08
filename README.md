@@ -42,7 +42,7 @@ int main()
 A test suit is in "main.cu", it can also be used as a reference to cuSLISC. To build and run the project, use, "make" and "./main.x" command.
 
 ## Scalar/vector/matrix class template
-The class templates CUvector\<T>, CUmatrix\<T> and CUmat3d\<T> are similar to NRvector\<T>, NRmatrix\<T> and NRmat3d\<T>. GPU version of "VecDoub", "MatComp" are named "GvecDoub", "GmatComp" etc. In addition, scalar type on GPU are named such as "Gdoub", "Gcomp", etc.
+The class templates CUvector\<T>, CUmatrix\<T> and CUmat3d\<T> are similar to NRvector\<T>, NRmatrix\<T> and NRmat3d\<T>. GPU version of "VecDoub", "MatComp" are named "GvecDoub", "GmatComp" etc. In addition, scalar type on GPU are named such as "Gdoub", "Gcomp", etc. As with SLISC, single precision support is limited.
 
 One main difference from SLISC is that GPU vectors/matrices must be resized explicitly.
 
@@ -72,7 +72,9 @@ inline void operator+=(GvecDoub &v, GvecDoub_I &v1)
 ```
 
 ### Complex type for kernel
-Cump (cuslisc::complex\<double>) is the complex type to be used in kernels (although it can also be used in cpu, this is not recommended). Cump is basically thrust::complex\<double>, buth with a default constructor "Cump() = default;", so that it can be declared in file scope as a "__device__" or "__constant__", or declared as "__shared__" inside kernel, or passed by value into kernel, because those usage requires a POD type (trivial type). So keep in mind that default initialized "Cump" will not be "(0,0)".
+Cump (cuslisc::complex\<double>) is the complex type to be used in kernels (although it can also be used in cpu, this is not recommended). Cump is basically complex\<double>, buth with a default constructor "Cump() = default;", so that it can be declared in file scope as a "__device__" or "__constant__", or declared as "__shared__" inside kernel, or passed by value into kernel, because those usage requires a POD type (trivial type). So keep in mind that default initialized "Cump" will not be "(0,0)".
+
+Fow users who don't know cuda programming, they don't need to know the existence of "Cump".
 
 ### MatFile project
 cuSLISC is compatible with MatFile
@@ -80,12 +82,16 @@ cuSLISC is compatible with MatFile
 # Developer Notes
 
 ## Cump
-Before, both cpu and gpu code must use "cuda_complex.h" for complex type. The disadvantage is SLISC project must be modified, and ".cpp" extension is now allowed.
+Before, both cpu and gpu code must use "cuda_complex.h" for complex type. The disadvantage is SLISC project must be modified, and ".cpp" extension is not allowed. Thus it is best to use "std::complex\<>" for cpu code, and another complex type "cuslisc::complex\<>" for gpu code, aliased "Cump".
 
-Thus it is best to use "std::complex" for cpu code, and another complex type for gpu code. CUDA provides "cuComplex.h", however, it's grammar is too ugly. I want to use the same grammar, but just a different type name. So, the best solution is to use "cuda_complex.h" in gpu code only, let's name it "Cump" instead of "Comp". Fow users who doesn't know cuda programming, they should not need to know the existence of "Cump", so there should not be types such as "CUbase\<Cump>". It is necessary that "CUref\<Comp>", "CUptr\<Comp>" and "CUbase\<Comp>" are specialized, because they need to have a "Cump*" member.
+Two options have been tested, one is directly modifying "complex.h" from STL, changing the namespace to "cuslisc", adding "\__global__" and "\__device__" before member functions. This modified file is named "cuda_complex.h".
+
+Another option is to use a CUDA library. CUDA provides "cuComplex.h", however, it's interface is for C (I can probably write a C++ wraper, but I don't want to). There is also the "thrust" library that is basically an STL for CUDA. The "thrust::complex\<>" has the same STL interface, but I cannot directly add a default constructor to it (I can if I am a super user). So I just copied the "thrust/complex.h" and some dependent files, changed the namespace, and added a default constructor. However, for more complex implementations like "abs()", "exp()", "cuslisc::complex" are reinterpret_cast-ed into "thrust::complex" and then use "thrust" library to calculate. I was hoping "reinterpret_cast" will not have any runtime overhead.
+
+After testing in "cuCn3D" project, it turns out that the first option is about 20% faster. I'm not sure whether this is because of the "reinterpret_cast" or "thrust::complex" is just not efficient enough. Anyway, I should stick with the first solution for now.
 
 ## Known Bugs
-"Comp s{};" will not work inside kernel, need to use "Comp s; s = 0.;"
+none.
 
 ## Dependency update
 Do not update any dependencies directly, always update in their own project then copy here.
