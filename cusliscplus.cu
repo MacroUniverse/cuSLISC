@@ -11,15 +11,13 @@ void norm2_kernel(Doub *v1, Cump_I *v, Long N)
 {
 	__shared__ Doub cache[Nth_sum];
 	Long i, ind, stride, cacheIdx;
-	Doub s = 0, temp;
+	Doub s = 0.;
 	cacheIdx = threadIdx.x;
 	ind = blockIdx.x * blockDim.x + threadIdx.x;
 	stride = gridDim.x * blockDim.x;
 
-	for (i=ind; i<N; i+=stride) {
-		temp = abs(v[i]);
-		s += temp*temp;
-	}
+	for (i=ind; i<N; i+=stride)
+		s += norm(v[i]);
 	
 	cache[cacheIdx] = s;
 	__syncthreads();
