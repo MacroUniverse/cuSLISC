@@ -49,11 +49,7 @@ inline Bool operator==(Comp_I &s1, Comp_I &s2)
 { return real(s1)==real(s2) && imag(s1)==imag(s2); }
 
 inline Bool operator!=(Comp_I &s1, Comp_I &s2)
-{ return real(s1)!=real(s2) || imag(s1)!=imag(s2); }
-
-// TODO: this will cause segmentation fault! might be a big bug!
-// inline Bool operator==(Comp_I &s1, Comp_I &s2) { return s1 == s2; }
-// inline Bool operator!=(Comp_I &s1, Comp_I &s2) { return s1 != s2; }
+{ return !(s1 == s2); } // this is the STL implementation
 
 // these should never be needed
 // inline Bool operator==(Comp_I &s1, Cump_I &s2)
@@ -229,7 +225,7 @@ inline CUref<T> CUbase<T>::operator()(Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("CUbase subscript out of bounds!")
+	error("CUbase subscript out of bounds!");
 #endif
 	return CUref<T>(p+i);
 }
@@ -249,7 +245,7 @@ inline CUref<T> CUbase<T>::end()
 {
 #ifdef _CHECKBOUNDS_
 	if (N < 1)
-		error("Using end() for empty object!")
+		error("Using end() for empty object!");
 #endif
 	return CUref<T>(p+N-1);
 }
@@ -259,7 +255,7 @@ inline const CUref<T> CUbase<T>::end() const
 {
 #ifdef _CHECKBOUNDS_
 	if (N < 1)
-		error("Using end() for empty object!")
+		error("Using end() for empty object!");
 #endif
 	return CUref<T>(p+N-1);
 }
@@ -310,7 +306,7 @@ CUvector<T>::CUvector(NRvector<T> &v) : CUvector(v.size())
 template <typename T>
 CUvector<T>::CUvector(const CUvector<T> &rhs)
 {
-	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!")
+	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!");
 }
 
 template <typename T>
@@ -602,7 +598,7 @@ CUmat3d<T>::CUmat3d(NRmat3d<T> &v) : CUmat3d(v.dim1(), v.dim2(), v.dim3())
 template <typename T>
 CUmat3d<T>::CUmat3d(const CUmat3d<T> &rhs)
 {
-	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!")
+	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!");
 }
 
 template <typename T>
