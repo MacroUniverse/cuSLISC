@@ -136,13 +136,13 @@ void test_matrix()
 		if (gaDoub.size() != 0)  error("failed!");
 		if (gaDoub.nrows() != 0 || gaDoub.ncols() != 100) error("failed!");
 		if (gaDoub.ptr() != nullptr) error("failed!");
-		// resize(CUmatrix<>)
+		// resize(Gmatrix<>)
 		gaDoub.resize(2, 3);
 		GmatComp gaComp;
 		gaComp.resize(gaDoub);
 		if (gaComp.size() != 6)  error("failed!");
 		if (gaComp.nrows() != 2 || gaComp.ncols() != 3) error("failed!");
-		// resize(NRmatrix<>)
+		// resize(Matrix<>)
 		aDoub.resize(4,5);
 		gaComp.resize(aDoub);
 		if (gaComp.size() != 20)  error("failed!");

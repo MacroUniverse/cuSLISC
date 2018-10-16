@@ -145,14 +145,14 @@ void test_mat3d()
 		if (gaDoub.dim1() != 0 || gaDoub.dim2() != 100 || gaDoub.dim3() != 101)
 			error("failed!");
 		if (gaDoub.ptr() != nullptr) error("failed!");
-		// resize(CUmatrix<>)
+		// resize(Gmatrix<>)
 		gaDoub.resize(2, 3, 4);
 		Gmat3Comp gaComp;
 		gaComp.resize(gaDoub);
 		if (gaComp.size() != 24)  error("failed!");
 		if (gaComp.dim1() != 2 || gaComp.dim2() != 3 || gaComp.dim3() != 4)
 			error("failed!");
-		// resize(NRmatrix<>)
+		// resize(Matrix<>)
 		aDoub.resize(4,5,6);
 		gaComp.resize(aDoub);
 		if (gaComp.size() != 120) error("failed!");

@@ -81,10 +81,10 @@ void test_vector()
 		if (vDoub1 != vDoub) error("failed!");
 	}
 
-	// test class CUref
+	// test class Gref
 	{
 		GvecDoub gvDoub(3); gvDoub = 1.1;
-		CUref<Doub> ref(gvDoub.ptr());
+		Gref<Doub> ref(gvDoub.ptr());
 		if (ref.ptr() != gvDoub.ptr()) error("failed!");
 		ref = 5.6;
 		VecDoub vDoub; vDoub = gvDoub;
@@ -100,7 +100,7 @@ void test_vector()
 		if (abs(ref - 2.) > 2e-15) error("failed!");
 
 		GvecComp gvComp(3); gvComp = Comp(1.1,1.1);
-		CUref<Comp> ref2(gvComp.ptr());
+		Gref<Comp> ref2(gvComp.ptr());
 		if (ref2.ptr() != gvComp.ptr()) error("failed!");
 		ref2 = Comp(5.6,5.6);
 		VecComp vComp; vComp = gvComp;
@@ -116,12 +116,12 @@ void test_vector()
 		if (abs((Comp)ref2 - Comp(2.,2.)) > 2e-15) error("failed!");
 	}
 
-	// test class CUptr<Doub>
+	// test class Gptr<Doub>
 	{
-		CUptr<Doub> ptr0; // default constructor
+		Gptr<Doub> ptr0; // default constructor
 		if (ptr0.ptr()) error("failed!");
 		GvecDoub gvDoub(3); gvDoub = 1.1;
-		CUptr<Doub> ptr(gvDoub[0].ptr()); // pointer constructor
+		Gptr<Doub> ptr(gvDoub[0].ptr()); // pointer constructor
 		if (ptr.ptr() != gvDoub.ptr()) error("failed!");
 		if (*ptr != 1.1) error("failed!"); // dereference
 		// operator[]
@@ -143,12 +143,12 @@ void test_vector()
 		if (*ptr0 != 2.2) error("failed!");
 	}
 
-	// test class CUptr<Comp>
+	// test class Gptr<Comp>
 	{
-		CUptr<Comp> ptr0; // default constructor
+		Gptr<Comp> ptr0; // default constructor
 		if (ptr0.ptr()) error("failed!");
 		GvecComp gvComp(3); gvComp = Comp(1.1,1.1);
-		CUptr<Comp> ptr(gvComp[0].ptr()); // pointer constructor
+		Gptr<Comp> ptr(gvComp[0].ptr()); // pointer constructor
 		if (ptr.ptr() != gvComp.ptr()) error("failed!");
 		if (*ptr != Comp(1.1,1.1)) error("failed!"); // dereference
 		// operator[]
