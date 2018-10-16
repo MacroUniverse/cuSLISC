@@ -1,4 +1,5 @@
 #include "../cuSLISC/arithmatic.h"
+#include "../SLISC/disp.h"
 
 // test basic operations
 void test_basic()

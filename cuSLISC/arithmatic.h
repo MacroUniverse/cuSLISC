@@ -17,52 +17,6 @@ template <typename T1, typename T2>
 Bool shape_cmp(const CUmat3d<T1> &a1, const CUmat3d<T2> &a2)
 { return (a1.dim1() == a2.dim1()) && (a1.dim2() == a2.dim2()) && (a1.dim3() == a2.dim3()); }
 
-// get device global variable
-template <typename T>
-inline T getsym(const T &sym)
-{
-	T val;
-	cudaMemcpyFromSymbol(&val, sym, sizeof(T));
-	return val;
-}
-
-inline Comp getsym(Cump_I &sym)
-{
-	Comp val;
-	cudaMemcpyFromSymbol(&val, sym, sizeof(Comp));
-	return val;
-}
-
-// set device global variable
-
-// this might be unnecessary
-// template <typename T, typename T1>
-// inline void setsym(T &sym, const T1 &val)
-// {
-// 	T val1; val1 = (T)val;
-// 	cudaMemcpyToSymbol(sym, &val1, sizeof(T));
-// #ifdef _CHECKSETSYS_
-// 	if (getsym(sym) != val1) error("failed!");
-// #endif
-// }
-
-template <typename T>
-inline void setsym(T &sym, const T &val)
-{
-	cudaMemcpyToSymbol(sym, &val, sizeof(T));
-#ifdef _CHECKSETSYS_
-	if (getsym(sym) != val) error("failed!");
-#endif
-}
-
-inline void setsym(Cump &sym, Comp_I &val)
-{
-	cudaMemcpyToSymbol(sym, &val, sizeof(Comp));
-#ifdef _CHECKSETSYS_
-	if ( getsym(sym) != val ) error("failed!");
-#endif
-}
-
 // v += v
 template <typename T, typename T1>
 __global__ void plus_equals0_kernel(T *v, T1 *v1, Long N)
@@ -502,7 +456,7 @@ inline T sum(const CUbase<T> &gv)
 	CUvector<T> gv1(Nbl);
 	NRvector<T> v1(Nbl);
 	sum_kernel<<<Nbl, Nth_sum>>>(gv1.ptr(), gv.ptr(), N);
-	gv1.get(v1);
+	v1 = gv1;
 	return sum(v1);
 }
 
@@ -514,7 +468,7 @@ inline Comp sum(const CUbase<Comp> &gv)
 	CUvector<Comp> gv1(Nbl);
 	NRvector<Comp> v1(Nbl);
 	sum_kernel<<<Nbl, Nth_sum>>>((Cump*)gv1.ptr(), (Cump*)gv.ptr(), N);
-	gv1.get(v1);
+	v1 = gv1;
 	return sum(v1);
 }
 
@@ -551,24 +505,6 @@ void norm2_kernel(T *v1, const T *v, Long N)
 }
 
 // norm2_kernel for Cump
-__global__ void norm2_kernel(Doub *v1, Cump_I *v, Long N);
-
-template <typename T>
-inline Doub norm2(const CUbase<T> &gv)
-{
-	Long N = gv.size();
-	Int Nbl = nbl(Nbl_norm2, Nth_norm2, N);
-	GvecDoub gv1(Nbl);
-	VecDoub v1(Nbl);
-	norm2_kernel<<<Nbl, Nth_norm2>>>(gv1.ptr(), gv.ptr(), N);
-	gv1.get(v1);
-	return sum(v1);
-}
-
-template <typename T>
-inline Doub norm(const CUbase<T> &gv)
-{ return std::sqrt(norm2(gv)); }
-
 //sum v1 in cpu to get norm2, size(v1) = Nblock
 __global__
 void norm2_kernel(Doub *v1, Cump_I *v, Long N)
@@ -597,5 +533,21 @@ void norm2_kernel(Doub *v1, Cump_I *v, Long N)
 	if (cacheIdx == 0)
 		v1[blockIdx.x] = cache[0];
 }
+
+template <typename T>
+inline Doub norm2(const CUbase<T> &gv)
+{
+	Long N = gv.size();
+	Int Nbl = nbl(Nbl_norm2, Nth_norm2, N);
+	GvecDoub gv1(Nbl);
+	VecDoub v1(Nbl);
+	norm2_kernel<<<Nbl, Nth_norm2>>>(gv1.ptr(), gv.ptr(), N);
+	v1 = gv1;
+	return sum(v1);
+}
+
+template <typename T>
+inline Doub norm(const CUbase<T> &gv)
+{ return std::sqrt(norm2(gv)); }
 
 } // namespace slisc

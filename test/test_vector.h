@@ -195,7 +195,7 @@ void test_vector()
 		GvecDoub gvDoub(vDoub);
 		if (gvDoub.end() != 3.3) error("failed!");
 		gvDoub.end() = 4.4;
-		gvDoub.get(vDoub);
+		vDoub = gvDoub;
 		if (vDoub[0] != 1.1 || vDoub[1] != 2.2 || vDoub.end() != 4.4) error("failed!");
 	}
 	

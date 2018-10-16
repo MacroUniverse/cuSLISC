@@ -1,5 +1,5 @@
 #pragma once
-#include "../cuSLISC/arithmatic.h"
+#include "../cuSLISC/cuslisc.h"
 
 __device__ slisc::Doub glob_dev_Doub;
 __device__ slisc::Cump glob_dev_Cump;

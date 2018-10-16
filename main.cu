@@ -1,5 +1,4 @@
 // test all cuda function
-#include <iostream>
 #include "test/test_global.h"
 #include "test/test_vector.h"
 #include "test/test_complex.h"
@@ -7,8 +6,7 @@
 #include "test/test_mat3d.h"
 #include "test/test_basic.h"
 
-using std::cout; using std::endl; using std::string;
-using std::ifstream; using std::to_string;
+using std::cout; using std::endl;
 
 __global__ void test_kernel()
 {
@@ -35,7 +33,7 @@ int main()
 	test_global();
 	cout << "test scalar and vector..." << endl;
 	test_vector();
-	cout << "test Cump..." << endl;
+	cout << "test complex..." << endl;
 	test_complex();
 	cout << "test matrix..." << endl;
 	test_matrix();

@@ -1,5 +1,7 @@
 #pragma once
 #include "../cuSLISC/cuslisc.h"
+#include "../SLISC/arithmatic.h"
+#include "../SLISC/disp.h"
 
 void test_matrix()
 {

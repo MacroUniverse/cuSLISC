@@ -32,6 +32,52 @@ inline Bool operator!=(Comp_I &s1, Comp_I &s2)
 // { return toCump(s1) != s2; }
 // inline Bool operator!=(Cump_I &s1, Comp_I &s2) { return s2 != s1; }
 
+// get device global variable
+template <typename T>
+inline T getsym(const T &sym)
+{
+	T val;
+	cudaMemcpyFromSymbol(&val, sym, sizeof(T));
+	return val;
+}
+
+inline Comp getsym(Cump_I &sym)
+{
+	Comp val;
+	cudaMemcpyFromSymbol(&val, sym, sizeof(Comp));
+	return val;
+}
+
+// set device global variable
+
+// this might be unnecessary
+// template <typename T, typename T1>
+// inline void setsym(T &sym, const T1 &val)
+// {
+// 	T val1; val1 = (T)val;
+// 	cudaMemcpyToSymbol(sym, &val1, sizeof(T));
+// #ifdef _CHECKSETSYS_
+// 	if (getsym(sym) != val1) error("failed!");
+// #endif
+// }
+
+template <typename T>
+inline void setsym(T &sym, const T &val)
+{
+	cudaMemcpyToSymbol(sym, &val, sizeof(T));
+#ifdef _CHECKSETSYS_
+	if (getsym(sym) != val) error("failed!");
+#endif
+}
+
+inline void setsym(Cump &sym, Comp_I &val)
+{
+	cudaMemcpyToSymbol(sym, &val, sizeof(Comp));
+#ifdef _CHECKSETSYS_
+	if ( getsym(sym) != val ) error("failed!");
+#endif
+}
+
 // calculate number of CUDA blocks needed
 inline Int nbl(Int NblMax, Int Nth, Int N)
 { return min(NblMax, (N + Nth - 1)/Nth); }
