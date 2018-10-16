@@ -192,7 +192,7 @@ inline T norm2(NRbase<T> &v)
 
 template <class T>
 inline T norm(NRbase<T> &v)
-{ return sqrt(norm2(v)); }
+{ return std::sqrt(norm2(v)); }
 
 //sum(abs(v(:)). ^ 2) for complex numbers
 inline Doub norm2(NRbase<Comp> &v)
@@ -205,7 +205,7 @@ inline Doub norm2(NRbase<Comp> &v)
 }
 
 inline Doub norm(NRbase<Comp> &v)
-{ return sqrt(norm2(v)); }
+{ return std::sqrt(norm2(v)); }
 
 // === matrix manipulation ===
 

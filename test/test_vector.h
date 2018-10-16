@@ -1,7 +1,13 @@
+#pragma once
 #include "../cuSLISC/cuslisc.h"
+#include "../SLISC/arithmatic.h"
+#include "../SLISC/disp.h"
 
 void test_vector()
 {
+	using namespace slisc;
+	using std::cout; using std::endl;
+
 	// default initialize
 	{
 		GvecDoub gvDoub;

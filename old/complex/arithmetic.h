@@ -19,7 +19,7 @@
 #include <cmath>
 //#include <thrust/detail/complex/c99math.h>
 
-namespace cuslisc
+namespace slisc
 {
 
   /* --- Binary Arithmetic Operators --- */
@@ -225,6 +225,4 @@ template <typename ValueType>
 //   return complex<ValueType>(m * std::cos(theta),m * std::sin(theta));
 // }
 
-}
-
-
+} // namespace slisc

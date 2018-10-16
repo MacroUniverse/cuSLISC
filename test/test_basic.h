@@ -1,6 +1,9 @@
+#include "../cuSLISC/arithmatic.h"
+
 // test basic operations
 void test_basic()
 {
+	using namespace slisc;
 	// v += v; v -= v; v *= v; v /= v
 	{
 		GmatComp ga(10,10,Comp(1.,2.));

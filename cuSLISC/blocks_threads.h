@@ -2,7 +2,8 @@
 // TODO : optimize these numbers
 // <<<nbl(Nbl*, Nth*, N), Nth*>>> for kernel call
 
-namespace cuslisc {
+#include "../SLISC/slisc.h"
+namespace slisc {
 
 #ifdef CUSLISC_GTX1080
 const Int Nbl_cumemset = 320, Nth_cumemset = 32;

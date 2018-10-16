@@ -39,7 +39,7 @@
 #include <math.h>
 #include <sstream>
 
-namespace cuslisc
+namespace slisc
 {
 
 template<class _Tp> class complex;
@@ -1160,4 +1160,4 @@ operator<<(std::basic_ostream<_CharT, _Traits>& __os, const complex<_Tp>& __x)
     return __os << __s.str();
 }
 
-} // close namespace cuslisc
+} // close namespace slisc

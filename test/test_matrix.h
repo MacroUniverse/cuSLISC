@@ -1,5 +1,9 @@
+#pragma once
+#include "../cuSLISC/cuslisc.h"
+
 void test_matrix()
 {
+	using namespace slisc;
 	// default initialize
 	{
 		GmatDoub gaDoub;

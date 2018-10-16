@@ -23,14 +23,14 @@
 #include <string.h>
 #include <ctype.h>
 
+namespace slisc
+{
+
 #ifdef _CUSLISC_
 template <class T> class CUvector;
 template <class T> class CUmatrix;
 template <class T> class CUmat3d;
 #endif
-
-namespace slisc
-{
 
 // Scalar types
 

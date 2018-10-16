@@ -1,17 +1,16 @@
 // classes for cuda matrix
 #pragma once
-#include "SLISC/slisc.h"
+#include "../SLISC/slisc.h"
 #include "blocks_threads.h"
-#include "cuSLISC/complex.h"
+#include "complex.h"
 //#include "complex/complex.h"
 
-namespace cuslisc {
-using namespace slisc;
+namespace slisc {
 
 // complex type for cuda kernel
 // should not be used in host code
-typedef const cuslisc::complex<Doub> Cump_I;
-typedef cuslisc::complex<Doub> Cump, Cump_O, Cump_IO;
+typedef const slisc::complex<Doub> Cump_I;
+typedef slisc::complex<Doub> Cump, Cump_O, Cump_IO;
 
 inline Cump& toCump(Comp &s) { return reinterpret_cast<Cump&>(s); }
 inline Cump_I & toCump(Comp_I &s) { return reinterpret_cast<Cump_I&>(s); }
@@ -761,4 +760,4 @@ typedef CUmat3d<Doub> Gmat3Doub, Gmat3Doub_O, Gmat3Doub_IO;
 typedef const CUmat3d<Comp> Gmat3Comp_I;
 typedef CUmat3d<Comp> Gmat3Comp, Gmat3Comp_O, Gmat3Comp_IO;
 
-} // namespace cuslisc
+} // namespace slisc

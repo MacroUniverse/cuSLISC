@@ -1,10 +1,14 @@
-__device__ Doub glob_dev_Doub;
-__device__ Cump glob_dev_Cump;
-__constant__ Doub glob_const_Doub;
-__constant__ Cump glob_const_Cump;
+#pragma once
+#include "../cuSLISC/arithmatic.h"
+
+__device__ slisc::Doub glob_dev_Doub;
+__device__ slisc::Cump glob_dev_Cump;
+__constant__ slisc::Doub glob_const_Doub;
+__constant__ slisc::Cump glob_const_Cump;
 
 void test_global()
 {
+	using namespace slisc;
 	// __device__ var
 	setsym(glob_dev_Doub, 3.14);
 	if (getsym(glob_dev_Doub) != 3.14) error("failed!");

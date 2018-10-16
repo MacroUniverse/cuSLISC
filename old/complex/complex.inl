@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-namespace cuslisc
+namespace slisc
 {
 
 /* --- Constructors --- */
@@ -137,7 +137,7 @@ template <typename T>
   return !(lhs == rhs);
 }
 
-} 
+} // namespace slisc
 
 #include "arithmetic.h"
 #include "use_thrust_complex.h"

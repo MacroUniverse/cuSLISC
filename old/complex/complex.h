@@ -29,7 +29,7 @@
 //#include <thrust/detail/type_traits.h>
 
 
-namespace cuslisc
+namespace slisc
 {
 
 /*
@@ -612,7 +612,7 @@ template <typename T> __host__ __device__ inline bool operator!=(const T & lhs, 
  */
 template <typename T> __host__ __device__ inline bool operator!=(const complex<T> & lhs, const T& rhs);
 
-} // end namespace cuslisc
+} // end namespace slisc
 
 #include "complex.inl"
 

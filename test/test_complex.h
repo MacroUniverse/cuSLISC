@@ -1,8 +1,10 @@
-#include "../cuSLISC/complex.h"
+#pragma once
+#include "../cuSLISC/cuslisc.h"
 
 __global__
-void test_complex_kernel(Cump *v, Long N, Cump s1, Cump s2)
+void test_complex_kernel(slisc::Cump *v, slisc::Long N, slisc::Cump s1, slisc::Cump s2)
 {
+	using namespace slisc;
 	__shared__ Cump cache[4];
 	cache[0] = s1 + s2; v[0] = cache[0];
 	cache[1] = s1 - s2; v[1] = cache[1];
@@ -18,6 +20,7 @@ void test_complex_kernel(Cump *v, Long N, Cump s1, Cump s2)
 
 void test_complex()
 {
+	using namespace slisc;
 	Int N = 10;
 	GvecComp gv(N, 0.); Cump s1(1.1, 2.2), s2(2.2, 4.4);
 	test_complex_kernel<<<1,1>>>(gv.ptr(), N, s1, s2);

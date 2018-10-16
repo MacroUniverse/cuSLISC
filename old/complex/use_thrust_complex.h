@@ -1,6 +1,6 @@
 #include <thrust/complex.h>
 
-namespace cuslisc
+namespace slisc
 {
 
 template<typename T> __host__ __device__
@@ -84,4 +84,4 @@ operator<<(std::basic_ostream<charT, traits>& os, const complex<T>& z) {
 	return os << (thrust::complex<T>&)z;
 }
 
-} // namespace cuslisc
+} // namespace slisc
