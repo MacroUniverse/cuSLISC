@@ -1,38 +1,12 @@
 // classes for cuda matrix
 #pragma once
-#include "nr3plus.h"
-#include "cuda_complex.h"
+#include "SLISC/slisc.h"
+#include "blocks_threads.h"
+#include "cuSLISC/complex.h"
 //#include "complex/complex.h"
 
-// manually set max block number and thread number
-// TODO : optimize these numbers
-// <<<nbl(Nbl*, Nth*, N), Nth*>>> for kernel call
-#ifdef CUSLISC_GTX1080
-const Int Nbl_cumemset = 320, Nth_cumemset = 32;
-const Int Nbl_plus_equals0 = 320, Nth_plus_equals0 = 32;
-const Int Nbl_minus_equals0 = 320, Nth_minus_equals0 = 32;
-const Int Nbl_times_equals0 = 320, Nth_times_equals0 = 32;
-const Int Nbl_divide_equals0 = 320, Nth_divide_equals0 = 32;
-const Int Nbl_plus_equals1 = 320, Nth_plus_equals1 = 32;
-const Int Nbl_minus_equals1 = 320, Nth_minus_equals1 = 32;
-const Int Nbl_times_equals1 = 320, Nth_times_equals1 = 32;
-const Int Nbl_divide_equals1 = 320, Nth_divide_equals1 = 32;
-const Int Nbl_plus0 = 320, Nth_plus0 = 32;
-const Int Nbl_plus1 = 320, Nth_plus1 = 32;
-const Int Nbl_minus0 = 320, Nth_minus0 = 32;
-const Int Nbl_minus1 = 320, Nth_minus1 = 32;
-const Int Nbl_minus2 = 320, Nth_minus2 = 32;
-const Int Nbl_sum = 320, Nth_sum = 32;
-const Int Nbl_norm2 = 320, Nth_norm2 = 32;
-#endif
-#ifdef CUSLISC_P100
-const Int Nbl_cumemset = 320, Nth_cumemset = 32;
-const Int Nbl_sum = 320, Nth_sum = 32;
-#endif
-#ifdef CUSLISC_V100
-const Int Nbl_cumemset = 320, Nth_cumemset = 32;
-const Int Nbl_sum = 320, Nth_sum = 32;
-#endif
+namespace cuslisc {
+using namespace slisc;
 
 // complex type for cuda kernel
 // should not be used in host code
@@ -598,7 +572,8 @@ CUmat3d<T>::CUmat3d(NRmat3d<T> &v) : CUmat3d(v.dim1(), v.dim2(), v.dim3())
 template <typename T>
 CUmat3d<T>::CUmat3d(const CUmat3d<T> &rhs)
 {
-	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!");
+	error("Copy constructor or move constructor is forbidden, "
+	"use reference argument for function input or output, and use \"=\" to copy!");
 }
 
 template <typename T>
@@ -785,3 +760,5 @@ typedef CUmat3d<Doub> Gmat3Doub, Gmat3Doub_O, Gmat3Doub_IO;
 
 typedef const CUmat3d<Comp> Gmat3Comp_I;
 typedef CUmat3d<Comp> Gmat3Comp, Gmat3Comp_O, Gmat3Comp_IO;
+
+} // namespace cuslisc
