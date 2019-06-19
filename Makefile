@@ -7,7 +7,7 @@ debug = -D _CHECKSETSYS_ -D _CHECKBOUND_ -D _CHECKTYPE_
 source = main.cu SLISC/print.cpp
 objects = main.o print.o
 compiler = nvcc
-flags =  -arch=sm_60 -g -G -std=c++11
+flags =  -arch=sm_60 -g -G -std=c++14
 # -g -G -O3
 
 $(exe):$(objects)

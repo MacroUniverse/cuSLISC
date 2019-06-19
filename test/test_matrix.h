@@ -1,6 +1,6 @@
 #pragma once
 #include "../cuSLISC/cuslisc.h"
-#include "../SLISC/arithmatic.h"
+#include "../SLISC/arithmetic.h"
 #include "../SLISC/disp.h"
 
 void test_matrix()
@@ -17,8 +17,8 @@ void test_matrix()
 	{
 		GmatDoub gaDoub(2,3);
 		if (gaDoub.size() != 6) SLS_ERR("failed!");
-		if (gaDoub.nrows() != 2) SLS_ERR("failed!");
-		if (gaDoub.ncols() != 3) SLS_ERR("failed!");
+		if (gaDoub.n1() != 2) SLS_ERR("failed!");
+		if (gaDoub.n2() != 3) SLS_ERR("failed!");
 		if (gaDoub.ptr() == nullptr) SLS_ERR("failed!");
 	}
 
@@ -29,8 +29,8 @@ void test_matrix()
 		GmatDoub gaDoub(2,2);
 		gaDoub = aDoub;
 		if (gaDoub.size() != 4) SLS_ERR("failed!");
-		if (gaDoub.nrows() != 2) SLS_ERR("failed!");
-		if (gaDoub.ncols() != 2) SLS_ERR("failed!");
+		if (gaDoub.n1() != 2) SLS_ERR("failed!");
+		if (gaDoub.n2() != 2) SLS_ERR("failed!");
 		aDoub1 = gaDoub;
 		if (aDoub1 != aDoub) SLS_ERR("failed!");
 	}
@@ -41,7 +41,7 @@ void test_matrix()
 		MatDoub aDoub;
 		aDoub = gaDoub;
 		if (aDoub.size() != 6) SLS_ERR("failed!");
-		if (aDoub.nrows() != 2 || aDoub.ncols() != 3) SLS_ERR("failed!");
+		if (aDoub.n1() != 2 || aDoub.n2() != 3) SLS_ERR("failed!");
 		if (aDoub != 1.23) SLS_ERR("failed!");
 	}
 
@@ -51,7 +51,7 @@ void test_matrix()
 		GmatDoub gaDoub(aDoub);
 		aDoub1 = gaDoub;
 		if (gaDoub.size() != 6) SLS_ERR("failed!");
-		if (gaDoub.nrows() != 2 || gaDoub.ncols() != 3) SLS_ERR("failed!");
+		if (gaDoub.n1() != 2 || gaDoub.n2() != 3) SLS_ERR("failed!");
 		if (aDoub1 != aDoub) SLS_ERR("failed!");
 	}
 
@@ -121,7 +121,7 @@ void test_matrix()
 		GmatDoub gaDoub;
 		gaDoub.resize(2, 3);
 		if (gaDoub.size() != 6) SLS_ERR("failed!");
-		if (gaDoub.nrows() != 2 || gaDoub.ncols() != 3) SLS_ERR("failed!");
+		if (gaDoub.n1() != 2 || gaDoub.n2() != 3) SLS_ERR("failed!");
 		if (gaDoub.ptr() == nullptr) SLS_ERR("failed!");
 		MatDoub aDoub(2, 3); linspace(aDoub, 0., 5.);
 		gaDoub = aDoub;
@@ -130,22 +130,22 @@ void test_matrix()
 		if (aDoub1 != aDoub) SLS_ERR("failed!");
 		gaDoub.resize(0, 0);
 		if (gaDoub.size() != 0)  SLS_ERR("failed!");
-		if (gaDoub.nrows() != 0|| gaDoub.ncols() != 0) SLS_ERR("failed!");
+		if (gaDoub.n1() != 0|| gaDoub.n2() != 0) SLS_ERR("failed!");
 		if (gaDoub.ptr() != nullptr) SLS_ERR("failed!");
 		gaDoub.resize(0, 100);
 		if (gaDoub.size() != 0)  SLS_ERR("failed!");
-		if (gaDoub.nrows() != 0 || gaDoub.ncols() != 100) SLS_ERR("failed!");
+		if (gaDoub.n1() != 0 || gaDoub.n2() != 100) SLS_ERR("failed!");
 		if (gaDoub.ptr() != nullptr) SLS_ERR("failed!");
 		// resize(Gmatrix<>)
 		gaDoub.resize(2, 3);
 		GmatComp gaComp;
 		gaComp.resize(gaDoub);
 		if (gaComp.size() != 6)  SLS_ERR("failed!");
-		if (gaComp.nrows() != 2 || gaComp.ncols() != 3) SLS_ERR("failed!");
+		if (gaComp.n1() != 2 || gaComp.n2() != 3) SLS_ERR("failed!");
 		// resize(Matrix<>)
 		aDoub.resize(4,5);
 		gaComp.resize(aDoub);
 		if (gaComp.size() != 20)  SLS_ERR("failed!");
-		if (gaComp.nrows() != 4 || gaComp.ncols() != 5) SLS_ERR("failed!");
+		if (gaComp.n1() != 4 || gaComp.n2() != 5) SLS_ERR("failed!");
 	}
 }

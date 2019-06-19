@@ -1,6 +1,6 @@
 #pragma once
 #include "cuslisc.h"
-#include "../SLISC/arithmatic.h"
+#include "../SLISC/arithmetic.h"
 
 namespace slisc {
 
@@ -11,11 +11,11 @@ Bool shape_cmp(const Gvector<T1> &v1, const Gvector<T2> &v2)
 
 template <typename T1, typename T2>
 Bool shape_cmp(const Gmatrix<T1> &a1, const Gmatrix<T2> &a2)
-{ return (a1.nrows() == a2.nrows()) && (a1.ncols() == a2.ncols()); }
+{ return (a1.n1() == a2.n1()) && (a1.n2() == a2.n2()); }
 
 template <typename T1, typename T2>
 Bool shape_cmp(const Gmat3d<T1> &a1, const Gmat3d<T2> &a2)
-{ return (a1.dim1() == a2.dim1()) && (a1.dim2() == a2.dim2()) && (a1.dim3() == a2.dim3()); }
+{ return (a1.n1() == a2.n1()) && (a1.n2() == a2.n2()) && (a1.dim3() == a2.dim3()); }
 
 // v += v
 template <typename T, typename T1>

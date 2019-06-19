@@ -1,6 +1,6 @@
 #pragma once
 #include "../cuSLISC/cuslisc.h"
-#include "../SLISC/arithmatic.h"
+#include "../SLISC/arithmetic.h"
 #include "../SLISC/disp.h"
 
 void test_vector()
@@ -24,16 +24,16 @@ void test_vector()
 
 	// memory copy
 	{
-		VecDoub vDoub, vDoub1;
-		linspace(vDoub, 0., 3., 4);
+		VecDoub vDoub(4), vDoub1(4);
+		linspace(vDoub, 0., 3.);
 		GvecDoub gvDoub(4);
 		gvDoub = vDoub;
 		if (gvDoub.size() != 4) SLS_ERR("failed!");
 		vDoub1 = gvDoub;
 		if (vDoub1 != vDoub) SLS_ERR("failed!");
 
-		VecComp vComp, vComp1;
-		linspace(vComp, 0., Comp(3.,3.), 4);
+		VecComp vComp(4), vComp1(4);
+		linspace(vComp, 0., Comp(3.,3.));
 		GvecComp gvComp(4);
 		gvComp = vComp;
 		if (gvComp.size() != 4) SLS_ERR("failed!");
@@ -44,15 +44,15 @@ void test_vector()
 	// const initialize
 	{
 		GvecDoub gvDoub(3, 1.23);
-		VecDoub vDoub;
+		VecDoub vDoub(3);
 		vDoub = gvDoub;
-		if (vDoub.size() != 3) SLS_ERR("failed!");
-		if (vDoub != 1.23) SLS_ERR("failed!")
+		if (vDoub != 1.23)
+			SLS_ERR("failed!");
 	}
 
 	// initialize from cpu vector/matrix
 	{
-		VecDoub vDoub, vDoub1; linspace(vDoub, 0., 3., 4);
+		VecDoub vDoub(4), vDoub1(4); linspace(vDoub, 0., 3.);
 		GvecDoub gvDoub(vDoub);
 		vDoub1 = gvDoub;
 		if (gvDoub.size() != 4) SLS_ERR("failed!");
@@ -67,16 +67,17 @@ void test_vector()
 		// = scalar
 		GvecDoub gvDoub(10);
 		gvDoub = 3.14;
-		VecDoub vDoub;
+		VecDoub vDoub(10);
 		vDoub = gvDoub;
-		if (vDoub != 3.14) SLS_ERR("failed!");
+		if (vDoub != 3.14)
+			SLS_ERR("failed!");
 
 		// copy assignment
 		linspace(vDoub, 10., 1., 10);
 		gvDoub = vDoub;
 		GvecDoub gvDoub1(10);
 		gvDoub1 = gvDoub;
-		VecDoub vDoub1;
+		VecDoub vDoub1(10);
 		vDoub1 = gvDoub1;
 		if (vDoub1 != vDoub) SLS_ERR("failed!");
 	}
@@ -87,7 +88,7 @@ void test_vector()
 		Gref<Doub> ref(gvDoub.ptr());
 		if (ref.ptr() != gvDoub.ptr()) SLS_ERR("failed!");
 		ref = 5.6;
-		VecDoub vDoub; vDoub = gvDoub;
+		VecDoub vDoub(3); vDoub = gvDoub;
 		if (vDoub[0] != 5.6 || vDoub[1] != 1.1 || vDoub[2] != 1.1) SLS_ERR("failed!");
 		if (ref != 5.6) SLS_ERR("failed!");
 		ref += 1.1;
@@ -103,7 +104,7 @@ void test_vector()
 		Gref<Comp> ref2(gvComp.ptr());
 		if (ref2.ptr() != gvComp.ptr()) SLS_ERR("failed!");
 		ref2 = Comp(5.6,5.6);
-		VecComp vComp; vComp = gvComp;
+		VecComp vComp(3); vComp = gvComp;
 		if (vComp[0] != Comp(5.6,5.6) || vComp[1] != Comp(1.1,1.1) || vComp[2] != Comp(1.1,1.1)) SLS_ERR("failed!");
 		if (ref2 != Comp(5.6,5.6)) SLS_ERR("failed!");
 		ref2 += Comp(1.1,1.1);

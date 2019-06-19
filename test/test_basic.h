@@ -1,4 +1,4 @@
-#include "../cuSLISC/arithmatic.h"
+#include "../cuSLISC/arithmetic.h"
 #include "../SLISC/disp.h"
 
 // test basic operations
@@ -62,7 +62,7 @@ void test_basic()
 	// minus(v);
 	{
 		GmatComp ga(10,10,Comp(3.14,-6.28));
-		MatComp a;
+		MatComp a(10, 10);
 		minus(ga); a = ga;
 		if (a != Comp(-3.14, 6.28))
 			SLS_ERR("failed!");

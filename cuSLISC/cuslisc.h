@@ -1,6 +1,6 @@
 // classes for cuda matrix
 #pragma once
-#include "../SLISC/slisc.h"
+#include "../SLISC/matrix.h"
 #include "blocks_threads.h"
 #include "complex.h"
 //#include "complex/complex.h"
@@ -9,8 +9,9 @@ namespace slisc {
 
 // complex type for cuda kernel
 // should not be used in host code
-typedef const slisc::complex<Doub> Cump_I;
-typedef slisc::complex<Doub> Cump, Cump_O, Cump_IO;
+typedef cuslisc::complex<Doub> Cump;
+typedef const Cump Cump_I;
+typedef Cump &Cump_O, &Cump_IO;
 
 inline Cump& toCump(Comp &s) { return reinterpret_cast<Cump&>(s); }
 inline Cump_I & toCump(Comp_I &s) { return reinterpret_cast<Cump_I&>(s); }
@@ -452,7 +453,7 @@ Gmatrix<T>::Gmatrix(Long_I n, Long_I m, const T &s) : Gmatrix(n, m)
 { *this = s; }
 
 template <typename T>
-Gmatrix<T>::Gmatrix(Matrix<T> &v) : Gmatrix(v.nrows(), v.ncols())
+Gmatrix<T>::Gmatrix(Matrix<T> &v) : Gmatrix(v.n1(), v.n2())
 { cudaMemcpy(p, v.ptr(), N*sizeof(T), cudaMemcpyHostToDevice); }
 
 template <typename T>
@@ -485,7 +486,7 @@ inline Gmatrix<T> & Gmatrix<T>::operator=(const Gmatrix &rhs)
 {
 	if (this == &rhs)
 		SLS_ERR("self assignment is forbidden!");
-	if (rhs.nrows() != nn || rhs.ncols() != mm)
+	if (rhs.n1() != nn || rhs.n2() != mm)
 		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyDeviceToDevice);
 	return *this;
@@ -494,7 +495,7 @@ inline Gmatrix<T> & Gmatrix<T>::operator=(const Gmatrix &rhs)
 template <typename T>
 inline Gmatrix<T> & Gmatrix<T>::operator=(const Matrix<T> &rhs)
 {
-	if (rhs.nrows() != nn || rhs.ncols() != mm)
+	if (rhs.n1() != nn || rhs.n2() != mm)
 		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyHostToDevice);
 	return *this;
@@ -533,11 +534,11 @@ inline void Gmatrix<T>::resize(Long_I n, Long_I m)
 
 template<typename T> template<typename T1>
 inline void Gmatrix<T>::resize(const Gmatrix<T1>& v)
-{ resize(v.nrows(), v.ncols()); }
+{ resize(v.n1(), v.n2()); }
 
 template<typename T> template<typename T1>
 inline void Gmatrix<T>::resize(const Matrix<T1>& v)
-{ resize(v.nrows(), v.ncols()); }
+{ resize(v.n1(), v.n2()); }
 
 template <typename T>
 Gmatrix<T>::~Gmatrix()
@@ -619,7 +620,7 @@ Gmat3d<T>::Gmat3d(Long_I n, Long_I m, Long_I k, const T &s) : Gmat3d(n, m, k)
 { *this = s; }
 
 template <typename T>
-Gmat3d<T>::Gmat3d(Mat3d<T> &v) : Gmat3d(v.dim1(), v.dim2(), v.dim3())
+Gmat3d<T>::Gmat3d(Mat3d<T> &v) : Gmat3d(v.n1(), v.n2(), v.dim3())
 { cudaMemcpy(p, v.ptr(), N*sizeof(T), cudaMemcpyHostToDevice); }
 
 template <typename T>
@@ -657,7 +658,7 @@ inline Gmat3d<T> & Gmat3d<T>::operator=(const Gmat3d &rhs)
 {
 	if (this == &rhs)
 		SLS_ERR("self assignment is forbidden!");
-	if (rhs.dim1() != nn || rhs.dim2() != mm || rhs.dim3() != kk)
+	if (rhs.n1() != nn || rhs.n2() != mm || rhs.dim3() != kk)
 		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyDeviceToDevice);
 	return *this;
@@ -666,7 +667,7 @@ inline Gmat3d<T> & Gmat3d<T>::operator=(const Gmat3d &rhs)
 template <typename T>
 inline Gmat3d<T> & Gmat3d<T>::operator=(const Mat3d<T> &rhs)
 {
-	if (rhs.dim1() != nn || rhs.dim2() != mm || rhs.dim3() != kk)
+	if (rhs.n1() != nn || rhs.n2() != mm || rhs.dim3() != kk)
 		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyHostToDevice);
 	return *this;
@@ -705,11 +706,11 @@ inline void Gmat3d<T>::resize(Long_I n, Long_I m, Long_I k)
 
 template<typename T> template<typename T1>
 inline void Gmat3d<T>::resize(const Gmat3d<T1>& v)
-{ resize(v.dim1(), v.dim2(), v.dim3()); }
+{ resize(v.n1(), v.n2(), v.dim3()); }
 
 template<typename T> template<typename T1>
 inline void Gmat3d<T>::resize(const Mat3d<T1>& v)
-{ resize(v.dim1(), v.dim2(), v.dim3()); }
+{ resize(v.n1(), v.n2(), v.dim3()); }
 
 template <typename T>
 Gmat3d<T>::~Gmat3d()

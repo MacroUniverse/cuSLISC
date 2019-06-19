@@ -39,7 +39,7 @@
 #include <math.h>
 #include <sstream>
 
-namespace slisc
+namespace cuslisc
 {
 
 template<class _Tp> class complex;

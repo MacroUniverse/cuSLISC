@@ -2,7 +2,7 @@
 // TODO : optimize these numbers
 // <<<nbl(Nbl*, Nth*, N), Nth*>>> for kernel call
 
-#include "../SLISC/slisc.h"
+#include "../SLISC/global.h"
 namespace slisc {
 
 #ifdef CUSLISC_GTX1080

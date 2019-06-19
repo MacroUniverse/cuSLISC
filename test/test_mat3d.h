@@ -1,6 +1,6 @@
 #pragma once
 #include "../cuSLISC/cuslisc.h"
-#include "../SLISC/arithmatic.h"
+#include "../SLISC/arithmetic.h"
 #include "../SLISC/disp.h"
 
 void test_mat3d()
@@ -20,9 +20,9 @@ void test_mat3d()
 		Gmat3Doub gaDoub(2,3,4);
 		if (gaDoub.size() != 24)
 			SLS_ERR("failed!");
-		if (gaDoub.dim1() != 2)
+		if (gaDoub.n1() != 2)
 			SLS_ERR("failed!");
-		if (gaDoub.dim2() != 3)
+		if (gaDoub.n2() != 3)
 			SLS_ERR("failed!");
 		if (gaDoub.dim3() != 4)
 			SLS_ERR("failed!");
@@ -38,9 +38,9 @@ void test_mat3d()
 		gaDoub = aDoub;
 		if (gaDoub.size() != 24)
 			SLS_ERR("failed!");
-		if (gaDoub.dim1() != 2)
+		if (gaDoub.n1() != 2)
 			SLS_ERR("failed!");
-		if (gaDoub.dim2() != 3)
+		if (gaDoub.n2() != 3)
 			SLS_ERR("failed!");
 		if (gaDoub.dim3() != 4)
 			SLS_ERR("failed!");
@@ -56,7 +56,7 @@ void test_mat3d()
 		aDoub = gaDoub;
 		if (aDoub.size() != 24)
 			SLS_ERR("failed!");
-		if (aDoub.dim1() != 2 || aDoub.dim2() != 3 || aDoub.dim3() != 4)
+		if (aDoub.n1() != 2 || aDoub.n2() != 3 || aDoub.dim3() != 4)
 			SLS_ERR("failed!");
 		if (aDoub != 1.23)
 			SLS_ERR("failed!");
@@ -69,7 +69,7 @@ void test_mat3d()
 		aDoub1 = gaDoub;
 		if (gaDoub.size() != 24)
 			SLS_ERR("failed!");
-		if (gaDoub.dim1() != 2 || gaDoub.dim2() != 3 || gaDoub.dim3() != 4)
+		if (gaDoub.n1() != 2 || gaDoub.n2() != 3 || gaDoub.dim3() != 4)
 			SLS_ERR("failed!");
 		if (aDoub1 != aDoub)
 			SLS_ERR("failed!");
@@ -160,7 +160,7 @@ void test_mat3d()
 		gaDoub.resize(2, 3, 4);
 		if (gaDoub.size() != 24)
 			SLS_ERR("failed!");
-		if (gaDoub.dim1() != 2 || gaDoub.dim2() != 3 || gaDoub.dim3() != 4)
+		if (gaDoub.n1() != 2 || gaDoub.n2() != 3 || gaDoub.dim3() != 4)
 			SLS_ERR("failed!");
 		if (gaDoub.ptr() == nullptr)
 			SLS_ERR("failed!");
@@ -173,14 +173,14 @@ void test_mat3d()
 		gaDoub.resize(0, 0, 0);
 		if (gaDoub.size() != 0)
 			SLS_ERR("failed!");
-		if (gaDoub.dim1() != 0|| gaDoub.dim2() != 0 || gaDoub.dim3() != 0)
+		if (gaDoub.n1() != 0|| gaDoub.n2() != 0 || gaDoub.dim3() != 0)
 			SLS_ERR("failed!");
 		if (gaDoub.ptr() != nullptr)
 			SLS_ERR("failed!");
 		gaDoub.resize(0, 100, 101);
 		if (gaDoub.size() != 0)
 			SLS_ERR("failed!");
-		if (gaDoub.dim1() != 0 || gaDoub.dim2() != 100 || gaDoub.dim3() != 101)
+		if (gaDoub.n1() != 0 || gaDoub.n2() != 100 || gaDoub.dim3() != 101)
 			SLS_ERR("failed!");
 		if (gaDoub.ptr() != nullptr)
 			SLS_ERR("failed!");
@@ -190,14 +190,14 @@ void test_mat3d()
 		gaComp.resize(gaDoub);
 		if (gaComp.size() != 24)
 			SLS_ERR("failed!");
-		if (gaComp.dim1() != 2 || gaComp.dim2() != 3 || gaComp.dim3() != 4)
+		if (gaComp.n1() != 2 || gaComp.n2() != 3 || gaComp.dim3() != 4)
 			SLS_ERR("failed!");
 		// resize(Matrix<>)
 		aDoub.resize(4,5,6);
 		gaComp.resize(aDoub);
 		if (gaComp.size() != 120)
 			SLS_ERR("failed!");
-		if (gaComp.dim1() != 4 || gaComp.dim2() != 5 || gaComp.dim3() != 6)
+		if (gaComp.n1() != 4 || gaComp.n2() != 5 || gaComp.dim3() != 6)
 			SLS_ERR("failed!");
 	}
 }
