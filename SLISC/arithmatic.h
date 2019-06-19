@@ -465,7 +465,8 @@ template <class T, class T1>
 inline void operator+=(Vector<T> &v, const Vector<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!");
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!");
 #endif
 	plus_equals0(v, v1);
 }
@@ -474,7 +475,8 @@ template <class T, class T1>
 inline void operator+=(Matrix<T> &v, const Matrix<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!");
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!");
 #endif
 	plus_equals0(v, v1);
 }
@@ -483,7 +485,8 @@ template <class T, class T1>
 inline void operator+=(Mat3d<T> &v, const Mat3d<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!");
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!");
 #endif
 	plus_equals0(v, v1);
 }
@@ -501,7 +504,8 @@ template <class T, class T1>
 inline void operator-=(Vector<T> &v, const Vector<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!");
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!");
 #endif
 	minus_equals0(v, v1);
 }
@@ -510,7 +514,8 @@ template <class T, class T1>
 inline void operator-=(Matrix<T> &v, const Matrix<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!");
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!");
 #endif
 	minus_equals0(v, v1);
 }
@@ -519,7 +524,8 @@ template <class T, class T1>
 inline void operator-=(Mat3d<T> &v, const Mat3d<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!");
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!");
 #endif
 	minus_equals0(v, v1);
 }
@@ -537,7 +543,8 @@ template <class T, class T1>
 inline void operator*=(Vector<T> &v, const Vector<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!");
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!");
 #endif
 	times_equals0(v, v1);
 }
@@ -546,7 +553,8 @@ template <class T, class T1>
 inline void operator*=(Matrix<T> &v, const Matrix<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!");
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!");
 #endif
 	times_equals0(v, v1);
 }
@@ -555,7 +563,8 @@ template <class T, class T1>
 inline void operator*=(Mat3d<T> &v, const Mat3d<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!");
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!");
 #endif
 	times_equals0(v, v1);
 }
@@ -573,7 +582,8 @@ template <class T, class T1>
 inline void operator/=(Vector<T> &v, const Vector<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!");
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!");
 #endif
 	divide_equals0(v, v1);
 }
@@ -582,7 +592,8 @@ template <class T, class T1>
 inline void operator/=(Matrix<T> &v, const Matrix<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!");
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!");
 #endif
 	divide_equals0(v, v1);
 }
@@ -591,7 +602,8 @@ template <class T, class T1>
 inline void operator/=(Mat3d<T> &v, const Mat3d<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!");
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!");
 #endif
 	divide_equals0(v, v1);
 }
@@ -777,7 +789,8 @@ template <class T, class T1, class T2>
 inline void plus(Vector<T> &v, const Vector<T1> &v1, const Vector<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	v.resize(v1); plus1(v, v1, v2);
 }
@@ -786,7 +799,8 @@ template <class T, class T1, class T2>
 inline void plus(Matrix<T> &v, const Matrix<T1> &v1, const Matrix<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	v.resize(v1); plus1(v, v1, v2);
 }
@@ -795,7 +809,8 @@ template <class T, class T1, class T2>
 inline void plus(Mat3d<T> &v, const Mat3d<T1> &v1, const Mat3d<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	v.resize(v1); plus1(v, v1, v2);
 }
@@ -886,7 +901,8 @@ template <class T, class T1, class T2>
 inline void minus(Vector<T> &v, const Vector<T1> &v1, const Vector<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	v.resize(v1); minus4(v, v1, v2);
 }
@@ -895,7 +911,8 @@ template <class T, class T1, class T2>
 inline void minus(Matrix<T> &v, const Matrix<T1> &v1, const Matrix<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	v.resize(v1); minus4(v, v1, v2);
 }
@@ -904,7 +921,8 @@ template <class T, class T1, class T2>
 inline void minus(Mat3d<T> &v, const Mat3d<T1> &v1, const Mat3d<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	v.resize(v1); minus4(v, v1, v2);
 }
@@ -956,7 +974,8 @@ template <class T, class T1, class T2>
 inline void times(Vector<T> &v, const Vector<T1> &v1, const Vector<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	v.resize(v1); times1(v, v1, v2);
 }
@@ -965,7 +984,8 @@ template <class T, class T1, class T2>
 inline void times(Matrix<T> &v, const Matrix<T1> &v1, const Matrix<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	v.resize(v1); times1(v, v1, v2);
 }
@@ -974,7 +994,8 @@ template <class T, class T1, class T2>
 inline void times(Mat3d<T> &v, const Mat3d<T1> &v1, const Mat3d<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	v.resize(v1); times1(v, v1, v2);
 }
@@ -1035,7 +1056,8 @@ template <class T, class T1, class T2>
 inline void divide(Vector<T> &v, const Vector<T1> &v1, const Vector<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	v.resize(v1); divide3(v, v1, v2);
 }
@@ -1044,7 +1066,8 @@ template <class T, class T1, class T2>
 inline void divide(Matrix<T> &v, const Matrix<T1> &v1, const Matrix<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	v.resize(v1); divide3(v, v1, v2);
 }
@@ -1053,7 +1076,8 @@ template <class T, class T1, class T2>
 inline void divide(Mat3d<T> &v, const Mat3d<T1> &v1, const Mat3d<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	v.resize(v1); divide3(v, v1, v2);
 }
@@ -1199,7 +1223,8 @@ inline T dot1(const Vector<T1> &v1, const Vector<T2> &v2)
 inline Doub operator*(VecDoub_I &v1, VecDoub_I &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	return dot0<Doub>(v1, v2);
 }
@@ -1207,7 +1232,8 @@ inline Doub operator*(VecDoub_I &v1, VecDoub_I &v2)
 inline Comp operator*(VecComp_I &v1, VecComp_I &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	return dot1<Comp>(v1, v2);
 }
@@ -1215,7 +1241,8 @@ inline Comp operator*(VecComp_I &v1, VecComp_I &v2)
 inline Comp operator*(VecDoub_I &v1, VecComp_I &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	return dot0<Comp>(v1, v2);
 }
@@ -1223,7 +1250,8 @@ inline Comp operator*(VecDoub_I &v1, VecComp_I &v2)
 inline Comp operator*(VecComp_I &v1, VecDoub_I &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v1, v2)) error("wrong shape!");
+	if (!shape_cmp(v1, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	return dot1<Comp>(v1, v2);
 }
@@ -1296,7 +1324,8 @@ template <class T, class T1, class T2>
 inline void mul(Vector<T> &y, const Matrix<T1> &a, const Vector<T2> &x)
 {
 #ifdef _CHECKBOUNDS_
-	if (a.ncols() != x.size()) error("wrong shape!");
+	if (a.ncols() != x.size())
+		SLS_ERR("wrong shape!");
 #endif
 	Long i, k, m{ a.nrows() }, n{ a.ncols() };
 	y.resize(m); y = 0.;
@@ -1311,7 +1340,8 @@ template <class T, class T1, class T2>
 inline void mul(Vector<T> &y, const Vector<T1> &x, const Matrix<T2> &a)
 {
 #ifdef _CHECKBOUNDS_
-	if (x.size() != a.nrows()) error("wrong size!");
+	if (x.size() != a.nrows())
+		SLS_ERR("wrong size!");
 #endif
 	Long j, k, m{ a.nrows() }, n{ a.ncols() };
 	y.resize(n); y = 0.;
@@ -1326,7 +1356,8 @@ template <class T, class T1, class T2>
 inline void mul_par(Vector<T> &y, const Vector<T1> &x, const Matrix<T2> &a)
 {
 #ifdef _CHECKBOUNDS_
-	if (x.size() != a.nrows()) error("wrong size!");
+	if (x.size() != a.nrows())
+		SLS_ERR("wrong size!");
 #endif
 	Long j, m{ a.nrows() }, n{ a.ncols() };
 	y.resize(n); y = 0.;
@@ -1344,7 +1375,8 @@ template <class T, class T1, class T2>
 inline void mul(Matrix<T> &c, const Matrix<T1> &a, const Matrix<T2> &b)
 {
 #ifdef _CHECKBOUNDS_
-	if (a.ncols() != b.nrows()) error("wrong size!");
+	if (a.ncols() != b.nrows())
+		SLS_ERR("wrong size!");
 #endif
 	Long i, j, k, m{ a.nrows() }, n{ b.ncols() }, Nk{ a.ncols() };
 	c.resize(m, n); c = 0.;

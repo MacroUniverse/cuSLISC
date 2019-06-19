@@ -57,7 +57,8 @@ inline Comp getsym(Cump_I &sym)
 // 	T val1; val1 = (T)val;
 // 	cudaMemcpyToSymbol(sym, &val1, sizeof(T));
 // #ifdef _CHECKSETSYS_
-// 	if (getsym(sym) != val1) error("failed!");
+// 	if (getsym(sym) != val1)
+//		SLS_ERR("failed!");
 // #endif
 // }
 
@@ -66,7 +67,8 @@ inline void setsym(T &sym, const T &val)
 {
 	cudaMemcpyToSymbol(sym, &val, sizeof(T));
 #ifdef _CHECKSETSYS_
-	if (getsym(sym) != val) error("failed!");
+	if (getsym(sym) != val)
+		SLS_ERR("failed!");
 #endif
 }
 
@@ -74,7 +76,8 @@ inline void setsym(Cump &sym, Comp_I &val)
 {
 	cudaMemcpyToSymbol(sym, &val, sizeof(Comp));
 #ifdef _CHECKSETSYS_
-	if ( getsym(sym) != val ) error("failed!");
+	if ( getsym(sym) != val )
+		SLS_ERR("failed!");
 #endif
 }
 
@@ -244,7 +247,7 @@ inline Gref<T> Gbase<T>::operator()(Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("Gbase subscript out of bounds!");
+	SLS_ERR("Gbase subscript out of bounds!");
 #endif
 	return Gref<T>(p+i);
 }
@@ -254,7 +257,7 @@ inline const Gref<T> Gbase<T>::operator()(Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("Gbase subscript out of bounds!");
+	SLS_ERR("Gbase subscript out of bounds!");
 #endif
 	return Gref<T>(p+i);
 }
@@ -264,7 +267,7 @@ inline Gref<T> Gbase<T>::end()
 {
 #ifdef _CHECKBOUNDS_
 	if (N < 1)
-		error("Using end() for empty object!");
+		SLS_ERR("Using end() for empty object!");
 #endif
 	return Gref<T>(p+N-1);
 }
@@ -274,7 +277,7 @@ inline const Gref<T> Gbase<T>::end() const
 {
 #ifdef _CHECKBOUNDS_
 	if (N < 1)
-		error("Using end() for empty object!");
+		SLS_ERR("Using end() for empty object!");
 #endif
 	return Gref<T>(p+N-1);
 }
@@ -325,14 +328,16 @@ Gvector<T>::Gvector(Vector<T> &v) : Gvector(v.size())
 template <typename T>
 Gvector<T>::Gvector(const Gvector<T> &rhs)
 {
-	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!");
+	SLS_ERR("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!");
 }
 
 template <typename T>
 inline Gvector<T> & Gvector<T>::operator=(const Gvector &rhs)
 {
-	if (this == &rhs) error("self assignment is forbidden!");
-	if (rhs.size() != N) error("size mismatch!");
+	if (this == &rhs)
+		SLS_ERR("self assignment is forbidden!");
+	if (rhs.size() != N)
+		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyDeviceToDevice);
 	return *this;
 }
@@ -341,7 +346,7 @@ template <typename T>
 inline Gvector<T> & Gvector<T>::operator=(const Vector<T> &v)
 {
 	if (v.size() != N)
-		error("size mismatch!");
+		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, v.ptr(), N*sizeof(T), cudaMemcpyHostToDevice);
 	return *this;
 }
@@ -351,7 +356,7 @@ inline Gref<T> Gvector<T>::operator[](Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("Gvector subscript out of bounds");
+	SLS_ERR("Gvector subscript out of bounds");
 #endif
 	return Gref<T>(p+i);
 }
@@ -361,7 +366,7 @@ inline const Gref<T> Gvector<T>::operator[](Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i>=N)
-		error("Gvector subscript out of bounds");
+		SLS_ERR("Gvector subscript out of bounds");
 #endif
 	return Gref<T>(p+i);
 }
@@ -371,7 +376,7 @@ inline void Gvector<T>::get(Vector<T1> &v) const
 {
 #ifdef _CHECKTYPE_
 	if (sizeof(T) != sizeof(T1))
-		error("wrong type size!");
+		SLS_ERR("wrong type size!");
 #endif
 	v.resize(N);
 	cudaMemcpy(v.ptr(), p, N*sizeof(T), cudaMemcpyDeviceToHost);
@@ -453,7 +458,7 @@ Gmatrix<T>::Gmatrix(Matrix<T> &v) : Gmatrix(v.nrows(), v.ncols())
 template <typename T>
 Gmatrix<T>::Gmatrix(const Gmatrix<T> &rhs)
 {
-	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!")
+	SLS_ERR("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!")
 }
 
 template <typename T>
@@ -469,7 +474,7 @@ inline void Gmatrix<T>::get(Matrix<T1> &a) const
 {
 #ifdef _CHECKTYPE_
 	if (sizeof(T) != sizeof(T1))
-		error("wrong type size!");
+		SLS_ERR("wrong type size!");
 #endif
 	a.resize(nn, mm);
 	cudaMemcpy(a.ptr(), p, N*sizeof(T), cudaMemcpyDeviceToHost);
@@ -478,8 +483,10 @@ inline void Gmatrix<T>::get(Matrix<T1> &a) const
 template <typename T>
 inline Gmatrix<T> & Gmatrix<T>::operator=(const Gmatrix &rhs)
 {
-	if (this == &rhs) error("self assignment is forbidden!");
-	if (rhs.nrows() != nn || rhs.ncols() != mm) error("size mismatch!");
+	if (this == &rhs)
+		SLS_ERR("self assignment is forbidden!");
+	if (rhs.nrows() != nn || rhs.ncols() != mm)
+		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyDeviceToDevice);
 	return *this;
 }
@@ -487,7 +494,8 @@ inline Gmatrix<T> & Gmatrix<T>::operator=(const Gmatrix &rhs)
 template <typename T>
 inline Gmatrix<T> & Gmatrix<T>::operator=(const Matrix<T> &rhs)
 {
-	if (rhs.nrows() != nn || rhs.ncols() != mm) error("size mismatch!");
+	if (rhs.nrows() != nn || rhs.ncols() != mm)
+		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyHostToDevice);
 	return *this;
 }
@@ -497,7 +505,7 @@ inline Gptr<T> Gmatrix<T>::operator[](Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i>=nn)
-		error("Gmatrix subscript out of bounds!");
+		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
 	return v[i];
 }
@@ -507,7 +515,7 @@ inline Gptr<T> Gmatrix<T>::operator[](Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i>=nn)
-		error("Gmatrix subscript out of bounds!");
+		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
 	return v[i];
 }
@@ -617,7 +625,7 @@ Gmat3d<T>::Gmat3d(Mat3d<T> &v) : Gmat3d(v.dim1(), v.dim2(), v.dim3())
 template <typename T>
 Gmat3d<T>::Gmat3d(const Gmat3d<T> &rhs)
 {
-	error("Copy constructor or move constructor is forbidden, "
+	SLS_ERR("Copy constructor or move constructor is forbidden, "
 	"use reference argument for function input or output, and use \"=\" to copy!");
 }
 
@@ -638,7 +646,7 @@ inline void Gmat3d<T>::get(Mat3d<T1> &a) const
 {
 #ifdef _CHECKTYPE_
 	if (sizeof(T) != sizeof(T1))
-		error("wrong type size");
+		SLS_ERR("wrong type size");
 #endif
 	a.resize(nn, mm, kk);
 	cudaMemcpy(a.ptr(), p, N*sizeof(T), cudaMemcpyDeviceToHost);
@@ -647,9 +655,10 @@ inline void Gmat3d<T>::get(Mat3d<T1> &a) const
 template <typename T>
 inline Gmat3d<T> & Gmat3d<T>::operator=(const Gmat3d &rhs)
 {
-	if (this == &rhs) error("self assignment is forbidden!");
+	if (this == &rhs)
+		SLS_ERR("self assignment is forbidden!");
 	if (rhs.dim1() != nn || rhs.dim2() != mm || rhs.dim3() != kk)
-		error("size mismatch!");
+		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyDeviceToDevice);
 	return *this;
 }
@@ -658,7 +667,7 @@ template <typename T>
 inline Gmat3d<T> & Gmat3d<T>::operator=(const Mat3d<T> &rhs)
 {
 	if (rhs.dim1() != nn || rhs.dim2() != mm || rhs.dim3() != kk)
-		error("size mismatch!");
+		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyHostToDevice);
 	return *this;
 }
@@ -668,7 +677,7 @@ inline Gptr<T>* Gmat3d<T>::operator[](Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i>=nn)
-		error("Gmatrix subscript out of bounds!");
+		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
 	return v[i];
 }
@@ -678,7 +687,7 @@ inline Gptr<T>* Gmat3d<T>::operator[](Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i>=nn)
-		error("Gmatrix subscript out of bounds!");
+		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
 	return v[i];
 }

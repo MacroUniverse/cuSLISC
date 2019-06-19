@@ -25,14 +25,24 @@ void test_complex()
 	GvecComp gv(N, 0.); Cump s1(1.1, 2.2), s2(2.2, 4.4);
 	test_complex_kernel<<<1,1>>>(gv.ptr(), N, s1, s2);
 	VecComp v; v = gv;
-	if (v[0] != (Comp)s1 + (Comp)s2) error("failed!");
-	if (v[1] != (Comp)s1 - (Comp)s2) error("failed!");
-	if (v[2] != (Comp)s1 * (Comp)s2) error("failed!");
-	if (v[3] != (Comp)s1 / (Comp)s2) error("failed!");
-	if (v[4] != abs((Comp)s1)) error("failed!");
-	if (abs(v[5] - pow((Comp)s1, 2.)) > 1e-15) error("failed!");
-	if (abs(v[6] - pow((Comp)s1, (Comp)s2)) > 1e-15) error("failed!");
-	if (v[7] != exp((Comp)s1)) error("failed!");
-	if (v[8] != real((Comp)s1)) error("failed!");
-	if (v[9] != imag((Comp)s1)) error("failed!");
+	if (v[0] != (Comp)s1 + (Comp)s2)
+		SLS_ERR("failed!");
+	if (v[1] != (Comp)s1 - (Comp)s2)
+		SLS_ERR("failed!");
+	if (v[2] != (Comp)s1 * (Comp)s2)
+		SLS_ERR("failed!");
+	if (v[3] != (Comp)s1 / (Comp)s2)
+		SLS_ERR("failed!");
+	if (v[4] != abs((Comp)s1))
+		SLS_ERR("failed!");
+	if (abs(v[5] - pow((Comp)s1, 2.)) > 1e-15)
+		SLS_ERR("failed!");
+	if (abs(v[6] - pow((Comp)s1, (Comp)s2)) > 1e-15)
+		SLS_ERR("failed!");
+	if (v[7] != exp((Comp)s1))
+		SLS_ERR("failed!");
+	if (v[8] != real((Comp)s1))
+		SLS_ERR("failed!");
+	if (v[9] != imag((Comp)s1))
+		SLS_ERR("failed!");
 }

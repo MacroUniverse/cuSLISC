@@ -32,7 +32,8 @@ template <typename T, typename T1>
 inline void operator+=(Gvector<T> &v, const Gvector<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	Int N = v.size();
 	Int Nbl = nbl(Nbl_plus_equals0, Nth_plus_equals0, N);
@@ -43,7 +44,8 @@ template <typename T, typename T1>
 inline void operator+=(Gmatrix<T> &v, const Gmatrix<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	Int N = v.size();
 	Int Nbl = nbl(Nbl_plus_equals0, Nth_plus_equals0, N);
@@ -54,7 +56,8 @@ template <typename T, typename T1>
 inline void operator+=(Gmat3d<T> &v, const Gmat3d<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	Int N = v.size();
 	Int Nbl = nbl(Nbl_plus_equals0, Nth_plus_equals0, N);
@@ -76,7 +79,8 @@ template <typename T, typename T1>
 inline void operator-=(Gvector<T> &v, const Gvector<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	Int N = v.size();
 	Int Nbl = nbl(Nbl_minus_equals0, Nth_minus_equals0, N);
@@ -87,7 +91,8 @@ template <typename T, typename T1>
 inline void operator-=(Gmatrix<T> &v, const Gmatrix<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	Int N = v.size();
 	Int Nbl = nbl(Nbl_minus_equals0, Nth_minus_equals0, N);
@@ -98,7 +103,8 @@ template <typename T, typename T1>
 inline void operator-=(Gmat3d<T> &v, const Gmat3d<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	Int N = v.size();
 	Int Nbl = nbl(Nbl_minus_equals0, Nth_minus_equals0, N);
@@ -128,7 +134,8 @@ template <typename T, typename T1>
 inline void operator*=(Gvector<T> &v, const Gvector<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	times_equals0(v, v1);
 }
@@ -137,7 +144,8 @@ template <typename T, typename T1>
 inline void operator*=(Gmatrix<T> &v, const Gmatrix<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	times_equals0(v, v1);
 }
@@ -146,7 +154,8 @@ template <typename T, typename T1>
 inline void operator*=(Gmat3d<T> &v, const Gmat3d<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	times_equals0(v, v1);
 }
@@ -174,7 +183,8 @@ template <typename T, typename T1>
 inline void operator/=(Gvector<T> &v, const Gvector<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	divide_equals0(v, v1);
 }
@@ -183,7 +193,8 @@ template <typename T, typename T1>
 inline void operator/=(Gmatrix<T> &v, const Gmatrix<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	divide_equals0(v, v1);
 }
@@ -192,7 +203,8 @@ template <typename T, typename T1>
 inline void operator/=(Gmat3d<T> &v, const Gmat3d<T1> &v1)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	divide_equals0(v, v1);
 }
@@ -320,7 +332,8 @@ template <typename T, typename T1, typename T2>
 inline void plus(Gvector<T> &v, const Gvector<T1> &v1, const T2 &s)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	plus0(v, v1, s);
 }
@@ -329,7 +342,8 @@ template <typename T, typename T1, typename T2>
 inline void plus(Gmatrix<T> &v, const Gmatrix<T1> &v1, const T2 &s)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	plus0(v, v1, s);
 }
@@ -338,7 +352,8 @@ template <typename T, typename T1, typename T2>
 inline void plus(Gmat3d<T> &v, const Gmat3d<T1> &v1, const T2 &s)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1)) error("wrong shape!")
+	if (!shape_cmp(v, v1))
+		SLS_ERR("wrong shape!")
 #endif
 	plus0(v, v1, s);
 }
@@ -378,7 +393,8 @@ template <typename T, typename T1, typename T2>
 inline void plus(Gvector<T> &v, const Gvector<T1> &v1, const Gvector<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1) || !shape_cmp(v, v2)) error("wrong shape!");
+	if (!shape_cmp(v, v1) || !shape_cmp(v, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	plus1(v, v1, v2);
 }
@@ -387,7 +403,8 @@ template <typename T, typename T1, typename T2>
 inline void plus(Gmatrix<T> &v, const Gmatrix<T1> &v1, const Gmatrix<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1) || !shape_cmp(v, v2)) error("wrong shape!");
+	if (!shape_cmp(v, v1) || !shape_cmp(v, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	plus1(v, v1, v2);
 }
@@ -396,7 +413,8 @@ template <typename T, typename T1, typename T2>
 inline void plus(Gmat3d<T> &v, const Gmat3d<T1> &v1, const Gmat3d<T2> &v2)
 {
 #ifdef _CHECKBOUNDS_
-	if (!shape_cmp(v, v1) || !shape_cmp(v, v2)) error("wrong shape!");
+	if (!shape_cmp(v, v1) || !shape_cmp(v, v2))
+		SLS_ERR("wrong shape!");
 #endif
 	plus1(v, v1, v2);
 }

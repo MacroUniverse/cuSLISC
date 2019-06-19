@@ -75,7 +75,7 @@ const Doub E = 2.71828182845904524;
 const Comp I(0., 1.);
 
 // report error and pause execution
-#define error(str) {std::cout << "error: " << __FILE__ << ": line " << __LINE__ << ": " << str << std::endl; getchar();}
+#define SLS_ERR(str) {std::cout << "error: " << __FILE__ << ": line " << __LINE__ << ": " << str << std::endl; getchar();}
 
 template<class T>
 inline void memset(T *dest, const T val, Long_I n)
@@ -139,7 +139,7 @@ inline T & Vbase<T>::operator()(Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("Vbase subscript out of bounds");
+	SLS_ERR("Vbase subscript out of bounds");
 #endif
 	return p[i];
 }
@@ -149,7 +149,7 @@ inline const T & Vbase<T>::operator()(Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i>=N)
-		error("Vbase subscript out of bounds");
+		SLS_ERR("Vbase subscript out of bounds");
 #endif
 	return p[i];
 }
@@ -159,7 +159,7 @@ inline T & Vbase<T>::end()
 {
 #ifdef _CHECKBOUNDS_
 	if (N < 1)
-		error("Using end() for empty object");
+		SLS_ERR("Using end() for empty object");
 #endif
 	return p[N-1];
 }
@@ -169,7 +169,7 @@ inline const T & Vbase<T>::end() const
 {
 #ifdef _CHECKBOUNDS_
 	if (N < 1)
-		error("Using end() for empty object");
+		SLS_ERR("Using end() for empty object");
 #endif
 	return p[N-1];
 }
@@ -179,7 +179,7 @@ inline T& Vbase<T>::end(Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 	if (i <= 0 || i > N)
-		error("index out of bound");
+		SLS_ERR("index out of bound");
 #endif
 	return p[N-i];
 }
@@ -189,7 +189,7 @@ inline const T& Vbase<T>::end(Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 	if (i <= 0 || i > N)
-		error("index out of bound");
+		SLS_ERR("index out of bound");
 #endif
 	return p[N-i];
 }
@@ -227,14 +227,15 @@ public:
 template <class T>
 Vector<T>::Vector(const Vector<T> &rhs)
 {
-	error("Copy constructor or move constructor is forbidden, use reference "
+	SLS_ERR("Copy constructor or move constructor is forbidden, use reference "
 		 "argument for function input or output, and use \"=\" to copy!");
 }
 
 template <class T>
 inline Vector<T> & Vector<T>::operator=(const Vector<T> &rhs)
 {
-	if (this == &rhs) error("self assignment is forbidden!");
+	if (this == &rhs)
+		SLS_ERR("self assignment is forbidden!");
 	resize(rhs);
 	memcpy(p, rhs.p, N*sizeof(T));
 	return *this;
@@ -250,7 +251,8 @@ inline Vector<T>& Vector<T>::operator=(const T &rhs)
 template <class T>
 inline void Vector<T>::operator<<(Vector<T> &rhs)
 {
-	if (this == &rhs) error("self move is forbidden!");
+	if (this == &rhs)
+		SLS_ERR("self move is forbidden!");
 	Base::move(rhs);
 }
 
@@ -259,7 +261,7 @@ inline T & Vector<T>::operator[](Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("Vector subscript out of bounds");
+	SLS_ERR("Vector subscript out of bounds");
 #endif
 	return p[i];
 }
@@ -269,7 +271,7 @@ inline const T & Vector<T>::operator[](Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 if (i<0 || i>=N)
-	error("Vector subscript out of bounds");
+	SLS_ERR("Vector subscript out of bounds");
 #endif
 	return p[i];
 }
@@ -337,13 +339,14 @@ Matrix<T>::Matrix(Long_I n, Long_I m, const T *ptr) : Matrix(n, m)
 template <class T>
 Matrix<T>::Matrix(const Matrix<T> &rhs)
 {
-	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!");
+	SLS_ERR("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!");
 }
 
 template <class T>
 inline Matrix<T> & Matrix<T>::operator=(const Matrix<T> &rhs)
 {
-	if (this == &rhs) error("self assignment is forbidden!");
+	if (this == &rhs)
+		SLS_ERR("self assignment is forbidden!");
 	resize(rhs.nn, rhs.mm);
 	memcpy(p, rhs.p, N*sizeof(T));
 	return *this;
@@ -359,7 +362,8 @@ inline Matrix<T> & Matrix<T>::operator=(const T &rhs)
 template <class T>
 inline void Matrix<T>::operator<<(Matrix<T> &rhs)
 {
-	if (this == &rhs) error("self move is forbidden!");
+	if (this == &rhs)
+		SLS_ERR("self move is forbidden!");
 	Base::move(rhs);
 	if (v) delete v;
 	nn = rhs.nn; mm = rhs.mm; v = rhs.v;
@@ -371,7 +375,7 @@ inline T* Matrix<T>::operator[](Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i>=nn)
-		error("Matrix subscript out of bounds");
+		SLS_ERR("Matrix subscript out of bounds");
 #endif
 	return v[i];
 }
@@ -381,7 +385,7 @@ inline const T* Matrix<T>::operator[](Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i>=nn)
-		error("Matrix subscript out of bounds");
+		SLS_ERR("Matrix subscript out of bounds");
 #endif
 	return v[i];
 }
@@ -489,13 +493,14 @@ Mat3d<T>::Mat3d(Long_I n, Long_I m, Long_I k, const T &s) : Mat3d(n, m, k)
 template <class T>
 Mat3d<T>::Mat3d(const Mat3d<T> &rhs)
 {
-	error("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!");
+	SLS_ERR("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!");
 }
 
 template <class T>
 inline Mat3d<T> &Mat3d<T>::operator=(const Mat3d<T> &rhs)
 {
-	if (this == &rhs) error("self assignment is forbidden!");
+	if (this == &rhs)
+		SLS_ERR("self assignment is forbidden!");
 	resize(rhs.nn, rhs.mm, rhs.kk);
 	memcpy(p, rhs.p, N*sizeof(T));
 	return *this;
@@ -511,7 +516,8 @@ inline Mat3d<T> & Mat3d<T>::operator=(const T &rhs)
 template <class T>
 inline void Mat3d<T>::operator<<(Mat3d<T> &rhs)
 {
-	if (this == &rhs) error("self move is forbidden!");
+	if (this == &rhs)
+		SLS_ERR("self move is forbidden!");
 	Base::move(rhs);
 	nn = rhs.nn; mm = rhs.mm; kk = rhs.kk;
 	v_free(); v = rhs.v;
@@ -538,7 +544,7 @@ inline T*const * Mat3d<T>::operator[](Long_I i)
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i >= nn)
-		error("Matrix subscript out of bounds");
+		SLS_ERR("Matrix subscript out of bounds");
 #endif
 	return v[i];
 }
@@ -548,7 +554,7 @@ inline const T*const * Mat3d<T>::operator[](Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
 	if (i<0 || i >= nn)
-		error("Matrix subscript out of bounds");
+		SLS_ERR("Matrix subscript out of bounds");
 #endif
 	return v[i];
 }

@@ -11,17 +11,23 @@ void test_global()
 	using namespace slisc;
 	// __device__ var
 	setsym(glob_dev_Doub, 3.14);
-	if (getsym(glob_dev_Doub) != 3.14) error("failed!");
+	if (getsym(glob_dev_Doub) != 3.14)
+		SLS_ERR("failed!");
 	setsym(glob_dev_Cump, Comp(1.1,2.2));
-	if (getsym(glob_dev_Cump) != Comp(1.1,2.2)) error("failed!");
+	if (getsym(glob_dev_Cump) != Comp(1.1,2.2))
+		SLS_ERR("failed!");
 	setsym(glob_dev_Cump, 3.14);
-	if (getsym(glob_dev_Cump) != Comp(3.14,0.)) error("failed!");
+	if (getsym(glob_dev_Cump) != Comp(3.14,0.))
+		SLS_ERR("failed!");
 
 	// __const__ var
 	setsym(glob_const_Doub, 6.28);
-	if (getsym(glob_const_Doub) != 6.28) error("failed!");
+	if (getsym(glob_const_Doub) != 6.28)
+		SLS_ERR("failed!");
 	setsym(glob_const_Cump, Comp(1.1,2.2));
-	if (getsym(glob_const_Cump) != Comp(1.1,2.2)) error("failed!");
+	if (getsym(glob_const_Cump) != Comp(1.1,2.2))
+		SLS_ERR("failed!");
 	setsym(glob_dev_Cump, 3.14);
-	if (getsym(glob_dev_Cump) != Comp(3.14,0.)) error("failed!");
+	if (getsym(glob_dev_Cump) != Comp(3.14,0.))
+		SLS_ERR("failed!");
 }
