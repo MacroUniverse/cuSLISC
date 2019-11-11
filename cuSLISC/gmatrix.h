@@ -104,7 +104,7 @@ inline Gref<T> Gmatrix<T>::operator()(Long_I i, Long_I j)
 	if (i<0 || i>=m_N1, j<0 || j>=m_N2)
 		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
-	return (*this)[m_N1*i+j];
+	return (*this)[m_N2*i+j];
 }
 
 template <typename T>
@@ -114,7 +114,7 @@ inline const Gref<T> Gmatrix<T>::operator()(Long_I i, Long_I j) const
 	if (i<0 || i>=m_N1, j<0 || j>=m_N2)
 		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
-	return (*this)[m_N1*i+j];
+	return (*this)[m_N2*i+j];
 }
 
 template <typename T>

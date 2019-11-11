@@ -131,16 +131,16 @@ void test_mat3d()
 			SLS_ERR("failed!");
 	}
 
-	// operator[]
+	// operator()
 	{
 		Mat3Doub aDoub(2,2,2); aDoub(0) = 1.1; aDoub(1) = 2.2; aDoub(4) = 3.3; aDoub(5) = 4.4;
 		Gmat3Doub gaDoub(aDoub);
-		if (gaDoub[0][0][0] != 1.1 || gaDoub[0][0][1] != 2.2)
+		if (gaDoub(0,0,0) != 1.1 || gaDoub(0,0,1) != 2.2)
 			SLS_ERR("failed!");
-		if (gaDoub[1][0][0] != 3.3 || gaDoub[1][0][1] != 4.4)
+		if (gaDoub(1,0,0) != 3.3 || gaDoub(1,0,1) != 4.4)
 			SLS_ERR("failed!");
-		gaDoub[0][0][0] *= 4.; gaDoub[0][0][1] -= 2.2;
-		gaDoub[1][0][0] += 1.1; gaDoub[1][0][1] /= 2.2;
+		gaDoub(0,0,0) *= 4.; gaDoub(0,0,1) -= 2.2;
+		gaDoub(1,0,0) += 1.1; gaDoub(1,0,1) /= 2.2;
 		aDoub = gaDoub;
 		if (abs(aDoub(0) - 4.4) > 2e-15)
 			SLS_ERR("failed!");

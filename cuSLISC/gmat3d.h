@@ -11,14 +11,13 @@ private:
 	Long m_N1;
 	Long m_N2;
 	Long m_N3;
-	Gptr<T> **v;
-	inline Gptr<T>** v_alloc();
-	inline void v_free();
 public:
 	typedef Gbase<T> Base;
 	using Base::m_p;
 	using Base::m_N;
 	using Base::operator=;
+	using Base::operator();
+	using Base::operator[];
 	Gmat3d();
 	Gmat3d(Long_I n, Long_I m, Long_I k);
 	Gmat3d(Long_I n, Long_I m, Long_I k, const T &a); //Initialize to constant
@@ -31,9 +30,8 @@ public:
 	inline void get(Mat3d<T1> &v) const; // copy to cpu matrix
 	inline Gmat3d & operator=(const Gmat3d &rhs);	//copy assignment
 	inline Gmat3d & operator=(const Mat3d<T> &rhs); //NR assignment
-	inline Gptr<T>* operator[](Long_I i);	//subscripting: pointer to row i
-	// TODO: should return pointer to low level const
-	inline Gptr<T>* operator[](Long_I i) const;
+	inline Gref<T> operator()(Long_I i, Long_I j, Long_I k);	//subscripting: pointer to row i
+	inline const Gref<T> operator()(Long_I i, Long_I j, Long_I k) const;
 	inline void resize(Long_I n, Long_I m, Long_I k);
 	template <typename T1>
 	inline void resize(const Gmat3d<T1> &v);
@@ -43,34 +41,11 @@ public:
 };
 
 template <typename T>
-inline Gptr<T>** Gmat3d<T>::v_alloc()
-{
-	if (m_N == 0) return nullptr;
-	Long i;
-	Long nnmm = m_N1*m_N2;
-	Gptr<T> *v0 = new Gptr<T>[nnmm]; v0[0] = m_p;
-	for (i = 1; i < nnmm; ++i)
-		v0[i] = v0[i - 1] + m_N3;
-	Gptr<T> **v = new Gptr<T>*[m_N1]; v[0] = v0;
-	for(i = 1; i < m_N1; ++i)
-		v[i] = v[i-1] + m_N2;
-	return v;
-}
-
-template <typename T>
-inline void Gmat3d<T>::v_free()
-{
-	if (v != nullptr) {
-		delete v[0]; delete v;
-	}
-}
-
-template <typename T>
-Gmat3d<T>::Gmat3d() : m_N1(0), m_N2(0), m_N3(0), v(nullptr) {}
+Gmat3d<T>::Gmat3d() : m_N1(0), m_N2(0), m_N3(0) {}
 
 template <typename T>
 Gmat3d<T>::Gmat3d(Long_I n, Long_I m, Long_I k) :
-Base(n*m*k), m_N1(n), m_N2(m), m_N3(k), v(v_alloc()) {}
+Base(n*m*k), m_N1(n), m_N2(m), m_N3(k) {}
 
 template <typename T>
 Gmat3d<T>::Gmat3d(Long_I n, Long_I m, Long_I k, const T &s) : Gmat3d(n, m, k)
@@ -131,23 +106,23 @@ inline Gmat3d<T> & Gmat3d<T>::operator=(const Mat3d<T> &rhs)
 }
 
 template <typename T>
-inline Gptr<T>* Gmat3d<T>::operator[](Long_I i)
+inline Gref<T> Gmat3d<T>::operator()(Long_I i, Long_I j, Long_I k)
 {
 #ifdef _CHECKBOUNDS_
-	if (i<0 || i>=m_N1)
+	if (i<0 || i>=m_N1 || j<0 || j>=m_N2 || k<0 || k>=m_N3)
 		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
-	return v[i];
+	return (*this)[m_N2*m_N3*i + m_N3*j + k];
 }
 
 template <typename T>
-inline Gptr<T>* Gmat3d<T>::operator[](Long_I i) const
+inline const Gref<T> Gmat3d<T>::operator()(Long_I i, Long_I j, Long_I k) const
 {
 #ifdef _CHECKBOUNDS_
-	if (i<0 || i>=m_N1)
+	if (i<0 || i>=m_N1 || j<0 || j>=m_N2 || k<0 || k>=m_N3)
 		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
-	return v[i];
+	return (*this)[m_N2*m_N3*i + m_N3*j + k];
 }
 
 template <typename T>
@@ -156,8 +131,6 @@ inline void Gmat3d<T>::resize(Long_I n, Long_I m, Long_I k)
 	if (n != m_N1 || m != m_N2 || k != m_N3) {
 		Base::resize(n*m*k);
 		m_N1 = n; m_N2 = m; m_N3 = k;
-		if (v) delete v;
-		v = v_alloc();
 	}
 }
 
@@ -171,6 +144,6 @@ inline void Gmat3d<T>::resize(const Mat3d<T1>& v)
 
 template <typename T>
 Gmat3d<T>::~Gmat3d()
-{ v_free(); }
+{}
 
 } // namespace slisc
