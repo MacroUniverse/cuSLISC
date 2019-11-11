@@ -10,7 +10,7 @@ void test_basic()
 		GmatComp ga(10,10,Comp(1.,2.));
 		GmatDoub ga1(10,10,1.);
 		ga += ga1;
-		MatComp a; a = ga;
+		MatComp a(10,10); a = ga;
 		if (a != Comp(2.,2.))
 			SLS_ERR("failed!");
 		ga -= ga1; a = ga;
@@ -29,7 +29,7 @@ void test_basic()
 	{
 		GmatComp ga(10,10,Comp(10.,20.));
 		ga += 10.; ga -= Comp(0.,10.);
-		MatComp a; a = ga;
+		MatComp a(10,10); a = ga;
 		if (a != Comp(20.,10.))
 			SLS_ERR("failed!");
 		ga *= 1.5; a = ga;
@@ -44,7 +44,7 @@ void test_basic()
 	{
 		GmatComp ga(10,10);
 		GmatDoub ga1(10,10, 2.2);
-		MatComp a;
+		MatComp a(10,10);
 		plus(ga, ga1, -0.2); a = ga;
 		if (a != 2.)
 			SLS_ERR("failed!");

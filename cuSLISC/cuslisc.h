@@ -1,5 +1,6 @@
 // classes for cuda matrix
 #pragma once
+#include "../SLISC/time.h"
 #include "../SLISC/matrix.h"
 #include "blocks_threads.h"
 #include "complex.h"
@@ -401,7 +402,7 @@ template <typename T>
 class Gmatrix : public Gbase<T>
 {
 private:
-	Long nn, mm;
+	Long m_N1, m_N2;
 	Gptr<T> *v;
 	inline Gptr<T>* v_alloc();
 public:
@@ -414,8 +415,8 @@ public:
 	Gmatrix(Long_I n, Long_I m, const T &a); //Initialize to constant
 	Gmatrix(Matrix<T> &v); // initialize from cpu matrix
 	Gmatrix(const Gmatrix &rhs);		// Copy constructor forbidden
-	inline Long nrows() const;
-	inline Long ncols() const;
+	inline Long n1() const;
+	inline Long n2() const;
 	template <typename T1>
 	inline void get(Matrix<T1> &v) const; // copy to cpu vector
 	inline Gmatrix & operator=(const Gmatrix &rhs); //copy assignment
@@ -435,18 +436,18 @@ template <typename T>
 inline Gptr<T>* Gmatrix<T>::v_alloc()
 {
 	if (N == 0) return nullptr;
-	Gptr<T> *v = new Gptr<T>[nn];
+	Gptr<T> *v = new Gptr<T>[m_N1];
 	v[0] = p;
-	for (Long i = 1; i<nn; i++)
-		v[i] = v[i-1] + mm;
+	for (Long i = 1; i<m_N1; i++)
+		v[i] = v[i-1] + m_N2;
 	return v;
 }
 
 template <typename T>
-Gmatrix<T>::Gmatrix() : nn(0), mm(0), v(nullptr) {}
+Gmatrix<T>::Gmatrix() : m_N1(0), m_N2(0), v(nullptr) {}
 
 template <typename T>
-Gmatrix<T>::Gmatrix(Long_I n, Long_I m) : Base(n*m), nn(n), mm(m), v(v_alloc()) {}
+Gmatrix<T>::Gmatrix(Long_I n, Long_I m) : Base(n*m), m_N1(n), m_N2(m), v(v_alloc()) {}
 
 template <typename T>
 Gmatrix<T>::Gmatrix(Long_I n, Long_I m, const T &s) : Gmatrix(n, m)
@@ -459,16 +460,16 @@ Gmatrix<T>::Gmatrix(Matrix<T> &v) : Gmatrix(v.n1(), v.n2())
 template <typename T>
 Gmatrix<T>::Gmatrix(const Gmatrix<T> &rhs)
 {
-	SLS_ERR("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!")
+	SLS_ERR("Copy constructor or move constructor is forbidden, use reference argument for function input or output, and use \"=\" to copy!");
 }
 
 template <typename T>
-inline Long Gmatrix<T>::nrows() const
-{ return nn; }
+inline Long Gmatrix<T>::n1() const
+{ return m_N1; }
 
 template <typename T>
-inline Long Gmatrix<T>::ncols() const
-{ return mm; }
+inline Long Gmatrix<T>::n2() const
+{ return m_N2; }
 
 template <typename T> template <typename T1>
 inline void Gmatrix<T>::get(Matrix<T1> &a) const
@@ -477,7 +478,7 @@ inline void Gmatrix<T>::get(Matrix<T1> &a) const
 	if (sizeof(T) != sizeof(T1))
 		SLS_ERR("wrong type size!");
 #endif
-	a.resize(nn, mm);
+	a.resize(m_N1, m_N2);
 	cudaMemcpy(a.ptr(), p, N*sizeof(T), cudaMemcpyDeviceToHost);
 }
 
@@ -486,7 +487,7 @@ inline Gmatrix<T> & Gmatrix<T>::operator=(const Gmatrix &rhs)
 {
 	if (this == &rhs)
 		SLS_ERR("self assignment is forbidden!");
-	if (rhs.n1() != nn || rhs.n2() != mm)
+	if (rhs.n1() != m_N1 || rhs.n2() != m_N2)
 		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyDeviceToDevice);
 	return *this;
@@ -495,7 +496,7 @@ inline Gmatrix<T> & Gmatrix<T>::operator=(const Gmatrix &rhs)
 template <typename T>
 inline Gmatrix<T> & Gmatrix<T>::operator=(const Matrix<T> &rhs)
 {
-	if (rhs.n1() != nn || rhs.n2() != mm)
+	if (rhs.n1() != m_N1 || rhs.n2() != m_N2)
 		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyHostToDevice);
 	return *this;
@@ -505,7 +506,7 @@ template <typename T>
 inline Gptr<T> Gmatrix<T>::operator[](Long_I i)
 {
 #ifdef _CHECKBOUNDS_
-	if (i<0 || i>=nn)
+	if (i<0 || i>=m_N1)
 		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
 	return v[i];
@@ -515,7 +516,7 @@ template <typename T>
 inline Gptr<T> Gmatrix<T>::operator[](Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
-	if (i<0 || i>=nn)
+	if (i<0 || i>=m_N1)
 		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
 	return v[i];
@@ -524,9 +525,9 @@ inline Gptr<T> Gmatrix<T>::operator[](Long_I i) const
 template <typename T>
 inline void Gmatrix<T>::resize(Long_I n, Long_I m)
 {
-	if (n != nn || m != mm) {
+	if (n != m_N1 || m != m_N2) {
 		Base::resize(n*m);
-		nn = n; mm = m;
+		m_N1 = n; m_N2 = m;
 		if (v) delete v;
 		v = v_alloc();
 	}
@@ -551,9 +552,9 @@ template <typename T>
 class Gmat3d : public Gbase<T>
 {
 private:
-	Long nn;
-	Long mm;
-	Long kk;
+	Long m_N1;
+	Long m_N2;
+	Long m_N3;
 	Gptr<T> **v;
 	inline Gptr<T>** v_alloc();
 	inline void v_free();
@@ -567,9 +568,9 @@ public:
 	Gmat3d(Long_I n, Long_I m, Long_I k, const T &a); //Initialize to constant
 	Gmat3d(Mat3d<T> &v); // initialize from cpu matrix
 	Gmat3d(const Gmat3d &rhs);   // Copy constructor forbidden
-	inline Long dim1() const;
-	inline Long dim2() const;
-	inline Long dim3() const;
+	inline Long n1() const;
+	inline Long n2() const;
+	inline Long n3() const;
 	template <typename T1>
 	inline void get(Mat3d<T1> &v) const; // copy to cpu matrix
 	inline Gmat3d & operator=(const Gmat3d &rhs);	//copy assignment
@@ -590,13 +591,13 @@ inline Gptr<T>** Gmat3d<T>::v_alloc()
 {
 	if (N == 0) return nullptr;
 	Long i;
-	Long nnmm = nn*mm;
+	Long nnmm = m_N1*m_N2;
 	Gptr<T> *v0 = new Gptr<T>[nnmm]; v0[0] = p;
 	for (i = 1; i < nnmm; ++i)
-		v0[i] = v0[i - 1] + kk;
-	Gptr<T> **v = new Gptr<T>*[nn]; v[0] = v0;
-	for(i = 1; i < nn; ++i)
-		v[i] = v[i-1] + mm;
+		v0[i] = v0[i - 1] + m_N3;
+	Gptr<T> **v = new Gptr<T>*[m_N1]; v[0] = v0;
+	for(i = 1; i < m_N1; ++i)
+		v[i] = v[i-1] + m_N2;
 	return v;
 }
 
@@ -609,18 +610,18 @@ inline void Gmat3d<T>::v_free()
 }
 
 template <typename T>
-Gmat3d<T>::Gmat3d() : nn(0), mm(0), kk(0), v(nullptr) {}
+Gmat3d<T>::Gmat3d() : m_N1(0), m_N2(0), m_N3(0), v(nullptr) {}
 
 template <typename T>
 Gmat3d<T>::Gmat3d(Long_I n, Long_I m, Long_I k) :
-Base(n*m*k), nn(n), mm(m), kk(k), v(v_alloc()) {}
+Base(n*m*k), m_N1(n), m_N2(m), m_N3(k), v(v_alloc()) {}
 
 template <typename T>
 Gmat3d<T>::Gmat3d(Long_I n, Long_I m, Long_I k, const T &s) : Gmat3d(n, m, k)
 { *this = s; }
 
 template <typename T>
-Gmat3d<T>::Gmat3d(Mat3d<T> &v) : Gmat3d(v.n1(), v.n2(), v.dim3())
+Gmat3d<T>::Gmat3d(Mat3d<T> &v) : Gmat3d(v.n1(), v.n2(), v.n3())
 { cudaMemcpy(p, v.ptr(), N*sizeof(T), cudaMemcpyHostToDevice); }
 
 template <typename T>
@@ -631,16 +632,16 @@ Gmat3d<T>::Gmat3d(const Gmat3d<T> &rhs)
 }
 
 template <typename T>
-inline Long Gmat3d<T>::dim1() const
-{ return nn; }
+inline Long Gmat3d<T>::n1() const
+{ return m_N1; }
 
 template <typename T>
-inline Long Gmat3d<T>::dim2() const
-{ return mm; }
+inline Long Gmat3d<T>::n2() const
+{ return m_N2; }
 
 template <typename T>
-inline Long Gmat3d<T>::dim3() const
-{ return kk; }
+inline Long Gmat3d<T>::n3() const
+{ return m_N3; }
 
 template <typename T> template <typename T1>
 inline void Gmat3d<T>::get(Mat3d<T1> &a) const
@@ -649,7 +650,7 @@ inline void Gmat3d<T>::get(Mat3d<T1> &a) const
 	if (sizeof(T) != sizeof(T1))
 		SLS_ERR("wrong type size");
 #endif
-	a.resize(nn, mm, kk);
+	a.resize(m_N1, m_N2, m_N3);
 	cudaMemcpy(a.ptr(), p, N*sizeof(T), cudaMemcpyDeviceToHost);
 }
 
@@ -658,7 +659,7 @@ inline Gmat3d<T> & Gmat3d<T>::operator=(const Gmat3d &rhs)
 {
 	if (this == &rhs)
 		SLS_ERR("self assignment is forbidden!");
-	if (rhs.n1() != nn || rhs.n2() != mm || rhs.dim3() != kk)
+	if (rhs.n1() != m_N1 || rhs.n2() != m_N2 || rhs.n3() != m_N3)
 		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyDeviceToDevice);
 	return *this;
@@ -667,7 +668,7 @@ inline Gmat3d<T> & Gmat3d<T>::operator=(const Gmat3d &rhs)
 template <typename T>
 inline Gmat3d<T> & Gmat3d<T>::operator=(const Mat3d<T> &rhs)
 {
-	if (rhs.n1() != nn || rhs.n2() != mm || rhs.dim3() != kk)
+	if (rhs.n1() != m_N1 || rhs.n2() != m_N2 || rhs.n3() != m_N3)
 		SLS_ERR("size mismatch!");
 	cudaMemcpy(p, rhs.ptr(), N*sizeof(T), cudaMemcpyHostToDevice);
 	return *this;
@@ -677,7 +678,7 @@ template <typename T>
 inline Gptr<T>* Gmat3d<T>::operator[](Long_I i)
 {
 #ifdef _CHECKBOUNDS_
-	if (i<0 || i>=nn)
+	if (i<0 || i>=m_N1)
 		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
 	return v[i];
@@ -687,7 +688,7 @@ template <typename T>
 inline Gptr<T>* Gmat3d<T>::operator[](Long_I i) const
 {
 #ifdef _CHECKBOUNDS_
-	if (i<0 || i>=nn)
+	if (i<0 || i>=m_N1)
 		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
 	return v[i];
@@ -696,9 +697,9 @@ inline Gptr<T>* Gmat3d<T>::operator[](Long_I i) const
 template <typename T>
 inline void Gmat3d<T>::resize(Long_I n, Long_I m, Long_I k)
 {
-	if (n != nn || m != mm || k != kk) {
+	if (n != m_N1 || m != m_N2 || k != m_N3) {
 		Base::resize(n*m*k);
-		nn = n; mm = m; kk = k;
+		m_N1 = n; m_N2 = m; m_N3 = k;
 		if (v) delete v;
 		v = v_alloc();
 	}
@@ -706,11 +707,11 @@ inline void Gmat3d<T>::resize(Long_I n, Long_I m, Long_I k)
 
 template<typename T> template<typename T1>
 inline void Gmat3d<T>::resize(const Gmat3d<T1>& v)
-{ resize(v.n1(), v.n2(), v.dim3()); }
+{ resize(v.n1(), v.n2(), v.n3()); }
 
 template<typename T> template<typename T1>
 inline void Gmat3d<T>::resize(const Mat3d<T1>& v)
-{ resize(v.n1(), v.n2(), v.dim3()); }
+{ resize(v.n1(), v.n2(), v.n3()); }
 
 template <typename T>
 Gmat3d<T>::~Gmat3d()

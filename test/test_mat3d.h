@@ -24,7 +24,7 @@ void test_mat3d()
 			SLS_ERR("failed!");
 		if (gaDoub.n2() != 3)
 			SLS_ERR("failed!");
-		if (gaDoub.dim3() != 4)
+		if (gaDoub.n3() != 4)
 			SLS_ERR("failed!");
 		if (gaDoub.ptr() == nullptr)
 			SLS_ERR("failed!");
@@ -32,7 +32,7 @@ void test_mat3d()
 
 	// memory copy
 	{
-		Mat3Doub aDoub(2,3,4), aDoub1;
+		Mat3Doub aDoub(2,3,4), aDoub1(2,3,4);
 		linspace(aDoub, 0., 23.);
 		Gmat3Doub gaDoub(2,3,4);
 		gaDoub = aDoub;
@@ -42,7 +42,7 @@ void test_mat3d()
 			SLS_ERR("failed!");
 		if (gaDoub.n2() != 3)
 			SLS_ERR("failed!");
-		if (gaDoub.dim3() != 4)
+		if (gaDoub.n3() != 4)
 			SLS_ERR("failed!");
 		aDoub1 = gaDoub;
 		if (aDoub1 != aDoub)
@@ -52,11 +52,11 @@ void test_mat3d()
 	// const initialize
 	{
 		Gmat3Doub gaDoub(2, 3, 4, 1.23);
-		Mat3Doub aDoub;
+		Mat3Doub aDoub(2, 3, 4);
 		aDoub = gaDoub;
 		if (aDoub.size() != 24)
 			SLS_ERR("failed!");
-		if (aDoub.n1() != 2 || aDoub.n2() != 3 || aDoub.dim3() != 4)
+		if (aDoub.n1() != 2 || aDoub.n2() != 3 || aDoub.n3() != 4)
 			SLS_ERR("failed!");
 		if (aDoub != 1.23)
 			SLS_ERR("failed!");
@@ -64,12 +64,12 @@ void test_mat3d()
 
 	// initialize from cpu vector/matrix
 	{
-		Mat3Doub aDoub(2,3,4), aDoub1; linspace(aDoub, 0., 23.);
+		Mat3Doub aDoub(2,3,4), aDoub1(2,3,4); linspace(aDoub, 0., 23.);
 		Gmat3Doub gaDoub(aDoub);
 		aDoub1 = gaDoub;
 		if (gaDoub.size() != 24)
 			SLS_ERR("failed!");
-		if (gaDoub.n1() != 2 || gaDoub.n2() != 3 || gaDoub.dim3() != 4)
+		if (gaDoub.n1() != 2 || gaDoub.n2() != 3 || gaDoub.n3() != 4)
 			SLS_ERR("failed!");
 		if (aDoub1 != aDoub)
 			SLS_ERR("failed!");
@@ -83,18 +83,17 @@ void test_mat3d()
 		// = scalar
 		Gmat3Doub gaDoub(2, 3, 4);
 		gaDoub = 3.14;
-		Mat3Doub aDoub;
+		Mat3Doub aDoub(2,4,5);
 		aDoub = gaDoub;
 		if (aDoub != 3.14)
 			SLS_ERR("failed!");
 
 		// copy assignment
-		aDoub.resize(2,3,4);
 		linspace(aDoub, 24., 1.);
 		gaDoub = aDoub;
-		Gmat3Doub gaDoub1(2, 3, 4);
+		Gmat3Doub gaDoub1(2,3,4);
 		gaDoub1 = gaDoub;
-		Mat3Doub aDoub1;
+		Mat3Doub aDoub1(2,3,4);
 		aDoub1 = gaDoub1;
 		if (aDoub1 != aDoub)
 			SLS_ERR("failed!");
@@ -160,27 +159,27 @@ void test_mat3d()
 		gaDoub.resize(2, 3, 4);
 		if (gaDoub.size() != 24)
 			SLS_ERR("failed!");
-		if (gaDoub.n1() != 2 || gaDoub.n2() != 3 || gaDoub.dim3() != 4)
+		if (gaDoub.n1() != 2 || gaDoub.n2() != 3 || gaDoub.n3() != 4)
 			SLS_ERR("failed!");
 		if (gaDoub.ptr() == nullptr)
 			SLS_ERR("failed!");
 		Mat3Doub aDoub(2, 3, 4); linspace(aDoub, 0., 23.);
 		gaDoub = aDoub;
-		Mat3Doub aDoub1;
+		Mat3Doub aDoub1(2,3,4);
 		aDoub1 = gaDoub;
 		if (aDoub1 != aDoub)
 			SLS_ERR("failed!");
 		gaDoub.resize(0, 0, 0);
 		if (gaDoub.size() != 0)
 			SLS_ERR("failed!");
-		if (gaDoub.n1() != 0|| gaDoub.n2() != 0 || gaDoub.dim3() != 0)
+		if (gaDoub.n1() != 0|| gaDoub.n2() != 0 || gaDoub.n3() != 0)
 			SLS_ERR("failed!");
 		if (gaDoub.ptr() != nullptr)
 			SLS_ERR("failed!");
 		gaDoub.resize(0, 100, 101);
 		if (gaDoub.size() != 0)
 			SLS_ERR("failed!");
-		if (gaDoub.n1() != 0 || gaDoub.n2() != 100 || gaDoub.dim3() != 101)
+		if (gaDoub.n1() != 0 || gaDoub.n2() != 100 || gaDoub.n3() != 101)
 			SLS_ERR("failed!");
 		if (gaDoub.ptr() != nullptr)
 			SLS_ERR("failed!");
@@ -190,14 +189,14 @@ void test_mat3d()
 		gaComp.resize(gaDoub);
 		if (gaComp.size() != 24)
 			SLS_ERR("failed!");
-		if (gaComp.n1() != 2 || gaComp.n2() != 3 || gaComp.dim3() != 4)
+		if (gaComp.n1() != 2 || gaComp.n2() != 3 || gaComp.n3() != 4)
 			SLS_ERR("failed!");
 		// resize(Matrix<>)
 		aDoub.resize(4,5,6);
 		gaComp.resize(aDoub);
 		if (gaComp.size() != 120)
 			SLS_ERR("failed!");
-		if (gaComp.n1() != 4 || gaComp.n2() != 5 || gaComp.dim3() != 6)
+		if (gaComp.n1() != 4 || gaComp.n2() != 5 || gaComp.n3() != 6)
 			SLS_ERR("failed!");
 	}
 }

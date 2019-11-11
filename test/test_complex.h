@@ -24,7 +24,7 @@ void test_complex()
 	Int N = 10;
 	GvecComp gv(N, 0.); Cump s1(1.1, 2.2), s2(2.2, 4.4);
 	test_complex_kernel<<<1,1>>>(gv.ptr(), N, s1, s2);
-	VecComp v; v = gv;
+	VecComp v(gv.size()); v = gv;
 	if (v[0] != (Comp)s1 + (Comp)s2)
 		SLS_ERR("failed!");
 	if (v[1] != (Comp)s1 - (Comp)s2)

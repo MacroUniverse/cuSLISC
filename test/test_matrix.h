@@ -24,7 +24,7 @@ void test_matrix()
 
 	// memory copy
 	{
-		MatDoub aDoub(2,2), aDoub1;
+		MatDoub aDoub(2,2), aDoub1(2, 2);
 		linspace(aDoub, 0., 3.);
 		GmatDoub gaDoub(2,2);
 		gaDoub = aDoub;
@@ -38,7 +38,7 @@ void test_matrix()
 	// const initialize
 	{
 		GmatDoub gaDoub(2, 3, 1.23);
-		MatDoub aDoub;
+		MatDoub aDoub(2, 3);
 		aDoub = gaDoub;
 		if (aDoub.size() != 6) SLS_ERR("failed!");
 		if (aDoub.n1() != 2 || aDoub.n2() != 3) SLS_ERR("failed!");
@@ -47,7 +47,7 @@ void test_matrix()
 
 	// initialize from cpu vector/matrix
 	{
-		MatDoub aDoub(2,3), aDoub1; linspace(aDoub, 0., 5.);
+		MatDoub aDoub(2,3), aDoub1(2,3); linspace(aDoub, 0., 5.);
 		GmatDoub gaDoub(aDoub);
 		aDoub1 = gaDoub;
 		if (gaDoub.size() != 6) SLS_ERR("failed!");
@@ -63,16 +63,16 @@ void test_matrix()
 		// = scalar
 		GmatDoub gaDoub(2, 3);
 		gaDoub = 3.14;
-		MatDoub aDoub;
+		MatDoub aDoub(2, 3);
 		aDoub = gaDoub;
 		if (aDoub != 3.14) SLS_ERR("failed!");
 
 		// copy assignment
-		linspace(aDoub, 6., 1., 2, 3);
+		linspace(aDoub, 6., 1.);
 		gaDoub = aDoub;
 		GmatDoub gaDoub1(2, 3);
 		gaDoub1 = gaDoub;
-		MatDoub aDoub1;
+		MatDoub aDoub1(2, 3);
 		aDoub1 = gaDoub1;
 		if (aDoub1 != aDoub) SLS_ERR("failed!");
 	}
@@ -125,7 +125,7 @@ void test_matrix()
 		if (gaDoub.ptr() == nullptr) SLS_ERR("failed!");
 		MatDoub aDoub(2, 3); linspace(aDoub, 0., 5.);
 		gaDoub = aDoub;
-		MatDoub aDoub1;
+		MatDoub aDoub1(2, 3);
 		aDoub1 = gaDoub;
 		if (aDoub1 != aDoub) SLS_ERR("failed!");
 		gaDoub.resize(0, 0);

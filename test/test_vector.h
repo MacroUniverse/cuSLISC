@@ -73,7 +73,7 @@ void test_vector()
 			SLS_ERR("failed!");
 
 		// copy assignment
-		linspace(vDoub, 10., 1., 10);
+		linspace(vDoub, 10., 1.);
 		gvDoub = vDoub;
 		GvecDoub gvDoub1(10);
 		gvDoub1 = gvDoub;
