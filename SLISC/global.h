@@ -4,7 +4,7 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-// #define SLS_USE_MKL // use Intel MKL when possible
+
 #define SLS_FP_EXCEPT // turn on floating point exception
 
 #ifndef NDEBUG
@@ -12,9 +12,6 @@
 #define SLS_CHECK_SHAPE
 #endif
 
-#ifdef SLS_USE_MKL
-#include <mkl.h>
-#endif
 #include <limits>
 #include <cmath>
 #include <algorithm>
@@ -25,13 +22,34 @@
 #include <fstream>
 #include <cstring>
 
+#if SLS_CPP_STD == 17
+    #define SLS_CPP17
+#endif
+
+#ifdef SLS_USE_MKL
+	#define MKL_Complex16 double _Complex
+	#include <mkl.h>
+	#define SLS_USE_CBLAS
+	#define SLS_USE_LAPACKE
+#else
+	#ifdef SLS_USE_CBLAS
+		#include <cblas.h>
+	#endif
+	#ifdef SLS_USE_LAPACKE
+		#include <lapacke.h>
+		#ifdef I // I is already defined in "/usr/include/complex.h"
+			#undef I
+		#endif
+	#endif
+#endif
+
 namespace slisc {
 
 // using std
 
 using std::complex;
 using std::vector; using std::string; using std::to_string;
-using std::cout; using std::endl;
+using std::cin; using std::cout; using std::cerr; using std::endl;
 using std::ifstream; using std::ofstream;
 
 // Scalar types
@@ -130,9 +148,11 @@ template <class T> class Mat3d;
 template <class T> class Cmat3d;
 template <class T> class Cmat4d;
 template <class T> class Svector;
+template <class T> class Svector_c;
 template <class T> class Dvector;
 template <class T> class Smat;
 template <class T> class Scmat;
+template <class T> class Scmat_c;
 template <class T> class Dmat;
 template <class T> class Dcmat;
 template <class T> class Jcmat;
@@ -154,9 +174,17 @@ template <class T> class Gmat3d;
 #endif
 
 // pure imaginary number
+typedef ImagNum<Float> Fimag;
+typedef const Fimag Fimag_I;
+typedef Fimag &Fimag_O, &Fimag_IO;
+
 typedef ImagNum<Doub> Imag;
 typedef const Imag Imag_I;
 typedef Imag &Imag_O, &Imag_IO;
+
+typedef ImagNum<Ldoub> Limag;
+typedef const Limag Limag_I;
+typedef Limag &Limag_O, &Limag_IO;
 
 // vector and matrix types
 typedef Vector<Int> VecInt;
@@ -199,6 +227,10 @@ typedef Vector<Doub*> VecDoubp;
 typedef const VecDoubp &VecDoubp_I;
 typedef VecDoubp &VecDoubp_O, &VecDoubp_IO;
 
+typedef Vector<Imag> VecImag;
+typedef const VecImag &VecImag_I;
+typedef VecImag &VecImag_O, &VecImag_IO;
+
 typedef Vector<Comp> VecComp;
 typedef const VecComp &VecComp_I;
 typedef VecComp &VecComp_O, &VecComp_IO;
@@ -218,6 +250,10 @@ typedef MatUint &MatUint_O, &MatUint_IO;
 typedef Matrix<Long> MatLong;
 typedef const MatLong &MatLong_I;
 typedef MatInt &MatLong_O, &MatLong_IO;
+
+typedef Matrix<Llong> MatLlong;
+typedef const MatLlong &MatLlong_I;
+typedef MatInt &MatLlong_O, &MatLlong_IO;
 
 typedef Matrix<Ullong> MatUllong;
 typedef const MatUllong &MatUllong_I;
@@ -259,6 +295,10 @@ typedef Cmat<Long> CmatLong;
 typedef const CmatLong &CmatLong_I;
 typedef CmatLong &CmatLong_O, &CmatLong_IO;
 
+typedef Cmat<Llong> CmatLlong;
+typedef const CmatLlong &CmatLlong_I;
+typedef CmatLlong &CmatLlong_O, &CmatLlong_IO;
+
 typedef Cmat<Ullong> CmatUllong;
 typedef const CmatUllong &CmatUllong_I;
 typedef CmatUllong &CmatUllong_O, &CmatUllong_IO;
@@ -295,6 +335,10 @@ typedef Mat3d<Long> Mat3Long;
 typedef const Mat3Long &Mat3Long_I;
 typedef Mat3Long &Mat3Long_O, &Mat3Long_IO;
 
+typedef Mat3d<Llong> Mat3Llong;
+typedef const Mat3Llong &Mat3Llong_I;
+typedef Mat3Llong &Mat3Llong_O, &Mat3Llong_IO;
+
 typedef Mat3d<Doub> Mat3Doub;
 typedef const Mat3Doub &Mat3Doub_I;
 typedef Mat3Doub &Mat3Doub_O, &Mat3Doub_IO;
@@ -311,6 +355,14 @@ typedef Cmat3d<Long> Cmat3Long;
 typedef const Cmat3Long &Cmat3Long_I;
 typedef Cmat3Long &Cmat3Long_O, &Cmat3Long_IO;
 
+typedef Cmat3d<Llong> Cmat3Llong;
+typedef const Cmat3Llong &Cmat3Llong_I;
+typedef Cmat3Llong &Cmat3Llong_O, &Cmat3Llong_IO;
+
+typedef Cmat3d<Llong> Cmat3Llong;
+typedef const Cmat3Llong &Cmat3Llong_I;
+typedef Cmat3Llong &Cmat3Llong_O, &Cmat3Llong_IO;
+
 typedef Cmat3d<Doub> Cmat3Doub;
 typedef const Cmat3Doub &Cmat3Doub_I;
 typedef Cmat3Doub &Cmat3Doub_O, &Cmat3Doub_IO;
@@ -318,6 +370,10 @@ typedef Cmat3Doub &Cmat3Doub_O, &Cmat3Doub_IO;
 typedef Cmat3d<Comp> Cmat3Comp;
 typedef const Cmat3Comp &Cmat3Comp_I;
 typedef Cmat3Comp &Cmat3Comp_O, &Cmat3Comp_IO;
+
+typedef Cmat3d<Imag> Cmat3Imag;
+typedef const Cmat3Imag &Cmat3Imag_I;
+typedef Cmat3Imag &Cmat3Imag_O, &Cmat3Imag_IO;
 
 typedef Cmat4d<Int> Cmat4Int;
 typedef const Cmat4Int &Cmat4Int_I;
@@ -327,6 +383,10 @@ typedef Cmat4d<Long> Cmat4Long;
 typedef const Cmat4Long &Cmat4Long_I;
 typedef Cmat4Long &Cmat4Long_O, &Cmat4Long_IO;
 
+typedef Cmat4d<Llong> Cmat4Llong;
+typedef const Cmat4Llong &Cmat4Llong_I;
+typedef Cmat4Llong &Cmat4Llong_O, &Cmat4Llong_IO;
+
 typedef Cmat4d<Doub> Cmat4Doub;
 typedef const Cmat4Doub &Cmat4Doub_I;
 typedef Cmat4Doub &Cmat4Doub_O, &Cmat4Doub_IO;
@@ -334,6 +394,11 @@ typedef Cmat4Doub &Cmat4Doub_O, &Cmat4Doub_IO;
 typedef Cmat4d<Comp> Cmat4Comp;
 typedef const Cmat4Comp &Cmat4Comp_I;
 typedef Cmat4Comp &Cmat4Comp_O, &Cmat4Comp_IO;
+
+typedef Svector<Char> SvecChar;
+typedef SvecChar &SvecChar_O, &SvecChar_IO;
+typedef Svector_c<Char> SvecChar_c;
+typedef const SvecChar_c &SvecChar_I;
 
 typedef Svector<Int> SvecInt;
 typedef const SvecInt &SvecInt_I;
@@ -343,13 +408,19 @@ typedef Svector<Long> SvecLong;
 typedef const SvecLong &SvecLong_I;
 typedef SvecLong &SvecLong_O, &SvecLong_IO;
 
+typedef Svector<Llong> SvecLlong;
+typedef const SvecLlong &SvecLlong_I;
+typedef SvecLlong &SvecLlong_O, &SvecLlong_IO;
+
 typedef Svector<Doub> SvecDoub;
-typedef const SvecDoub &SvecDoub_I;
 typedef SvecDoub &SvecDoub_O, &SvecDoub_IO;
+typedef Svector_c<Doub> SvecDoub_c;
+typedef const SvecDoub_c &SvecDoub_I;
 
 typedef Svector<Comp> SvecComp;
-typedef const SvecComp &SvecComp_I;
 typedef SvecComp &SvecComp_O, &SvecComp_IO;
+typedef Svector_c<Comp> SvecComp_c;
+typedef const SvecComp_c &SvecComp_I;
 
 typedef Dvector<Int> DvecInt;
 typedef const DvecInt &DvecInt_I;
@@ -358,6 +429,10 @@ typedef DvecInt &DvecInt_O, &DvecInt_IO;
 typedef Dvector<Long> DvecLong;
 typedef const DvecLong &DvecLong_I;
 typedef DvecLong &DvecLong_O, &DvecLong_IO;
+
+typedef Dvector<Llong> DvecLlong;
+typedef const DvecLlong &DvecLlong_I;
+typedef DvecLlong &DvecLlong_O, &DvecLlong_IO;
 
 typedef Dvector<Doub> DvecDoub;
 typedef const DvecDoub &DvecDoub_I;
@@ -375,6 +450,10 @@ typedef Smat<Long> SmatLong;
 typedef const SmatLong &SmatLong_I;
 typedef SmatInt &SmatLong_O, &SmatLong_IO;
 
+typedef Smat<Llong> SmatLlong;
+typedef const SmatLlong &SmatLlong_I;
+typedef SmatInt &SmatLlong_O, &SmatLlong_IO;
+
 typedef Smat<Doub> SmatDoub;
 typedef const SmatDoub &SmatDoub_I;
 typedef SmatDoub &SmatDoub_O, &SmatDoub_IO;
@@ -384,20 +463,29 @@ typedef const SmatComp &SmatComp_I;
 typedef SmatComp &SmatComp_O, &SmatComp_IO;
 
 typedef Scmat<Int> ScmatInt;
-typedef const ScmatInt &ScmatInt_I;
 typedef ScmatInt &ScmatInt_O, &ScmatInt_IO;
+typedef Scmat_c<Int> ScmatInt_c;
+typedef const ScmatInt_c &ScmatInt_I;
 
 typedef Scmat<Long> ScmatLong;
-typedef const ScmatLong &ScmatLong_I;
 typedef ScmatInt &ScmatLong_O, &ScmatLong_IO;
+typedef Scmat_c<Long> ScmatLong_c;
+typedef const ScmatLong_c &ScmatLong_I;
+
+typedef Scmat<Llong> ScmatLlong;
+typedef ScmatInt &ScmatLlong_O, &ScmatLlong_IO;
+typedef Scmat_c<Llong> ScmatLlong_c;
+typedef const ScmatLlong_c &ScmatLlong_I;
 
 typedef Scmat<Doub> ScmatDoub;
-typedef const ScmatDoub &ScmatDoub_I;
 typedef ScmatDoub &ScmatDoub_O, &ScmatDoub_IO;
+typedef Scmat_c<Doub> ScmatDoub_c;
+typedef const ScmatDoub_c &ScmatDoub_I;
 
 typedef Scmat<Comp> ScmatComp;
-typedef const ScmatComp &ScmatComp_I;
 typedef ScmatComp &ScmatComp_O, &ScmatComp_IO;
+typedef Scmat_c<Comp> ScmatComp_c;
+typedef const ScmatComp_c &ScmatComp_I;
 
 typedef Dmat<Int> DmatInt;
 typedef const DmatInt &DmatInt_I;
@@ -406,6 +494,10 @@ typedef DmatInt &DmatInt_O, &DmatInt_IO;
 typedef Dmat<Long> DmatLong;
 typedef const DmatLong &DmatLong_I;
 typedef DmatInt &DmatLong_O, &DmatLong_IO;
+
+typedef Dmat<Llong> DmatLlong;
+typedef const DmatLlong &DmatLlong_I;
+typedef DmatInt &DmatLlong_O, &DmatLlong_IO;
 
 typedef Dmat<Doub> DmatDoub;
 typedef const DmatDoub &DmatDoub_I;
@@ -423,6 +515,10 @@ typedef Dcmat<Long> DcmatLong;
 typedef const DcmatLong &DcmatLong_I;
 typedef DcmatInt &DcmatLong_O, &DcmatLong_IO;
 
+typedef Dcmat<Llong> DcmatLlong;
+typedef const DcmatLlong &DcmatLlong_I;
+typedef DcmatInt &DcmatLlong_O, &DcmatLlong_IO;
+
 typedef Dcmat<Doub> DcmatDoub;
 typedef const DcmatDoub &DcmatDoub_I;
 typedef DcmatDoub &DcmatDoub_O, &DcmatDoub_IO;
@@ -438,6 +534,10 @@ typedef JcmatInt &JcmatInt_O, &JcmatInt_IO;
 typedef Jcmat<Long> JcmatLong;
 typedef const JcmatLong &JcmatLong_I;
 typedef JcmatInt &JcmatLong_O, &JcmatLong_IO;
+
+typedef Jcmat<Llong> JcmatLlong;
+typedef const JcmatLlong &JcmatLlong_I;
+typedef JcmatInt &JcmatLlong_O, &JcmatLlong_IO;
 
 typedef Jcmat<Doub> JcmatDoub;
 typedef const JcmatDoub &JcmatDoub_I;
@@ -455,6 +555,10 @@ typedef Jcmat3d<Long> Jcmat3Long;
 typedef const Jcmat3Long &Jcmat3Long_I;
 typedef Jcmat3Int &Jcmat3Long_O, &Jcmat3Long_IO;
 
+typedef Jcmat3d<Llong> Jcmat3Llong;
+typedef const Jcmat3Llong &Jcmat3Llong_I;
+typedef Jcmat3Int &Jcmat3Llong_O, &Jcmat3Llong_IO;
+
 typedef Jcmat3d<Doub> Jcmat3Doub;
 typedef const Jcmat3Doub &Jcmat3Doub_I;
 typedef Jcmat3Doub &Jcmat3Doub_O, &Jcmat3Doub_IO;
@@ -471,6 +575,10 @@ typedef Jcmat4d<Long> Jcmat4Long;
 typedef const Jcmat4Long &Jcmat4Long_I;
 typedef Jcmat4Int &Jcmat4Long_O, &Jcmat4Long_IO;
 
+typedef Jcmat4d<Llong> Jcmat4Llong;
+typedef const Jcmat4Llong &Jcmat4Llong_I;
+typedef Jcmat4Int &Jcmat4Llong_O, &Jcmat4Llong_IO;
+
 typedef Jcmat4d<Doub> Jcmat4Doub;
 typedef const Jcmat4Doub &Jcmat4Doub_I;
 typedef Jcmat4Doub &Jcmat4Doub_O, &Jcmat4Doub_IO;
@@ -486,6 +594,10 @@ typedef Scmat3Int &Scmat3Int_O, &Scmat3Int_IO;
 typedef Scmat3d<Long> Scmat3Long;
 typedef const Scmat3Long &Scmat3Long_I;
 typedef Scmat3Long &Scmat3Long_O, &Scmat3Long_IO;
+
+typedef Scmat3d<Llong> Scmat3Llong;
+typedef const Scmat3Llong &Scmat3Llong_I;
+typedef Scmat3Llong &Scmat3Llong_O, &Scmat3Llong_IO;
 
 typedef Scmat3d<Doub> Scmat3Doub;
 typedef const Scmat3Doub &Scmat3Doub_I;
@@ -559,6 +671,10 @@ typedef MatCoo<Long> McooLong;
 typedef const McooLong &McooLong_I;
 typedef McooLong &McooLong_O, &McooLong_IO;
 
+typedef MatCoo<Llong> McooLlong;
+typedef const McooLlong &McooLlong_I;
+typedef McooLlong &McooLlong_O, &McooLlong_IO;
+
 typedef MatCoo<Doub> McooDoub;
 typedef const McooDoub &McooDoub_I;
 typedef McooDoub &McooDoub_O, &McooDoub_IO;
@@ -590,6 +706,10 @@ typedef CmobdInt &CmobdInt_O, &CmobdInt_IO;
 typedef CmatObd<Doub> CmobdDoub;
 typedef const CmobdDoub &CmobdDoub_I;
 typedef CmobdDoub &CmobdDoub_O, &CmobdDoub_IO;
+
+typedef CmatObd<Imag> CmobdImag;
+typedef const CmobdImag &CmobdImag_I;
+typedef CmobdImag &CmobdImag_O, &CmobdImag_IO;
 
 typedef CmatObd<Comp> CmobdComp;
 typedef const CmobdComp &CmobdComp_I;
@@ -624,12 +744,12 @@ static const Doub NaN = std::numeric_limits<Doub>::quiet_NaN();
 #ifdef SLS_FP_EXCEPT
 #ifdef _MSC_VER
 struct turn_on_floating_exceptions {
-	turn_on_floating_exceptions() {
-		int cw = _controlfp(0, 0);
-		// also: EM_INEXACT, EM_UNDERFLOW
-		cw &= ~(EM_INVALID | EM_OVERFLOW | EM_ZERODIVIDE | EM_DENORMAL);
-		_controlfp(cw, MCW_EM);
-	}
+    turn_on_floating_exceptions() {
+        int cw = _controlfp(0, 0);
+        // also: EM_INEXACT, EM_UNDERFLOW
+        cw &= ~(EM_INVALID | EM_OVERFLOW | EM_ZERODIVIDE | EM_DENORMAL);
+        _controlfp(cw, MCW_EM);
+    }
 };
 // in case of ODR error, put this in main function;
 // turn_on_floating_exceptions yes_turn_on_floating_exceptions;turn_on_floating_exceptions yes_turn_on_floating_exceptions;
@@ -638,12 +758,12 @@ struct turn_on_floating_exceptions {
 
 // === constants ===
 
-const Doub PI = 3.14159265358979323;
-const Doub E = 2.71828182845904524;
-const Comp I(0., 1.);
+constexpr Doub PI = 3.14159265358979323;
+constexpr Doub E = 2.71828182845904524;
 
 // report error and pause execution
-#define SLS_ERR(str) do{cout << "error: " << __FILE__ << ": line " << __LINE__ << ": " << str << endl; getchar();} while(0)
+void pause(Doub_I t);
+#define SLS_ERR(str) do{cout << "error: " << __FILE__ << ": line " << __LINE__ << ": " << str << endl; pause(20);} while(0)
 
 #define SLS_WARN(str) do{cout << "warning: " << __FILE__ << ": line " << __LINE__ << ": " << str << endl;} while(0)
 
