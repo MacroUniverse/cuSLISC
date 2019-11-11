@@ -101,13 +101,13 @@ void test_matrix()
 		if (abs(aDoub(3) - 2.) > 2e-15) SLS_ERR("failed!");
 	}
 
-	// operator[]
+	// operator()
 	{
 		MatDoub aDoub(2,2); aDoub(0) = 1.1; aDoub(1) = 2.2; aDoub(2) = 3.3; aDoub(3) = 4.4;
 		GmatDoub gaDoub(aDoub);
-		if (gaDoub[0][0] != 1.1 || gaDoub[0][1] != 2.2) SLS_ERR("failed!");
-		if (gaDoub[1][0] != 3.3 || gaDoub[1][1] != 4.4) SLS_ERR("failed!");
-		gaDoub[0][0] *= 4.; gaDoub[0][1] -= 2.2; gaDoub[1][0] += 1.1; gaDoub[1][1] /= 2.2;
+		if (gaDoub(0,0) != 1.1 || gaDoub(0,1) != 2.2) SLS_ERR("failed!");
+		if (gaDoub(1,0) != 3.3 || gaDoub(1,1) != 4.4) SLS_ERR("failed!");
+		gaDoub(0,0) *= 4.; gaDoub(0,1) -= 2.2; gaDoub(1,0) += 1.1; gaDoub(1,1) /= 2.2;
 		aDoub = gaDoub;
 		if (abs(aDoub(0) - 4.4) > 2e-15) SLS_ERR("failed!");
 		if (abs(aDoub(1)) > 2e-15) SLS_ERR("failed!");
