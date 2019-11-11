@@ -104,7 +104,7 @@ public:
 	void bind(T1* ptr) { p = ptr; };
 	T1* ptr() { return p; }
 	const T1* ptr() const { return p; }
-	inline operator T() const;
+	inline operator T() const; // convert to type T
 	inline Gref& operator=(const T& rhs);
 	template <typename T1>
 	inline Gref& operator+=(const T1& rhs) { *this = T(*this) + rhs; return *this; }

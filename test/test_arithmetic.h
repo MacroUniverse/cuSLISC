@@ -1,8 +1,8 @@
 #include "../cuSLISC/arithmetic.h"
 #include "../SLISC/disp.h"
 
-// test basic operations
-void test_basic()
+// test arithmetics
+void test_arithmetic()
 {
 	using namespace slisc;
 	// v += v; v -= v; v *= v; v /= v

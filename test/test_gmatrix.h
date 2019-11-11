@@ -3,7 +3,7 @@
 #include "../SLISC/arithmetic.h"
 #include "../SLISC/disp.h"
 
-void test_matrix()
+void test_gmatrix()
 {
 	using namespace slisc;
 	// default initialize

@@ -1,10 +1,11 @@
 // test all cuda function
 #include "test/test_global.h"
-#include "test/test_vector.h"
 #include "test/test_complex.h"
-#include "test/test_matrix.h"
-#include "test/test_mat3d.h"
-#include "test/test_basic.h"
+#include "test/test_gvector.h"
+#include "test/test_gmatrix.h"
+#include "test/test_gcmat.h"
+#include "test/test_gmat3d.h"
+#include "test/test_arithmetic.h"
 
 using std::cout; using std::endl;
 
@@ -29,17 +30,19 @@ int main()
 	test();
 
 	// systematic tests
-	cout << "test gpu global var..." << endl;
+	cout << "test_global()" << endl;
 	test_global();
-	cout << "test scalar and vector..." << endl;
-	test_vector();
-	cout << "test complex..." << endl;
+	cout << "test_gvector()" << endl;
+	test_gvector();
+	cout << "test_complex()" << endl;
 	test_complex();
-	cout << "test matrix..." << endl;
-	test_matrix();
-	cout << "test mat3d..." << endl;
-	test_mat3d();
-	cout << "test basic..." << endl;
-	test_basic();
+	cout << "test_gmatrix()" << endl;
+	test_gmatrix();
+	cout << "test_gcmat()" << endl;
+	test_gcmat();
+	cout << "test_gmat3d()" << endl;
+	test_gmat3d();
+	cout << "test_arithmetic()" << endl;
+	test_arithmetic();
 	cout << "done testing!" << endl;
 }

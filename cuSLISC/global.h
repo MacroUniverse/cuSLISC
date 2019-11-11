@@ -14,6 +14,7 @@ template <typename T> class Gscalar;
 template <typename T> class Gbase;
 template <typename T> class Gvector;
 template <typename T> class Gmatrix;
+template <typename T> class Gcmat;
 template <typename T> class Gmat3d;
 
 typedef const Gscalar<Int> Gint_I;
@@ -84,20 +85,11 @@ typedef Gvector<Bool> GvecBool, GvecBool_O, GvecBool_IO;
 typedef const Gmatrix<Int> GmatInt_I;
 typedef Gmatrix<Int> GmatInt, GmatInt_O, GmatInt_IO;
 
-typedef const Gmatrix<Uint> GmatUint_I;
-typedef Gmatrix<Uint> GmatUint, GmatUint_O, GmatUint_IO;
-
 typedef const Gmatrix<Llong> GmatLlong_I;
 typedef Gmatrix<Llong> GmatLlong, GmatLlong_O, GmatLlong_IO;
 
-typedef const Gmatrix<Ullong> GmatUllong_I;
-typedef Gmatrix<Ullong> GmatUllong, GmatUllong_O, GmatUllong_IO;
-
 typedef const Gmatrix<Char> GmatChar_I;
 typedef Gmatrix<Char> GmatChar, GmatChar_O, GmatChar_IO;
-
-typedef const Gmatrix<Uchar> GmatUchar_I;
-typedef Gmatrix<Uchar> GmatUchar, GmatUchar_O, GmatUchar_IO;
 
 typedef const Gmatrix<Doub> GmatDoub_I;
 typedef Gmatrix<Doub> GmatDoub, GmatDoub_O, GmatDoub_IO;
@@ -107,6 +99,24 @@ typedef Gmatrix<Comp> GmatComp, GmatComp_O, GmatComp_IO;
 
 typedef const Gmatrix<Bool> GmatBool_I;
 typedef Gmatrix<Bool> GmatBool, GmatBool_O, GmatBool_IO;
+
+typedef const Gcmat<Char> GcmatChar_I;
+typedef Gcmat<Char> GcmatChar, GcmatChar_O, GcmatChar_IO;
+
+typedef const Gcmat<Int> GcmatInt_I;
+typedef Gcmat<Int> GcmatInt, GcmatInt_O, GcmatInt_IO;
+
+typedef const Gcmat<Llong> GcmatLlong_I;
+typedef Gcmat<Llong> GcmatLlong, GcmatLlong_O, GcmatLlong_IO;
+
+typedef const Gcmat<Doub> GcmatDoub_I;
+typedef Gcmat<Doub> GcmatDoub, GcmatDoub_O, GcmatDoub_IO;
+
+typedef const Gcmat<Comp> GcmatComp_I;
+typedef Gcmat<Comp> GcmatComp, GcmatComp_O, GcmatComp_IO;
+
+typedef const Gcmat<Bool> GcmatBool_I;
+typedef Gcmat<Bool> GcmatBool, GcmatBool_O, GcmatBool_IO;
 
 typedef const Gmat3d<Doub> Gmat3Doub_I;
 typedef Gmat3d<Doub> Gmat3Doub, Gmat3Doub_O, Gmat3Doub_IO;

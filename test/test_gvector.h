@@ -3,7 +3,7 @@
 #include "../SLISC/arithmetic.h"
 #include "../SLISC/disp.h"
 
-void test_vector()
+void test_gvector()
 {
 	using namespace slisc;
 	using std::cout; using std::endl;
