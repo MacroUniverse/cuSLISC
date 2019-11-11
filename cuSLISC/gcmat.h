@@ -69,7 +69,7 @@ inline Long Gcmat<T>::n2() const
 template <typename T> template <typename T1>
 inline void Gcmat<T>::get(Cmat<T1> &a) const
 {
-#ifdef _CHECKTYPE_
+#ifdef CUSLS_CHECKTYPE
 	if (sizeof(T) != sizeof(T1))
 		SLS_ERR("wrong type size!");
 #endif
@@ -100,8 +100,8 @@ inline Gcmat<T> & Gcmat<T>::operator=(const Cmat<T> &rhs)
 template <typename T>
 inline Gref<T> Gcmat<T>::operator()(Long_I i, Long_I j)
 {
-#ifdef _CHECKBOUNDS_
-	if (i<0 || i>=m_N1, j<0 || j>=m_N2)
+#ifdef CUSLS_CHECKBOUNDS
+	if (i<0 || i>=m_N1 || j<0 || j>=m_N2)
 		SLS_ERR("Gcmat subscript out of bounds!");
 #endif
 	return (*this)[i+m_N1*j];
@@ -110,8 +110,8 @@ inline Gref<T> Gcmat<T>::operator()(Long_I i, Long_I j)
 template <typename T>
 inline const Gref<T> Gcmat<T>::operator()(Long_I i, Long_I j) const
 {
-#ifdef _CHECKBOUNDS_
-	if (i<0 || i>=m_N1, j<0 || j>=m_N2)
+#ifdef CUSLS_CHECKBOUNDS
+	if (i<0 || i>=m_N1 || j<0 || j>=m_N2)
 		SLS_ERR("Gcmat subscript out of bounds!");
 #endif
 	return (*this)[i+m_N1*j];

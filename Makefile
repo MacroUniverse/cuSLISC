@@ -2,7 +2,7 @@
 
 exe = main.x
 gputype = -D CUSLISC_GTX1080
-debug = -D _CHECKSETSYS_ -D _CHECKBOUND_ -D _CHECKTYPE_
+debug = -D CUSLS_CHECKSETSYS -D CUSLS_CHECKBOUNDS -D CUSLS_CHECKTYPE
 
 source = main.cu # SLISC/print.cpp
 objects = main.o # print.o

@@ -50,7 +50,7 @@ inline void Gbase<T>::resize(Long_I n)
 template <typename T>
 inline Gref<T> Gbase<T>::operator[](Long_I i)
 {
-#ifdef _CHECKBOUNDS_
+#ifdef CUSLS_CHECKBOUNDS
 if (i<0 || i>=m_N)
 	SLS_ERR("Gbase subscript out of bounds!");
 #endif
@@ -60,7 +60,7 @@ if (i<0 || i>=m_N)
 template <typename T>
 inline const Gref<T> Gbase<T>::operator[](Long_I i) const
 {
-#ifdef _CHECKBOUNDS_
+#ifdef CUSLS_CHECKBOUNDS
 if (i<0 || i>=m_N)
 	SLS_ERR("Gbase subscript out of bounds!");
 #endif
@@ -82,7 +82,7 @@ inline const Gref<T> Gbase<T>::operator()(Long_I i) const
 template <typename T>
 inline Gref<T> Gbase<T>::end()
 {
-#ifdef _CHECKBOUNDS_
+#ifdef CUSLS_CHECKBOUNDS
 	if (m_N < 1)
 		SLS_ERR("Using end() for empty object!");
 #endif
@@ -92,7 +92,7 @@ inline Gref<T> Gbase<T>::end()
 template <typename T>
 inline const Gref<T> Gbase<T>::end() const
 {
-#ifdef _CHECKBOUNDS_
+#ifdef CUSLS_CHECKBOUNDS
 	if (m_N < 1)
 		SLS_ERR("Using end() for empty object!");
 #endif
@@ -171,7 +171,7 @@ inline Gvector<T> & Gvector<T>::operator=(const Vector<T> &v)
 template <typename T> template <typename T1>
 inline void Gvector<T>::get(Vector<T1> &v) const
 {
-#ifdef _CHECKTYPE_
+#ifdef CUSLS_CHECKTYPE
 	if (sizeof(T) != sizeof(T1))
 		SLS_ERR("wrong type size!");
 #endif

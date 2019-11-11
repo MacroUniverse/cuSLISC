@@ -53,7 +53,7 @@ inline Comp getsym(Cump_I &sym)
 // {
 // 	T val1; val1 = (T)val;
 // 	cudaMemcpyToSymbol(sym, &val1, sizeof(T));
-// #ifdef SLISC_CHECKSETSYS
+// #ifdef CUSLS_CHECKSETSYS
 // 	if (getsym(sym) != val1)
 //		SLS_ERR("failed!");
 // #endif
@@ -63,7 +63,7 @@ template <typename T>
 inline void setsym(T &sym, const T &val)
 {
 	cudaMemcpyToSymbol(sym, &val, sizeof(T));
-#ifdef SLISC_CHECKSETSYS
+#ifdef CUSLS_CHECKSETSYS
 	if (getsym(sym) != val)
 		SLS_ERR("failed!");
 #endif
@@ -72,7 +72,7 @@ inline void setsym(T &sym, const T &val)
 inline void setsym(Cump &sym, Comp_I &val)
 {
 	cudaMemcpyToSymbol(sym, &val, sizeof(Comp));
-#ifdef SLISC_CHECKSETSYS
+#ifdef CUSLS_CHECKSETSYS
 	if ( getsym(sym) != val )
 		SLS_ERR("failed!");
 #endif

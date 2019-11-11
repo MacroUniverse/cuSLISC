@@ -77,7 +77,7 @@ inline Long Gmat3d<T>::n3() const
 template <typename T> template <typename T1>
 inline void Gmat3d<T>::get(Mat3d<T1> &a) const
 {
-#ifdef _CHECKTYPE_
+#ifdef CUSLS_CHECKTYPE
 	if (sizeof(T) != sizeof(T1))
 		SLS_ERR("wrong type size");
 #endif
@@ -108,7 +108,7 @@ inline Gmat3d<T> & Gmat3d<T>::operator=(const Mat3d<T> &rhs)
 template <typename T>
 inline Gref<T> Gmat3d<T>::operator()(Long_I i, Long_I j, Long_I k)
 {
-#ifdef _CHECKBOUNDS_
+#ifdef CUSLS_CHECKBOUNDS
 	if (i<0 || i>=m_N1 || j<0 || j>=m_N2 || k<0 || k>=m_N3)
 		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
@@ -118,7 +118,7 @@ inline Gref<T> Gmat3d<T>::operator()(Long_I i, Long_I j, Long_I k)
 template <typename T>
 inline const Gref<T> Gmat3d<T>::operator()(Long_I i, Long_I j, Long_I k) const
 {
-#ifdef _CHECKBOUNDS_
+#ifdef CUSLS_CHECKBOUNDS
 	if (i<0 || i>=m_N1 || j<0 || j>=m_N2 || k<0 || k>=m_N3)
 		SLS_ERR("Gmatrix subscript out of bounds!");
 #endif
