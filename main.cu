@@ -5,6 +5,7 @@
 #include "test/test_gmatrix.h"
 #include "test/test_gcmat.h"
 #include "test/test_gmat3d.h"
+#include "test/test_gcmat3d.h"
 #include "test/test_arithmetic.h"
 
 using std::cout; using std::endl;
@@ -42,6 +43,8 @@ int main()
 	test_gcmat();
 	cout << "test_gmat3d()" << endl;
 	test_gmat3d();
+	cout << "test_gcmat3d()" << endl;
+	test_gcmat3d();
 	cout << "test_arithmetic()" << endl;
 	test_arithmetic();
 	cout << "done testing!" << endl;

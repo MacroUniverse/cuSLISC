@@ -16,6 +16,7 @@ template <typename T> class Gvector;
 template <typename T> class Gmatrix;
 template <typename T> class Gcmat;
 template <typename T> class Gmat3d;
+template <typename T> class Gcmat3d;
 
 typedef const Gscalar<Int> Gint_I;
 typedef Gscalar<Int> Gint, Gint_O, Gint_IO;
@@ -124,5 +125,10 @@ typedef Gmat3d<Doub> Gmat3Doub, Gmat3Doub_O, Gmat3Doub_IO;
 typedef const Gmat3d<Comp> Gmat3Comp_I;
 typedef Gmat3d<Comp> Gmat3Comp, Gmat3Comp_O, Gmat3Comp_IO;
 
+typedef const Gcmat3d<Doub> Gcmat3Doub_I;
+typedef Gcmat3d<Doub> Gcmat3Doub, Gcmat3Doub_O, Gcmat3Doub_IO;
+
+typedef const Gcmat3d<Comp> Gcmat3Comp_I;
+typedef Gcmat3d<Comp> Gcmat3Comp, Gcmat3Comp_O, Gcmat3Comp_IO;
 
 } // namespace slisc

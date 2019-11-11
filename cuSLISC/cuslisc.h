@@ -8,4 +8,5 @@
 #include "gmatrix.h"
 #include "gcmat.h"
 #include "gmat3d.h"
+#include "gcmat3d.h"
 // #include "gcmat3d.h"
