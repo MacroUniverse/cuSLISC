@@ -175,7 +175,7 @@ class  complex<double>
     double __im_;
 public:
     typedef double value_type;
-    CUDA_CALLABLE_MEMBER complex(){}
+    CUDA_CALLABLE_MEMBER complex() = default;
     CUDA_CALLABLE_MEMBER complex(double __re)
         : __re_(__re), __im_(0.) {}
     /*constexpr*/ CUDA_CALLABLE_MEMBER complex(double __re, double __im)
@@ -446,18 +446,18 @@ operator/(const complex<float>& __z, const complex<float>& __w)
     {
         if ((__denom == float(0)) && (!isnan(__a) || !isnan(__b)))
         {
-#pragma warning(suppress: 4756) // Ignore INFINITY related warning
+
             __x = copysignf(INFINITY, __c) * __a;
-#pragma warning(suppress: 4756) // Ignore INFINITY related warning
+
             __y = copysignf(INFINITY, __c) * __b;
         }
         else if ((isinf(__a) || isinf(__b)) && isfinite(__c) && isfinite(__d))
         {
             __a = copysignf(isinf(__a) ? float(1) : float(0), __a);
             __b = copysignf(isinf(__b) ? float(1) : float(0), __b);
-#pragma warning(suppress: 4756) // Ignore INFINITY related warning
+
             __x = INFINITY * (__a * __c + __b * __d);
-#pragma warning(suppress: 4756) // Ignore INFINITY related warning
+
             __y = INFINITY * (__b * __c - __a * __d);
         }
         else if (isinf(__logbw) && __logbw > float(0) && isfinite(__a) && isfinite(__b))
@@ -884,11 +884,12 @@ acosh(const complex<_Tp>& __x)
     {
         if (isnan(__x.imag()))
             return complex<_Tp>(fabs(__x.real()), __x.imag());
-        if (isinf(__x.imag()))
+        if (isinf(__x.imag())) {
             if (__x.real() > 0)
                 return complex<_Tp>(__x.real(), copysign(__pi * _Tp(0.25), __x.imag()));
             else
                 return complex<_Tp>(-__x.real(), copysign(__pi * _Tp(0.75), __x.imag()));
+        }
         if (__x.real() < 0)
             return complex<_Tp>(-__x.real(), copysign(__pi, __x.imag()));
         return complex<_Tp>(__x.real(), copysign(_Tp(0), __x.imag()));
